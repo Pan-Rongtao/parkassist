@@ -1,13 +1,13 @@
 #include "newbrush/gles/RenderObject.h"
 #include <GLES2/gl2.h>
-#include "newbrush/core/Log.h"
+//#include "newbrush/core/Log.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
-#ifdef WIN32
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
-#endif
+//#ifdef WIN32
+//#include "assimp/Importer.hpp"
+//#include "assimp/scene.h"
+//#include "assimp/postprocess.h"
+//#endif
 
 using namespace nb;
 
@@ -30,7 +30,7 @@ RenderObject::RenderObject(std::shared_ptr<Model> model, std::shared_ptr<Program
 
 void RenderObject::loadFromFile(const std::string &modelPath, const std::string &picPath)
 {
-#ifdef WIN32
+#if 0
 	m_model = std::make_shared<Model>();
 	Assimp::Importer importer;
 	//const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_FlipUVs);
@@ -138,7 +138,7 @@ void RenderObject::draw(const Camera &camera, const Projection &projection) cons
 		else if (v.is_type<std::vector<glm::ivec2>>())	program->uniform(location, v.get_value<std::vector<glm::ivec2>>());
 		else if (v.is_type<std::vector<glm::ivec3>>())	program->uniform(location, v.get_value<std::vector<glm::ivec3>>());
 		else if (v.is_type<std::vector<glm::ivec4>>())	program->uniform(location, v.get_value<std::vector<glm::ivec4>>());
-		else											Log::warn("%s is not a supported type for glsl.", v.get_type().get_name().data());
+		else											printf("%s is not a supported type for glsl.", v.get_type().get_name().data());
 	}
 	//ÒÀ´Î»æÖÆmeshs
 	for (auto const &mesh : m_model->meshes)
@@ -173,7 +173,7 @@ void RenderObject::draw(const Camera &camera, const Projection &projection) cons
 
 void RenderObject::loopNode(aiNode * node, const aiScene * scene, const std::string &picPath)
 {
-#ifdef WIN32
+#if 0
 	static auto mat4_from_aimatrix4x4 = [](aiMatrix4x4 matrix) -> glm::mat4 {
 		glm::mat4 res;
 		for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) res[j][i] = matrix[i][j];
@@ -197,7 +197,7 @@ Mesh RenderObject::processMesh(aiMesh * mesh, const aiScene * scene, const std::
 	std::vector<Vertex> vertexs;
 	std::vector<uint16_t> indices;
 	Material ma;
-#ifdef WIN32
+#if 0
 	for (int i = 0; i != mesh->mNumVertices; ++i)
 	{
 		Vertex ver;

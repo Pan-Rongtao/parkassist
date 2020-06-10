@@ -14,7 +14,7 @@
 #pragma once
 #include <string>
 #include "newbrush/gles/Texture.h"
-#include "newbrush/media/Bitmap.h"
+//#include "newbrush/media/Bitmap.h"
 
 namespace nb{
 
@@ -32,7 +32,7 @@ public:
 	Texture2D(unsigned int width, unsigned int height);
 
 	//构建一个2D纹理对象，它将从内存载入数据
-	Texture2D(const Bitmap &bm);
+//	Texture2D(const Bitmap &bm);
 
 	virtual ~Texture2D() = default;
 

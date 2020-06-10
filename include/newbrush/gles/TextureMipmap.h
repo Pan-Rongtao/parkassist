@@ -28,7 +28,7 @@ public:
 	void generate();
 
 public:
-	TextureMipmap(const Bitmap &bm);
+//	TextureMipmap(const Bitmap &bm);
 	~TextureMipmap();
 };
 

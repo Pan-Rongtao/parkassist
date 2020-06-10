@@ -19,12 +19,15 @@
 #include "newbrush/gles/Projection.h"
 #include "newbrush/gles/Texture2D.h"
 #include "newbrush/gles/TextureMipmap.h"
+#include "rttr/variant.h"
 
 struct aiNode;
 struct aiMesh;
 struct aiScene;
 namespace nb{
 	
+using var = rttr::variant;
+
 class NB_API RenderObject
 {
 public:

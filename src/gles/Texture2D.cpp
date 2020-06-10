@@ -21,19 +21,19 @@ Texture2D::Texture2D(unsigned int width, unsigned int height)
 	setWrapping(TextureWrapping());
 	setFilter(TextureFilter());
 }
-
-Texture2D::Texture2D(const Bitmap &bm)
-	: Texture2D()
-{
-	int glFormat;
-	int glType;
-	bitmapFormatToGlFormat(bm.channels(), glFormat, glType);
-	bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, glFormat, bm.width(), bm.height(), 0, glFormat, glType, bm.data());
-	unbind();
-	m_width = bm.width();
-	m_height = bm.height();
-}
+//
+//Texture2D::Texture2D(const Bitmap &bm)
+//	: Texture2D()
+//{
+//	int glFormat;
+//	int glType;
+//	bitmapFormatToGlFormat(bm.channels(), glFormat, glType);
+//	bind();
+//	glTexImage2D(GL_TEXTURE_2D, 0, glFormat, bm.width(), bm.height(), 0, glFormat, glType, bm.data());
+//	unbind();
+//	m_width = bm.width();
+//	m_height = bm.height();
+//}
 
 void Texture2D::bind()
 {
