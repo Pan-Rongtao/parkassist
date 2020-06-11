@@ -98,17 +98,17 @@ void RenderObject::draw(const Camera &camera, const Projection &projection) cons
 	auto &program = m_program;
 	program->use();
 	m_model->preprocess();
+
 	//计算后的mvp，以及分开的m/v/p
-	{
-		auto const &m = m_model->matrix;
-		auto const &v = camera.matrix;
-		auto const &p = projection.matrix;
-		auto mvp = p * v * m;
-		program->uniform(program->getUniformLocation(Program::nbMvpStr), mvp);
-		program->uniform(program->getUniformLocation(Program::nbMStr), m);
-		program->uniform(program->getUniformLocation(Program::nbVStr), v);
-		program->uniform(program->getUniformLocation(Program::nbPStr), p);
-	}
+	auto const &m = m_model->matrix;
+	auto const &v = camera.matrix;
+	auto const &p = projection.matrix;
+	auto mvp = p * v * m;
+	program->uniform(program->getUniformLocation(Program::nbMvpStr), mvp);
+	program->uniform(program->getUniformLocation(Program::nbMStr), m);
+	program->uniform(program->getUniformLocation(Program::nbVStr), v);
+	program->uniform(program->getUniformLocation(Program::nbPStr), p);
+
 	//storage中的uniform
 	for (auto const &iter : m_uniforms)
 	{

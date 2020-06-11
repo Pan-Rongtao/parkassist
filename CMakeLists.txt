@@ -7,7 +7,7 @@ cmake_policy(VERSION 2.6)
 
 # 1. Project Name
 
-project(newbrush)
+project(parkassist)
 
 # 2. Env (Include/Lib Path, C/CXX/LD FLAGS)
 set(CMAKE_DEBUG_POSTFIX d)
