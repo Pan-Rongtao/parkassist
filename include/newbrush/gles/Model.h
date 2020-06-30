@@ -95,6 +95,8 @@ public:
 	void operator = (const Model &&other);
 	virtual ~Model() = default;
 
+	void unifyColor(const glm::vec4 &color);
+
 	//渲染前指令
 	virtual void preprocess();
 

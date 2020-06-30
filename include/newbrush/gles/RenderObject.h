@@ -41,9 +41,6 @@ public:
 	RenderObject(std::shared_ptr<Model> model, std::shared_ptr<Program> program);
 
 public:	
-	//从文件中加载
-	void loadFromFile(const std::string &modelPath, const std::string &picPath = "");
-
 	//设置是否可渲染，这将决定物体是否绘制
 	void setRenderable(bool bRenderable);
 
@@ -63,15 +60,48 @@ public:
 	std::shared_ptr<Program> program();
 
 	//存储uniform变量，以便下次刷新使用
-	void storeUniform(const std::string &name, const var &v);
+	template<class T>
+	void storeUniform(const std::string &name, const T &v)
+	{
+		static_assert(
+			std::is_same<T, short>::value ||
+			std::is_same<T, unsigned short>::value ||
+			std::is_same<T, int>::value ||
+			std::is_same<T, unsigned int>::value ||
+			std::is_same<T, long>::value ||
+			std::is_same<T, unsigned long>::value ||
+			std::is_same<T, float>::value ||
+			std::is_same<T, double>::value ||
+			std::is_same<T, glm::vec2>::value ||
+			std::is_same<T, glm::vec3>::value ||
+			std::is_same<T, glm::vec4>::value ||
+			std::is_same<T, glm::ivec2>::value ||
+			std::is_same<T, glm::ivec3>::value ||
+			std::is_same<T, glm::ivec4>::value ||
+			std::is_same<T, glm::mat2x2>::value ||
+			std::is_same<T, glm::mat3x3>::value ||
+			std::is_same<T, glm::mat4x4>::value ||
+
+			std::is_same<T, std::vector<float>>::value ||
+			std::is_same<T, std::vector<glm::vec2>>::value ||
+			std::is_same<T, std::vector<glm::vec3>>::value ||
+			std::is_same<T, std::vector<glm::vec4>>::value ||
+			std::is_same<T, std::vector<int>>::value ||
+			std::is_same<T, std::vector<glm::ivec2>>::value ||
+			std::is_same<T, std::vector<glm::ivec3>>::value ||
+			std::is_same<T, std::vector<glm::ivec4>>::value ||
+			std::is_same<T, std::vector<glm::mat2x2>>::value ||
+			std::is_same<T, std::vector<glm::mat3x3>>::value ||
+			std::is_same<T, std::vector<glm::mat4x4>>::value
+			, "only support type[short, int, long, float, double, vec2, vec3, vec4, mat2x2, mat3x3, mat4x4 or their vector types].");
+
+		m_uniforms[name] = v;
+	}
 	
 	//绘制，重写此方法以构建自己的渲染方式
 	virtual void draw(const Camera &camera, const Projection &projection) const;
 
 private:
-	void loopNode(aiNode * node, const aiScene * scene, const std::string &picPath);
-	Mesh processMesh(aiMesh * mesh, const aiScene * scene, const std::string &picPath);
-
 	std::shared_ptr<Model>		m_model;
 	std::shared_ptr<Program>	m_program;
 	std::map<std::string, var>	m_uniforms;

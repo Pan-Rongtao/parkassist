@@ -179,6 +179,14 @@ void Model::operator=(const Model && other)
 	mode = other.mode;
 }
 
+void Model::unifyColor(const glm::vec4 & color)
+{
+	for (auto &mesh : meshes)
+	{
+		mesh.unifyColor(color);
+	}
+}
+
 void Model::preprocess()
 {
 	glDisable(GL_CULL_FACE);

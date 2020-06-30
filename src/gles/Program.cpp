@@ -240,16 +240,20 @@ std::shared_ptr<Program> Programs::primitive()
 
 	constexpr char vs[] =
 		"attribute vec4 nbPos;"
+		"attribute vec4 nbColor;"
+		"varying vec4 vary_color;"
 		"uniform mat4 nbMvp;"
 		"void main()"
 		"{"
+		"	vary_color = nbColor;"
 		"	gl_Position = nbMvp * nbPos;"
 		"}";
 	constexpr char fs[] =
 		"uniform vec4 color;"
+		"varying vec4 vary_color;"
 		"void main()"
 		"{"
-		"	gl_FragColor = color;"
+		"	gl_FragColor = vary_color;"
 		"}";
 	p = compileBindLink(vs, fs);
 	return p;
