@@ -6,6 +6,7 @@
 #include "newbrush/gles/RenderObject.h"
 #include "newbrush/gles/Polygon.h"
 #include "Parser.h"
+#include "spdlog/spdlog.h"
 
 using namespace nb;
 
@@ -31,7 +32,7 @@ void makePolygon()
 	{
 		glm::vec2(89, 366), glm::vec2(130, 312),glm::vec2(176, 262),
 	};
-	auto polygon = std::make_shared<Polygon>();
+	auto polygon = std::make_shared<nb::Polygon>();
 	polygon->setPoint(side0, side1);
 	auto renderObj = std::make_shared<RenderObject>(polygon, Programs::primitive());
 	renderObj->storeUniform("color", glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -46,12 +47,20 @@ TEST_CASE("Test Scene1", "[Scene1]")
 	Application app;
 	Window w(800, 600, "Scene1");
 
+	Programs::primitive();
+
 	Parser parser;
 	parser.setDir("D:/github/Parkassist/examples/newbrush-tests/states");
 	bool b = parser.parse();
 
-	makePolygon();
-	//makeRect();
-
-	app.run(0, nullptr);
+	if (b)
+	{
+		auto const &states = parser.drawingStates();
+		if (!states.empty())
+		{
+			Application::current()->drawContext.renderers() = states[0];
+		}
+		//makePolygon();
+		app.run(0, nullptr);
+	}
 }

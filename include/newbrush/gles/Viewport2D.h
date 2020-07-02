@@ -15,6 +15,8 @@ public:
 	//入列一个渲染物
 	void queue(std::shared_ptr<RenderObject> renderObject);
 
+	std::vector<std::shared_ptr<RenderObject>> &renderers();
+
 	//渲染所有渲染物
 	void draw();
 

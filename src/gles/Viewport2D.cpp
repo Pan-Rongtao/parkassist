@@ -15,6 +15,11 @@ void Viewport2D::queue(std::shared_ptr<RenderObject> renderObject)
 		m_renderObjects.push_back(renderObject);
 }
 
+std::vector<std::shared_ptr<RenderObject>>& Viewport2D::renderers()
+{
+	return m_renderObjects;
+}
+
 void Viewport2D::draw()
 {
 	for (auto ro : m_renderObjects)
