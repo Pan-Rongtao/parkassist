@@ -6,7 +6,7 @@ project(examples)
 
 # 3. Sub Projects
 
-add_subdirectory(newbrush-tests)
+add_subdirectory(tests)
 
 
 # 5. Project Install

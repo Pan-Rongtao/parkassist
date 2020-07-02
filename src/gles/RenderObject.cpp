@@ -1,13 +1,7 @@
-#include "newbrush/gles/RenderObject.h"
+#include "parkassist/gles/RenderObject.h"
 #include <GLES2/gl2.h>
-//#include "newbrush/core/Log.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
-//#ifdef WIN32
-//#include "assimp/Importer.hpp"
-//#include "assimp/scene.h"
-//#include "assimp/postprocess.h"
-//#endif
 
 using namespace nb;
 

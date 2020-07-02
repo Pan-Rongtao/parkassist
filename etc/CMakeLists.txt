@@ -10,4 +10,4 @@ project(include)
 
 
 # 5. Project Install
-install(DIRECTORY parkassist DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY states-scene1 DESTINATION ${CMAKE_INSTALL_ETCDIR})

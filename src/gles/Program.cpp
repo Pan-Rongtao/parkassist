@@ -1,5 +1,5 @@
-#include "newbrush/gles/Program.h"
-#include "newbrush/gles/Shader.h"
+#include "parkassist/gles/Program.h"
+#include "parkassist/gles/Shader.h"
 #include <GLES2/gl2.h>
 #include <cstring>
 #include <glm/gtc/type_ptr.hpp>

@@ -12,9 +12,9 @@
 ********************************************************/
 #pragma once
 #include <vector>
-#include "newbrush/gles/Def.h"
-#include "newbrush/gles/Program.h"
-#include "newbrush/gles/Texture.h"
+#include "parkassist/gles/Def.h"
+#include "parkassist/gles/Program.h"
+#include "parkassist/gles/Texture.h"
 
 namespace nb{
 

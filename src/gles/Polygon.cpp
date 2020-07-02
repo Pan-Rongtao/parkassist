@@ -1,4 +1,4 @@
-#include "newbrush/gles/Polygon.h"
+#include "parkassist/gles/Polygon.h"
 #include "bezier.h"
 
 using namespace nb;
@@ -34,12 +34,12 @@ void Polygon::setPoint(const std::vector<glm::vec2>& side0, const std::vector<gl
 	auto x = 0;
 	for (size_t i = 0; i < indices.size() / 6; ++i)
 	{
-		indices[x++] = (2 * i + 0);
-		indices[x++] = (2 * i + 1);
-		indices[x++] = (2 * i + 3);
-		indices[x++] = (2 * i + 0);
-		indices[x++] = (2 * i + 3);
-		indices[x++] = (2 * i + 2);
+		indices[x++] = (unsigned short)(2 * i + 0);
+		indices[x++] = (unsigned short)(2 * i + 1);
+		indices[x++] = (unsigned short)(2 * i + 3);
+		indices[x++] = (unsigned short)(2 * i + 0);
+		indices[x++] = (unsigned short)(2 * i + 3);
+		indices[x++] = (unsigned short)(2 * i + 2);
 	}
 	meshes.push_back(Mesh(vertexs, indices));
 }

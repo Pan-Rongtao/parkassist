@@ -3,9 +3,9 @@
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
 #include "Exceptions.h"
-#include "newbrush/gles/Program.h"
-#include "newbrush/gles/RenderObject.h"
-#include "newbrush/gles/Polygon.h"
+#include "parkassist/gles/Program.h"
+#include "parkassist/gles/RenderObject.h"
+#include "parkassist/gles/Polygon.h"
 
 using namespace nb;
 using namespace nlohmann;
@@ -208,19 +208,16 @@ bool Parser::isPolygon(const json & obj, const std::string &polygonName)
 
 	bool ret = false;
 	try { ret = isPoints(side0); }
-	catch (InvalidArrayValueException &e)	{ 
-		float x = side0[e.InvalidIndex];
-		throw Exception(fmt::format("[{}.Side0] must be a int array as [Points Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); 
-	}
-	catch (InvalidArraySizeException &e)	{ throw Exception(fmt::format("[{}.Side0].size must be a multiple of 2", polygonName)); }
+	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.Side0] must be a int array as [Points Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
+	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.Side0].size must be a multiple of 2", polygonName)); }
 
 	try { ret &= isPoints(side1); }
 	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.Side1] must be a int array as [Points Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
-	catch (InvalidArraySizeException &e)	{ throw Exception(fmt::format("[{}.Side1].size must be a multiple of 2", polygonName)); }
+	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.Side1].size must be a multiple of 2", polygonName)); }
 
 	try { ret &= isSolidColor(solidColor); }
-	catch (InvalidArrayValueException &e) { throw Exception(fmt::format("[{}.SolidColor] must be a int array as [SolidColor Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
-	catch (InvalidArraySizeException &e) { throw Exception(fmt::format("[{}.SolidColor].size must be 4 as [SolidColor Type]", polygonName)); }
+	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.SolidColor] must be a int array as [SolidColor Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
+	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.SolidColor].size must be 4 as [SolidColor Type]", polygonName)); }
 
 	if (!sizeEqual)
 	{

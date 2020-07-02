@@ -19,9 +19,9 @@
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
-#include "newbrush/gles/Camera.h"
-#include "newbrush/gles/Projection.h"
-#include "newbrush/gles/Material.h"
+#include "parkassist/gles/Camera.h"
+#include "parkassist/gles/Projection.h"
+#include "parkassist/gles/Material.h"
 
 namespace nb{
 

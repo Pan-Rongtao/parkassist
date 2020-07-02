@@ -13,12 +13,12 @@
 ********************************************************/
 #pragma once
 #include <string>
-#include "newbrush/gles/Model.h"
-#include "newbrush/gles/Material.h"
-#include "newbrush/gles/Camera.h"
-#include "newbrush/gles/Projection.h"
-#include "newbrush/gles/Texture2D.h"
-#include "newbrush/gles/TextureMipmap.h"
+#include "parkassist/gles/Model.h"
+#include "parkassist/gles/Material.h"
+#include "parkassist/gles/Camera.h"
+#include "parkassist/gles/Projection.h"
+#include "parkassist/gles/Texture2D.h"
+#include "parkassist/gles/TextureMipmap.h"
 #include "rttr/variant.h"
 
 struct aiNode;

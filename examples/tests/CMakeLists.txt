@@ -13,13 +13,13 @@
 
 # 1. Project Name
 
-project(newbrush-tests)
+project(tests)
 
 # 2. Project Env (Include/Lib Path, C/CXX/LD FLAGS)
 
 # 3. Project Build
 
-set(BIN_NAME "newbrush-tests")
+set(BIN_NAME "tests")
 
 file(GLOB SRC_FILES "*.h" "*.cpp" "../*.h" "../*.cpp")
 

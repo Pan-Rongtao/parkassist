@@ -17,7 +17,7 @@
 **	
 ********************************************************/
 #pragma once
-#include "newbrush/gles/Texture2D.h"
+#include "parkassist/gles/Texture2D.h"
 
 namespace nb{
 

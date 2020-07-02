@@ -1,11 +1,11 @@
-#include "newbrush/gles/Model.h"
+#include "parkassist/gles/Model.h"
 #include <GLES2/gl2.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/ext/matrix_projection.hpp>
-#include "newbrush/gles/Material.h"
+#include "parkassist/gles/Material.h"
 
 using namespace nb;
 

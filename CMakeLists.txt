@@ -48,6 +48,7 @@ add_subdirectory(3rdparty)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(examples)
+add_subdirectory(etc)
 
 # 5. Project Install
 # N/A

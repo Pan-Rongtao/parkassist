@@ -1,9 +1,9 @@
-#include "newbrush/gles/Def.h"
+#include "parkassist/gles/Def.h"
 #include "catch2/catch.hpp"
 #include "Application.h"
-#include "newbrush/gles/Program.h"
-#include "newbrush/gles/RenderObject.h"
-#include "newbrush/gles/Polygon.h"
+#include "parkassist/gles/Program.h"
+#include "parkassist/gles/RenderObject.h"
+#include "parkassist/gles/Polygon.h"
 #include "Parser.h"
 #include "spdlog/spdlog.h"
 #include "Timer.h"
@@ -38,7 +38,7 @@ TEST_CASE("Test Scene1", "[Scene1]")
 	Programs::primitive();
 
 	Parser parser;
-	parser.setDir("D:/github/Parkassist/examples/newbrush-tests/states");
+	parser.setDir("../etc/states-scene1");
 	bool b = parser.parse();
 
 	w.resize(parser.getContextWidth(), parser.getContextHeight());

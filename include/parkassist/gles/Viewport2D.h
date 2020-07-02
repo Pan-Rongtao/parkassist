@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include "newbrush/gles/Def.h"
-#include "newbrush/gles/Camera.h"
-#include "newbrush/gles/Projection.h"
+#include "parkassist/gles/Def.h"
+#include "parkassist/gles/Camera.h"
+#include "parkassist/gles/Projection.h"
 
 namespace nb {
 	
