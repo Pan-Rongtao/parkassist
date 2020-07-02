@@ -32,22 +32,18 @@ public:
 
 	bool parse();
 
+	int getContextWidth() const;
+	int getContextHeight() const;
+
 	const std::vector<DrawingState> &drawingStates() const;
 
 private:
 	void parseConfig();
 	void parseStates();
 
-	//“Ï≥££∫FileNotExistsException
-	//“Ï≥££∫JsonParsingException
 	json parseOneFile(const std::string &fileName);
 
-	//
 	DrawingState makeDrawingState(const json &obj);
-
-	ValueType testType(const json &j);
-	ValueType testArray(const json &arr);
-	ValueType testObject(const json &obj);
 
 	bool isPoints(const json &arr);
 	bool isSolidColor(const json &arr);
@@ -57,6 +53,8 @@ private:
 	std::string m_dir;
 	json m_commonCfg;
 
+	int m_contextWidth;
+	int m_contextHeight;
 	int m_stateCount;
 	std::vector<DrawingState>	m_drawingStates;
 	std::string m_parsingFileName;

@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <GLES2/gl2.h>
+#include "Timer.h"
 
 using namespace nb;
 
@@ -33,6 +34,7 @@ int Application::run(int argc, char * argv[])
 		{
 			window->render();
 		}
+		Timer::driveInLoop();
 		Window::pollEvents();
 	}
 

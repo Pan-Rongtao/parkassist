@@ -30,6 +30,11 @@ void Window::render()
 	glfwSwapBuffers(m_implWindow);
 }
 
+void Window::resize(int width, int height)
+{
+	glfwSetWindowSize(m_implWindow, width, height);
+}
+
 void Window::pollEvents()
 {
 	glfwPollEvents();

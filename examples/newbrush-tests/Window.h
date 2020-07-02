@@ -13,6 +13,8 @@ public:
 
 	void render();
 
+	void resize(int width, int height);
+
 	static void pollEvents();
 
 private:

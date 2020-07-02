@@ -4,7 +4,6 @@
 #include "glm/glm.hpp"
 #include "Exceptions.h"
 #include "newbrush/gles/Program.h"
-#include "newbrush/gles/Quadrangle.h"
 #include "newbrush/gles/RenderObject.h"
 #include "newbrush/gles/Polygon.h"
 
@@ -41,6 +40,16 @@ bool Parser::parse()
 	}
 }
 
+int nb::Parser::getContextWidth() const
+{
+	return m_contextWidth;
+}
+
+int nb::Parser::getContextHeight() const
+{
+	return m_contextHeight;
+}
+
 const std::vector<DrawingState>& Parser::drawingStates() const
 {
 	return m_drawingStates;
@@ -50,29 +59,39 @@ void Parser::parseConfig()
 {
 	spdlog::info("parsing [{}] ...", CfgFile);
 	json obj = parseOneFile(CfgFile);
-	json jStateCount;
-	try {
-		jStateCount = obj.at("StateCount");
-	}
-	catch (...)
-	{
-		throw Exception(fmt::format("can't find field [StateCount] as int type in file [{}]", CfgFile));
-	}
 
-	if (!jStateCount.is_number_integer())
+	auto check = [&obj](const std::string &nodeName)->int
 	{
-		throw Exception(fmt::format("can't find field [StateCount] as int type in file [{}]", CfgFile));
-	}
-	else
-	{
-		m_stateCount = jStateCount;
-		if (m_stateCount < 1)
-		{
-			throw Exception(fmt::format("[StateCount] must >= 1 but not [{}]", m_stateCount));
+		int ret = 0;
+		json j;
+		try {
+			j = obj.at(nodeName);
 		}
-	}
+		catch (...)
+		{
+			throw Exception(fmt::format("can't find field [{}] as int type in file [{}]", nodeName, CfgFile));
+		}
 
-	spdlog::info("parsing [{}] success, StateCount=[{}]", CfgFile, m_stateCount);
+		if (!j.is_number_integer())
+		{
+			throw Exception(fmt::format("can't find field [{}] as int type in file [{}]", nodeName, CfgFile));
+		}
+		else
+		{
+			ret = j;
+			if (ret < 1)
+			{
+				throw Exception(fmt::format("[{}] must >= 1 but not [{}]", nodeName, ret));
+			}
+		}
+		return ret;
+	};
+
+	m_contextWidth = check("ContextWidth");
+	m_contextHeight = check("ContextHeight");
+	m_stateCount = check("StateCount");
+
+	spdlog::info("parsing [{}] success, ContextWidth=[{}], ContextHeight=[{}], StateCount=[{}]", CfgFile, m_contextWidth, m_contextHeight, m_stateCount);
 }
 
 void Parser::parseStates()
@@ -141,41 +160,6 @@ DrawingState Parser::makeDrawingState(const json &obj)
 		}
 	}
 	return state;
-}
-
-ValueType Parser::testType(const json & j)
-{
-	if (j.is_boolean())				return ValueType::boolean;
-	else if (j.is_number_integer())	return ValueType::integer;
-	else if (j.is_number_float())	return ValueType::real;
-	else if (j.is_string())			return ValueType::string;
-	else if (j.is_object())
-	{
-		return testObject(j);
-	}
-	else if (j.is_array())
-	{
-		return testArray(j);
-	}
-	return ValueType::null;
-}
-
-ValueType Parser::testArray(const json & arr)
-{
-	if (arr.size() == 4 && isIntegerArray(arr))
-	{
-		return ValueType::SolidColor;
-	}
-	else if (arr.size() >= 4 && arr.size() % 2 == 0 && isIntegerArray(arr))
-	{
-		return ValueType::Points;
-	}
-	return ValueType::null;
-}
-
-ValueType Parser::testObject(const json & obj)
-{
-	return isPolygon(obj) ? ValueType::Polygon : ValueType::null;
 }
 
 bool Parser::isPoints(const json & arr)

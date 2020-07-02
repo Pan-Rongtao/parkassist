@@ -2,25 +2,13 @@
 #include "catch2/catch.hpp"
 #include "Application.h"
 #include "newbrush/gles/Program.h"
-#include "newbrush/gles/Quadrangle.h"
 #include "newbrush/gles/RenderObject.h"
 #include "newbrush/gles/Polygon.h"
 #include "Parser.h"
 #include "spdlog/spdlog.h"
+#include "Timer.h"
 
 using namespace nb;
-
-class Settled
-{
-public:
-	void draw()
-	{
-
-	}
-
-private:
-	std::array<RenderObject, 7> m_objs;
-};
 
 void makePolygon()
 {
@@ -53,13 +41,26 @@ TEST_CASE("Test Scene1", "[Scene1]")
 	parser.setDir("D:/github/Parkassist/examples/newbrush-tests/states");
 	bool b = parser.parse();
 
+	w.resize(parser.getContextWidth(), parser.getContextHeight());
+	
 	if (b)
 	{
 		auto const &states = parser.drawingStates();
-		if (!states.empty())
-		{
-			Application::current()->drawContext.renderers() = states[0];
-		}
+
+		Timer timer;
+		timer.setInterval(1000);
+		timer.Tick += [states](const Timer::TickEventArgs &args) {
+			static int i = 0;
+			if (i >= states.size())
+			{
+				i = 0;
+			}
+			Application::current()->drawContext.renderers() = states[i];
+			++i;
+		};
+		timer.start();
+
+
 		//makePolygon();
 		app.run(0, nullptr);
 	}
