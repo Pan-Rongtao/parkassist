@@ -30,38 +30,71 @@ void makePolygon()
 	Application::current()->drawContext.queue(renderObj);
 }
 
+Parser g_parser;
+int g_currentState = 0;
+
+void prevState()
+{
+	auto drawingStateCount = g_parser.drawingStatesCount();
+	g_currentState = g_currentState - 1;
+	if (g_currentState < 0)
+		g_currentState = 0;
+	Application::current()->drawContext.renderers() = g_parser.getDrawingState(g_currentState);
+//	spdlog::info("state={}", g_currentState);
+}
+
+void nextState()
+{
+	auto drawingStateCount = g_parser.drawingStatesCount();
+	g_currentState = g_currentState + 1;
+	if (g_currentState >= drawingStateCount)
+		g_currentState = drawingStateCount - 1;
+	Application::current()->drawContext.renderers() = g_parser.getDrawingState(g_currentState);
+//	spdlog::info("state={}", g_currentState);
+}
+
+void updateCurrentState()
+{
+	Application::current()->drawContext.renderers() = g_parser.getDrawingState(g_currentState);
+}
+
 TEST_CASE("Test Scene1", "[Scene1]")
 {
 	Application app;
 	Window w(800, 600, "Scene1");
+	w.KeyEvent += [](const int &key) {
+		switch (key)
+		{
+		case 262:	prevState();	break;
+		case 263:	nextState();	break;
+		case 32: {g_parser.enablePointsObjects(!g_parser.isPointsObjectsOn()); updateCurrentState(); }	break;
+		default:
+			break;
+		}
+	};
 
 	Programs::primitive();
 
-	Parser parser;
-	parser.setDir("../etc/states-scene1");
-	bool b = parser.parse();
+	g_parser.setDir("../etc/states-scene1");
+	bool b = g_parser.parse();
 
-	w.resize(parser.getContextWidth(), parser.getContextHeight());
+	w.resize(g_parser.getContextWidth(), g_parser.getContextHeight());
 	
 	if (b)
 	{
-		auto const &states = parser.drawingStates();
+		auto drawingStateCount = g_parser.drawingStatesCount();
+		if (drawingStateCount != 0)
+		{
+			Application::current()->drawContext.renderers() = g_parser.getDrawingState(0);
+		}
 
 		Timer timer;
-		timer.setInterval(1000);
-		timer.Tick += [states](const Timer::TickEventArgs &args) {
-			static int i = 0;
-			if (i >= states.size())
-			{
-				i = 0;
-			}
-			Application::current()->drawContext.renderers() = states[i];
-			++i;
+		timer.setInterval(100);
+		timer.Tick += [](const Timer::TickEventArgs &args) {
+			nextState();
 		};
-		timer.start();
+		//timer.start();
 
-
-		//makePolygon();
 		app.run(0, nullptr);
 	}
 }

@@ -6,6 +6,7 @@
 #include "parkassist/gles/Program.h"
 #include "parkassist/gles/RenderObject.h"
 #include "parkassist/gles/Polygon.h"
+#include "GLES2/gl2.h"
 
 using namespace nb;
 using namespace nlohmann;
@@ -27,10 +28,10 @@ std::string Parser::getDir() const
 bool Parser::parse()
 {
 	try {
-		auto k = nb::getTickCount();
+		auto k = getTickCount();
 		parseConfig();
 		parseStates();
-		spdlog::info("{} cost [{}] ms", __FUNCTION__, nb::getTickCount() - k);
+		spdlog::info("{} cost [{}] ms", __FUNCTION__, getTickCount() - k);
 		return true;
 	}
 	catch (std::exception &ex)
@@ -40,19 +41,47 @@ bool Parser::parse()
 	}
 }
 
-int nb::Parser::getContextWidth() const
+int Parser::getContextWidth() const
 {
 	return m_contextWidth;
 }
 
-int nb::Parser::getContextHeight() const
+int Parser::getContextHeight() const
 {
 	return m_contextHeight;
 }
 
-const std::vector<DrawingState>& Parser::drawingStates() const
+void Parser::enablePointsObjects(bool bOn)
 {
-	return m_drawingStates;
+	m_bEnablePiontsObject = bOn;
+}
+
+bool Parser::isPointsObjectsOn() const
+{
+	return m_bEnablePiontsObject;
+}
+
+int nb::Parser::drawingStatesCount() const
+{
+	return m_drawingStates.size();
+}
+
+DrawingState nb::Parser::getDrawingState(int index) const
+{
+	if (index < 0 || index >= m_drawingStates.size())
+	{
+		nbThrowException(std::out_of_range, "index[%d] is out of range[0, %zu)", index, m_drawingStates.size());
+	}
+	if (m_bEnablePiontsObject)
+	{
+		DrawingState state = m_drawingStates[index];
+		state.insert(state.end(), m_drawingStates_Points[index].begin(), m_drawingStates_Points[index].end());
+		return state;
+	}
+	else
+	{
+		return m_drawingStates[index];
+	}
 }
 
 void Parser::parseConfig()
@@ -60,7 +89,7 @@ void Parser::parseConfig()
 	spdlog::info("parsing [{}] ...", CfgFile);
 	json obj = parseOneFile(CfgFile);
 
-	auto check = [&obj](const std::string &nodeName)->int
+	auto check = [&obj](const std::string &nodeName, int minuxLimit)->int
 	{
 		int ret = 0;
 		json j;
@@ -79,7 +108,7 @@ void Parser::parseConfig()
 		else
 		{
 			ret = j;
-			if (ret < 1)
+			if (ret < minuxLimit)
 			{
 				throw Exception(fmt::format("[{}] must >= 1 but not [{}]", nodeName, ret));
 			}
@@ -87,23 +116,29 @@ void Parser::parseConfig()
 		return ret;
 	};
 
-	m_contextWidth = check("ContextWidth");
-	m_contextHeight = check("ContextHeight");
-	m_stateCount = check("StateCount");
+	m_contextWidth = check("ContextWidth", 0);
+	m_contextHeight = check("ContextHeight", 0);
+	m_stateCount = check("StateCount", 0);
+	m_bezierControlPointsCount = check("BezierControlPointsCount", 0);
+	m_bezierSampleCount = check("BezierSampleCount", 0);
+	m_drawPointMode = check("DrawPointMode", 0);
 
-	spdlog::info("parsing [{}] success, ContextWidth=[{}], ContextHeight=[{}], StateCount=[{}]", CfgFile, m_contextWidth, m_contextHeight, m_stateCount);
+	spdlog::info("parsing [{}] success, ContextWidth=[{}], ContextHeight=[{}], StateCount=[{}], BezierControlPointsCount=[{}], BezierSampleCount=[{}]", 
+		CfgFile, m_contextWidth, m_contextHeight, m_stateCount, m_bezierControlPointsCount, m_bezierSampleCount);
 }
 
 void Parser::parseStates()
 {
 	m_drawingStates.resize(m_stateCount);
+	m_drawingStates_Points.resize(m_stateCount);
 	for (size_t i = 0; i != m_drawingStates.size(); ++i)
 	{
 		m_parsingFileName = fmt::format("{}{}.json", StateFileHead, i);
 		spdlog::info("parsing [{}] ...", m_parsingFileName);
 		json obj = parseOneFile(m_parsingFileName);
-		auto state = makeDrawingState(obj);
-		m_drawingStates[i] = state;
+		auto statePair = makeDrawingState(obj);
+		m_drawingStates[i] = statePair.first;
+		m_drawingStates_Points[i] = statePair.second;
 	}
 }
 
@@ -127,9 +162,10 @@ json Parser::parseOneFile(const std::string & fileName)
 	return obj;
 }
 
-DrawingState Parser::makeDrawingState(const json &obj)
+std::pair<DrawingState, DrawingState> Parser::makeDrawingState(const json &obj)
 {
 	DrawingState state;
+	DrawingState state_Points;
 	for (auto iter = obj.begin(); iter != obj.end(); ++iter)
 	{
 		auto item = iter.value();
@@ -143,6 +179,8 @@ DrawingState Parser::makeDrawingState(const json &obj)
 		{
 			std::vector<float> s0 = item["Side0"];
 			std::vector<float> s1 = item["Side1"];
+			if (s0.size() > s1.size())	s0.resize(s1.size());
+			else if(s1.size() > s0.size())	s1.resize(s0.size());
 			std::vector<int> arr = item["SolidColor"];
 			std::vector<glm::vec2> side0(s0.size() / 2);
 			std::vector<glm::vec2> side1(s0.size() / 2);
@@ -152,14 +190,22 @@ DrawingState Parser::makeDrawingState(const json &obj)
 				side0[i] = { s0[i * 2], s0[i * 2 + 1] };
 				side1[i] = { s1[i * 2], s1[i * 2 + 1] };
 			}
-			auto polygon = std::make_shared<nb::Polygon>();
-			polygon->setPoint(side0, side1);
+			auto polygon = std::make_shared<Polygon>();
+			polygon->setPoint(side0, side1, m_bezierControlPointsCount, m_bezierSampleCount);
 			auto renderObj = std::make_shared<RenderObject>(polygon, Programs::primitive());
 			renderObj->model()->unifyColor(solidColor);
+			renderObj->model()->mode = GL_TRIANGLES;
 			state.push_back(renderObj);
+
+			auto polygon_Points = std::make_shared<Polygon>();
+			polygon_Points->setPoint(side0, side1, 0, 0);
+			auto renderObj_Pionts = std::make_shared<RenderObject>(polygon_Points, Programs::primitive());
+			renderObj_Pionts->model()->unifyColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
+			renderObj_Pionts->model()->mode = GL_POINTS;
+			state_Points.push_back(renderObj_Pionts);
 		}
 	}
-	return state;
+	return{ state, state_Points };
 }
 
 bool Parser::isPoints(const json & arr)
@@ -221,7 +267,9 @@ bool Parser::isPolygon(const json & obj, const std::string &polygonName)
 
 	if (!sizeEqual)
 	{
-		throw Exception(fmt::format("[{}.Side0.size={}], [{}.Side1.size={}] are not same in file [{}]", polygonName, side0.size(), polygonName, side1.size(), m_parsingFileName));
+		int x = 10;
+		++x;
+	//	throw Exception(fmt::format("[{}.Side0.size={}], [{}.Side1.size={}] are not same in file [{}]", polygonName, side0.size(), polygonName, side1.size(), m_parsingFileName));
 	}
 	return ret;
 }
@@ -230,7 +278,7 @@ bool Parser::isIntegerArray(const json & arr)
 {
 	for (size_t i = 0; i != arr.size(); ++i)
 	{
-		if (!arr[i].is_number_integer())
+		if (!arr[i].is_number())
 			throw InvalidArrayValueException(i);
 	}
 	return true;
