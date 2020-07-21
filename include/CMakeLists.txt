@@ -11,3 +11,4 @@ project(include)
 
 # 5. Project Install
 install(DIRECTORY parkassist DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY glm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

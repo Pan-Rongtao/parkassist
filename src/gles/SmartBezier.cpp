@@ -74,7 +74,7 @@ std::vector<glm::vec2> SmartBezier::doBezier(const std::vector<glm::vec2> &input
 		case 3:	MAKE_BEZIER(3, segInput, segOut);	break;
 		case 2:	MAKE_BEZIER(2, segInput, segOut);	break;
 		case 1:	MAKE_BEZIER(1, segInput, segOut);	break;
-		default: 	nbThrowException(std::runtime_error, "unsurport step[%d]", step);							break;
+		default: nbThrowException(std::runtime_error, "unsurport step[%d]", step); break;
 		}
 
 		ret.insert(ret.end(), segOut.begin(), segOut.end());

@@ -13,19 +13,17 @@
 ********************************************************/
 #pragma once
 #include <string>
-#include "parkassist/gles/Mesh.h"
-#include "parkassist/gles/Material.h"
-#include "parkassist/gles/Camera.h"
-#include "parkassist/gles/Texture2D.h"
-#include "parkassist/gles/TextureMipmap.h"
-#include "rttr/variant.h"
+#include <map>
+#include "parkassist/gles/Def.h"
+#include "parkassist/gles/Any.h"
 
 struct aiNode;
 struct aiMesh;
 struct aiScene;
 namespace nb{
 	
-using var = rttr::variant;
+using var = Any;
+
 class Mesh;
 class Program;
 class Camera;

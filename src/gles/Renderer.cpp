@@ -1,7 +1,8 @@
 #include "parkassist/gles/Renderer.h"
 #include <GLES2/gl2.h>
-#include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
+#include "parkassist/gles/Mesh.h"
+#include "parkassist/gles/Camera.h"
 
 using namespace nb;
 
@@ -64,35 +65,35 @@ void Renderer::draw(CameraPtr camera) const
 	{
 		auto location = program->getUniformLocation(iter.first.data());
 		auto const &v = iter.second;
-		if (v.is_type<int>())							program->uniform(location, v.get_value<int>());
-		else if (v.is_type<unsigned int>())				program->uniform(location, (int)v.get_value<unsigned int>());
-		else if (v.is_type<short>())					program->uniform(location, (int)v.get_value<short>());
-		else if (v.is_type<unsigned short>())			program->uniform(location, (int)v.get_value<unsigned short>());
-		else if (v.is_type<long>())						program->uniform(location, (int)v.get_value<long>());
-		else if (v.is_type<unsigned long>())			program->uniform(location, (int)v.get_value<unsigned long>());
-		else if (v.is_type<float>())					program->uniform(location, v.get_value<float>());
-		else if (v.is_type<double>())					program->uniform(location, (float)v.get_value<double>());
-		else if (v.is_type<glm::vec2>())				program->uniform(location, v.get_value<glm::vec2>());
-		else if (v.is_type<glm::vec3>())				program->uniform(location, v.get_value<glm::vec3>());
-		else if (v.is_type<glm::vec4>())				program->uniform(location, v.get_value<glm::vec4>());
-		else if (v.is_type<glm::mat2x2>())				program->uniform(location, v.get_value<glm::mat2x2>());
-		else if (v.is_type<glm::mat3x3>())				program->uniform(location, v.get_value<glm::mat3x3>());
-		else if (v.is_type<glm::mat4x4>())				program->uniform(location, v.get_value<glm::mat4x4>());
-		else if (v.is_type<glm::ivec2>())				program->uniform(location, v.get_value<glm::ivec2>());
-		else if (v.is_type<glm::ivec3>())				program->uniform(location, v.get_value<glm::ivec3>());
-		else if (v.is_type<glm::ivec4>())				program->uniform(location, v.get_value<glm::ivec4>());
-		else if (v.is_type<std::vector<int>>())			program->uniform(location, v.get_value<std::vector<int>>());
-		else if (v.is_type<std::vector<float>>())		program->uniform(location, v.get_value<std::vector<float>>());
-		else if (v.is_type<std::vector<glm::vec2>>())	program->uniform(location, v.get_value<std::vector<glm::vec2>>());
-		else if (v.is_type<std::vector<glm::vec3>>())	program->uniform(location, v.get_value<std::vector<glm::vec3>>());
-		else if (v.is_type<std::vector<glm::vec4>>())	program->uniform(location, v.get_value<std::vector<glm::vec4>>());
-		else if (v.is_type<std::vector<glm::mat2x2>>())	program->uniform(location, v.get_value<std::vector<glm::mat2x2>>());
-		else if (v.is_type<std::vector<glm::mat3x3>>())	program->uniform(location, v.get_value<std::vector<glm::mat3x3>>());
-		else if (v.is_type<std::vector<glm::mat4x4>>())	program->uniform(location, v.get_value<std::vector<glm::mat4x4>>());
-		else if (v.is_type<std::vector<glm::ivec2>>())	program->uniform(location, v.get_value<std::vector<glm::ivec2>>());
-		else if (v.is_type<std::vector<glm::ivec3>>())	program->uniform(location, v.get_value<std::vector<glm::ivec3>>());
-		else if (v.is_type<std::vector<glm::ivec4>>())	program->uniform(location, v.get_value<std::vector<glm::ivec4>>());
-		else											printf("%s is not a supported type for glsl uniform.\n", v.get_type().get_name().data());
+		if (v.is<int>())							program->uniform(location, any_cast<int>(v));
+		else if (v.is<unsigned int>())				program->uniform(location, (int)any_cast<unsigned int>(v));
+		else if (v.is<short>())						program->uniform(location, (int)any_cast<short>(v));
+		else if (v.is<unsigned short>())			program->uniform(location, (int)any_cast<unsigned short>(v));
+		else if (v.is<long>())						program->uniform(location, (int)any_cast<long>(v));
+		else if (v.is<unsigned long>())				program->uniform(location, (int)any_cast<unsigned long>(v));
+		else if (v.is<float>())						program->uniform(location, any_cast<float>(v));
+		else if (v.is<double>())					program->uniform(location, (float)any_cast<double>(v));
+		else if (v.is<glm::vec2>())					program->uniform(location, any_cast<glm::vec2>(v));
+		else if (v.is<glm::vec3>())					program->uniform(location, any_cast<glm::vec3>(v));
+		else if (v.is<glm::vec4>())					program->uniform(location, any_cast<glm::vec4>(v));
+		else if (v.is<glm::mat2x2>())				program->uniform(location, any_cast<glm::mat2x2>(v));
+		else if (v.is<glm::mat3x3>())				program->uniform(location, any_cast<glm::mat3x3>(v));
+		else if (v.is<glm::mat4x4>())				program->uniform(location, any_cast<glm::mat4x4>(v));
+		else if (v.is<glm::ivec2>())				program->uniform(location, any_cast<glm::ivec2>(v));
+		else if (v.is<glm::ivec3>())				program->uniform(location, any_cast<glm::ivec3>(v));
+		else if (v.is<glm::ivec4>())				program->uniform(location, any_cast<glm::ivec4>(v));
+		else if (v.is<std::vector<int>>())			program->uniform(location, any_cast<std::vector<int>>(v));
+		else if (v.is<std::vector<float>>())		program->uniform(location, any_cast<std::vector<float>>(v));
+		else if (v.is<std::vector<glm::vec2>>())	program->uniform(location, any_cast<std::vector<glm::vec2>>(v));
+		else if (v.is<std::vector<glm::vec3>>())	program->uniform(location, any_cast<std::vector<glm::vec3>>(v));
+		else if (v.is<std::vector<glm::vec4>>())	program->uniform(location, any_cast<std::vector<glm::vec4>>(v));
+		else if (v.is<std::vector<glm::mat2x2>>())	program->uniform(location, any_cast<std::vector<glm::mat2x2>>(v));
+		else if (v.is<std::vector<glm::mat3x3>>())	program->uniform(location, any_cast<std::vector<glm::mat3x3>>(v));
+		else if (v.is<std::vector<glm::mat4x4>>())	program->uniform(location, any_cast<std::vector<glm::mat4x4>>(v));
+		else if (v.is<std::vector<glm::ivec2>>())	program->uniform(location, any_cast<std::vector<glm::ivec2>>(v));
+		else if (v.is<std::vector<glm::ivec3>>())	program->uniform(location, any_cast<std::vector<glm::ivec3>>(v));
+		else if (v.is<std::vector<glm::ivec4>>())	program->uniform(location, any_cast<std::vector<glm::ivec4>>(v));
+		else										printf("%s is not a supported type for glsl uniform.\n", v.type().name());
 	}
 
 	program->vertexAttributePointer(Program::nbPositionLocation, Vertex::positionDimension, Vertex::stride, m_mesh->positionData());

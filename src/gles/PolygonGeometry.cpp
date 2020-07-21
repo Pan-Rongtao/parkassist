@@ -1,5 +1,4 @@
 #include "parkassist/gles/PolygonGeometry.h"
-#include "bezier.h"
 #include "parkassist/gles/SmartBezier.h"
 
 using namespace nb;
@@ -52,11 +51,6 @@ void PolygonGeometry::setPoint(const std::vector<glm::vec2>& side0, const std::v
 	}
 	this->vertexs = vertexs;
 	this->indices = indices;
-}
-
-glm::vec4 PolygonGeometry::getBox()
-{
-	return glm::vec4();
 }
 
 std::vector<glm::vec2> PolygonGeometry::doBezier(const std::vector<glm::vec2>& inputs, int controlPointsCount, int sampleCount)

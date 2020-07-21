@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "GLFW/glfw3.h"
-#include "parkassist/gles/Event.h"
+#include "Event.h"
 
 struct GLFWwindow;
 namespace nb {
