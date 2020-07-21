@@ -19,8 +19,6 @@
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
-#include "parkassist/gles/Camera.h"
-#include "parkassist/gles/Projection.h"
 #include "parkassist/gles/Material.h"
 
 namespace nb{
@@ -79,42 +77,8 @@ public:
 	std::vector<Vertex>		vertexs;	//顶点属性
 	std::vector<uint16_t>	indices;	//顶点序列(逆时针)
 	Material				material;
-	glm::mat4x4			transformation;
-
-};
-
-class NB_API Model
-{
-public:
-	//构建一个空的模型
-	Model();
-	Model(const std::vector<Mesh> &_meshes);
-	Model(const Model &other);
-	Model(const Model &&other);
-	void operator = (const Model &other);
-	void operator = (const Model &&other);
-	virtual ~Model() = default;
-
-	void unifyColor(const glm::vec4 &color);
-
-	//渲染前指令
-	virtual void preprocess();
-
-	//视线命中测试
-	//xNormalized,yNormalized：标准化坐标[-1.0, 1.0]
-	virtual bool sightHitTest(const Camera &camera, const Projection &projection, float xNormalized, float yNormalized) const;
-
-	//正交命中测试
-	//x,y：坐标
-	virtual bool orthoHitTest(float x, float y) const;
-
-	glm::mat4x4			matrix;	//模型矩阵
-	std::vector<Mesh>	meshes;	//网格
-	uint8_t				mode;	//绘画模式（默认GL_TRIANGLES，注意：为了内存，类型定义为1个字节）
-
-private:
-	bool intersect(const glm::vec3 &raypos, const glm::vec3 &raydir) const;
-
+	glm::mat4x4				matrix;
+	uint8_t					mode;	//绘画模式（默认GL_TRIANGLES，注意：为了内存，类型定义为1个字节）
 };
 
 }

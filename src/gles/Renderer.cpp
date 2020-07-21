@@ -1,70 +1,58 @@
-#include "parkassist/gles/RenderObject.h"
+#include "parkassist/gles/Renderer.h"
 #include <GLES2/gl2.h>
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
 
 using namespace nb;
 
-RenderObject::RenderObject()
-	: RenderObject(nullptr, nullptr)
+Renderer::Renderer()
+	: Renderer(nullptr, nullptr)
 {
 }
 
-RenderObject::RenderObject(std::shared_ptr<Model> model)
-	: RenderObject(model, nullptr)
+Renderer::Renderer(MeshPtr mesh)
+	: Renderer(mesh, nullptr)
 {
 }
 
-RenderObject::RenderObject(std::shared_ptr<Model> model, std::shared_ptr<Program> program)
-	: m_model(model)
+Renderer::Renderer(MeshPtr mesh, ProgramPtr program)
+	: m_mesh(mesh)
 	, m_program(program)
-	, m_renderable(true)
 {
 }
 
-void RenderObject::setRenderable(bool bRenderable)
+void Renderer::setMesh(MeshPtr mesh)
 {
-	m_renderable = bRenderable;
+	m_mesh = mesh;
 }
 
-bool RenderObject::renderable() const
+MeshPtr Renderer::mesh()
 {
-	return m_renderable;
+	return m_mesh;
 }
 
-void RenderObject::setModel(std::shared_ptr<Model> model)
-{
-	m_model = model;
-}
-
-std::shared_ptr<Model> RenderObject::model()
-{
-	return m_model;
-}
-
-void RenderObject::setProgram(std::shared_ptr<Program> program)
+void Renderer::setProgram(ProgramPtr program)
 {
 	m_program = program;
 }
 
-std::shared_ptr<Program> RenderObject::program()
+ProgramPtr Renderer::program()
 {
 	return m_program;
 }
 
-void RenderObject::draw(const Camera &camera, const Projection &projection) const
+void Renderer::draw(CameraPtr camera) const
 {
-	if (!m_renderable || !m_model || m_model->meshes.empty() || !m_program)
+	if (!m_mesh || !m_program)
 		return;
 
 	auto &program = m_program;
 	program->use();
-	m_model->preprocess();
 
 	//计算后的mvp，以及分开的m/v/p
-	auto const &m = m_model->matrix;
-	auto const &v = camera.matrix;
-	auto const &p = projection.matrix;
+	auto const &m = m_mesh->matrix;
+	auto const &v = camera->viewMatrix();
+	auto const &p = camera->projectionMatrix();
 	auto mvp = p * v * m;
 	program->uniform(program->getUniformLocation(Program::nbMvpStr), mvp);
 	program->uniform(program->getUniformLocation(Program::nbMStr), m);
@@ -106,17 +94,12 @@ void RenderObject::draw(const Camera &camera, const Projection &projection) cons
 		else if (v.is_type<std::vector<glm::ivec4>>())	program->uniform(location, v.get_value<std::vector<glm::ivec4>>());
 		else											printf("%s is not a supported type for glsl uniform.\n", v.get_type().get_name().data());
 	}
-	//依次绘制meshs
-	for (auto const &mesh : m_model->meshes)
-	{
-		program->uniform(program->getUniformLocation(Program::nbMStr), m_model->matrix * mesh.transformation);
 
-		program->vertexAttributePointer(Program::nbPositionLocation, Vertex::positionDimension, Vertex::stride, mesh.positionData());
-		program->vertexAttributePointer(Program::nbColorLocation, Vertex::colorDimension, Vertex::stride, mesh.colorData());
-		program->vertexAttributePointer(Program::nbTexCoordLocaltion, Vertex::texCoordDimension, Vertex::stride, mesh.textureCoordinateData());
-		program->vertexAttributePointer(Program::nbNormalLocation, Vertex::normalDimension, Vertex::stride, mesh.normalData());
+	program->vertexAttributePointer(Program::nbPositionLocation, Vertex::positionDimension, Vertex::stride, m_mesh->positionData());
+	program->vertexAttributePointer(Program::nbColorLocation, Vertex::colorDimension, Vertex::stride, m_mesh->colorData());
+	program->vertexAttributePointer(Program::nbTexCoordLocaltion, Vertex::texCoordDimension, Vertex::stride, m_mesh->textureCoordinateData());
+	program->vertexAttributePointer(Program::nbNormalLocation, Vertex::normalDimension, Vertex::stride, m_mesh->normalData());
 
-		glDrawElements(m_model->mode, mesh.indices.size(), GL_UNSIGNED_SHORT, mesh.indices.data());
-	}
+	glDrawElements(m_mesh->mode, m_mesh->indices.size(), GL_UNSIGNED_SHORT, m_mesh->indices.data());
 	program->disuse();
 }

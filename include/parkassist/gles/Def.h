@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 #include <typeindex>
+#include "rttr/registration.h"
+#include "rttr/registration_friend.h"
 
 //要求c++11
 //#if __cplusplus < 201103L
@@ -88,7 +90,7 @@ do{\
 
 namespace nb
 {
-//	using var = rttr::variant;
+	using var = rttr::variant;
 
 	//获取开机以来的时钟滴答数（毫秒数）
 	NB_API uint64_t getTickCount();
@@ -133,7 +135,7 @@ namespace nb
 	template<class T1, class T2>
 	bool is(const std::shared_ptr<T2> &other)
 	{
-		return as<T1, T2>() != nullptr;
+		return as<T1, T2>(other) != nullptr;
 	}
 
 	template<class T1, class T2>

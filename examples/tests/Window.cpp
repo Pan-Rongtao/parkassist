@@ -1,5 +1,6 @@
 #include "Window.h"
-#include "Application.h"
+#include "parkassist/gles/DrawingContext.h"
+#include "parkassist/gles/Camera.h"
 
 using namespace nb;
 
@@ -11,27 +12,16 @@ Window::Window(int width, int height, const std::string &title)
 
 	glfwSetWindowUserPointer(m_implWindow, this);
 	glfwSetWindowSizeCallback(m_implWindow, [](GLFWwindow*w, int width, int height) { static_cast<Window *>(glfwGetWindowUserPointer(w))->sizeCallback(width, height); });
-	glfwSetKeyCallback(m_implWindow, [](GLFWwindow*w, int key, int scancode, int action, int mods) { 
-		auto p = glfwGetWindowUserPointer(w);
-		auto pp = static_cast<Window *>(p);
-		pp->keyCallback(key, scancode, action, mods);
-	});
+	glfwSetKeyCallback(m_implWindow, [](GLFWwindow*w, int key, int scancode, int action, int mods) { static_cast<Window *>(glfwGetWindowUserPointer(w))->keyCallback(key, scancode, action, mods);});
 
 	sizeCallback(width, height);
-	Application::current()->windows().push_back(this);
 }
 
 Window::~Window()
 {
-	auto &windows = Application::current()->windows();
-	auto iter = std::find(windows.begin(), windows.end(), this);
-	if (iter != windows.end())
-	{
-		Application::current()->windows().erase(iter);
-	}
 }
 
-void Window::render()
+void Window::swapBuffers()
 {
 	glfwSwapBuffers(m_implWindow);
 }
@@ -64,16 +54,13 @@ void Window::init()
 
 void Window::sizeCallback(int width, int height)
 {
-	auto app = Application::current();
-	if (app)
-	{
-		app->drawContext.projection.ortho(0.0f, (float)width, (float)height, 0.0f, -1000.0f, 1000.0f);
-		app->drawContext.viewport(0, 0, width, height);
-	}
+	ResizeEvent.invoke(Size{ width, height });
 }
 
 void Window::keyCallback(int key, int scancode, int action, int mods)
 {
-	if(action == 1 || action == GLFW_REPEAT)
-		KeyEvent.invoke({key});
+	if (action == 1 || action == GLFW_REPEAT)
+	{
+		KeyEvent.invoke({ key });
+	}
 }

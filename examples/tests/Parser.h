@@ -7,9 +7,9 @@ using nlohmann::json;
 
 namespace nb {
 
-class RenderObject;
-using RenderObjectPtr = std::shared_ptr<RenderObject>;
-using DrawingState = std::vector<RenderObjectPtr>;
+class Renderer;
+using RendererPtr = std::shared_ptr<Renderer>;
+using DrawingState = std::vector<RendererPtr>;
 
 enum class ValueType
 {

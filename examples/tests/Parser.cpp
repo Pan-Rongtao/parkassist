@@ -4,8 +4,8 @@
 #include "glm/glm.hpp"
 #include "Exceptions.h"
 #include "parkassist/gles/Program.h"
-#include "parkassist/gles/RenderObject.h"
-#include "parkassist/gles/Polygon.h"
+#include "parkassist/gles/Renderer.h"
+#include "parkassist/gles/PolygonGeometry.h"
 #include "GLES2/gl2.h"
 
 using namespace nb;
@@ -190,18 +190,18 @@ std::pair<DrawingState, DrawingState> Parser::makeDrawingState(const json &obj)
 				side0[i] = { s0[i * 2], s0[i * 2 + 1] };
 				side1[i] = { s1[i * 2], s1[i * 2 + 1] };
 			}
-			auto polygon = std::make_shared<Polygon>();
+			auto polygon = std::make_shared<PolygonGeometry>();
 			polygon->setPoint(side0, side1, m_bezierControlPointsCount, m_bezierSampleCount);
-			auto renderObj = std::make_shared<RenderObject>(polygon, Programs::primitive());
-			renderObj->model()->unifyColor(solidColor);
-			renderObj->model()->mode = GL_TRIANGLES;
-			state.push_back(renderObj);
+			auto renderer = std::make_shared<Renderer>(polygon, Programs::primitive());
+			renderer->mesh()->unifyColor(solidColor);
+			renderer->mesh()->mode = GL_TRIANGLES;
+			state.push_back(renderer);
 
-			auto polygon_Points = std::make_shared<Polygon>();
+			auto polygon_Points = std::make_shared<PolygonGeometry>();
 			polygon_Points->setPoint(side0, side1, 0, 0);
-			auto renderObj_Pionts = std::make_shared<RenderObject>(polygon_Points, Programs::primitive());
-			renderObj_Pionts->model()->unifyColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
-			renderObj_Pionts->model()->mode = GL_POINTS;
+			auto renderObj_Pionts = std::make_shared<Renderer>(polygon_Points, Programs::primitive());
+			renderObj_Pionts->mesh()->unifyColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
+			renderObj_Pionts->mesh()->mode = GL_POINTS;
 			state_Points.push_back(renderObj_Pionts);
 		}
 	}

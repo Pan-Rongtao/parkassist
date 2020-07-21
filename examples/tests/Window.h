@@ -12,13 +12,15 @@ public:
 	Window(int width, int height, const std::string &title);
 	~Window();
 
-	void render();
+	void swapBuffers();
 
 	void resize(int width, int height);
 
 	static void pollEvents();
 
 	Event<int>	KeyEvent;
+	struct Size { int width; int height; };
+	Event<Size>	ResizeEvent;
 
 private:
 	static void init();

@@ -1,5 +1,5 @@
 /*******************************************************
-**	RenderObject
+**	Renderer
 **
 **	渲染物
 **	
@@ -13,10 +13,9 @@
 ********************************************************/
 #pragma once
 #include <string>
-#include "parkassist/gles/Model.h"
+#include "parkassist/gles/Mesh.h"
 #include "parkassist/gles/Material.h"
 #include "parkassist/gles/Camera.h"
-#include "parkassist/gles/Projection.h"
 #include "parkassist/gles/Texture2D.h"
 #include "parkassist/gles/TextureMipmap.h"
 #include "rttr/variant.h"
@@ -27,37 +26,34 @@ struct aiScene;
 namespace nb{
 	
 using var = rttr::variant;
+class Mesh;
+class Program;
+class Camera;
+using MeshPtr = std::shared_ptr<Mesh>;
+using ProgramPtr = std::shared_ptr<Program>;
+using CameraPtr = std::shared_ptr<Camera>;
 
-class NB_API RenderObject
+class NB_API Renderer
 {
 public:
-	//构建一个空的RenderObject，它的可渲染状态为true
-	RenderObject();
+	//构建一个空的Renderer
+	Renderer();
 
-	//构建一个空的RenderObject，它的可渲染状态为bRenderable
-	RenderObject(std::shared_ptr<Model> model);
+	//构建一个空的Renderer
+	Renderer(MeshPtr mesh);
 
-	//构建一个RenderObject，它的模型为model，程序为program，可渲染状态为true
-	RenderObject(std::shared_ptr<Model> model, std::shared_ptr<Program> program);
+	//构建一个Renderer，它的模型为model，程序为program
+	Renderer(MeshPtr mesh, ProgramPtr program);
 
-public:	
-	//设置是否可渲染，这将决定物体是否绘制
-	void setRenderable(bool bRenderable);
-
-	//是否可渲染
-	bool renderable() const;
-
-	//设置模型
-	void setModel(std::shared_ptr<Model> model);
-
-	//获取模型
-	std::shared_ptr<Model> model();
+	//模型
+	void setMesh(MeshPtr mesh);
+	MeshPtr mesh();
 
 	//设置program
-	void setProgram(std::shared_ptr<Program> program);
+	void setProgram(ProgramPtr program);
 
 	//获取program
-	std::shared_ptr<Program> program();
+	ProgramPtr program();
 
 	//存储uniform变量，以便下次刷新使用
 	template<class T>
@@ -99,13 +95,12 @@ public:
 	}
 	
 	//绘制，重写此方法以构建自己的渲染方式
-	virtual void draw(const Camera &camera, const Projection &projection) const;
+	virtual void draw(CameraPtr camera) const;
 
 private:
-	std::shared_ptr<Model>		m_model;
-	std::shared_ptr<Program>	m_program;
+	MeshPtr		m_mesh;
+	ProgramPtr	m_program;
 	std::map<std::string, var>	m_uniforms;
-	bool						m_renderable;
 };
 
 }

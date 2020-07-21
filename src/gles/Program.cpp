@@ -277,7 +277,7 @@ std::shared_ptr<Program> Programs::gradientPrimitive()
 		"uniform float offsets[100];"
 		"void main()"
 		"{"
-		"	vec2 u_resolution = vec2(400, 400);"
+		"	vec2 u_resolution = vec2(100, 600);"
 		"	float y = gl_FragCoord.y / u_resolution.y;"
 		"	vec4 color = mix(colors[0], colors[1], smoothstep(offsets[0], offsets[1], y));"
 		"	for(int i = 2; i < size; ++i)"
