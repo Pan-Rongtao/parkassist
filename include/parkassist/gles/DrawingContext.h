@@ -19,8 +19,6 @@ class NB_API DrawingContext
 public:
 	DrawingContext();
 
-	static DrawingContext* get();
-
 	CameraPtr camera();
 	void resize(int width, int height);
 

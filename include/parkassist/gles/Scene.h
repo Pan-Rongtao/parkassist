@@ -8,7 +8,7 @@ class NB_API Scene
 {
 public:
 	Scene(int width, int height);
-	virtual ~Scene() = default;
+	~Scene() = default;
 
 	//添加一个多边形
 	void add(std::shared_ptr<Polygon> polygon);

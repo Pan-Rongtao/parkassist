@@ -14,12 +14,6 @@ DrawingContext::DrawingContext()
 {
 }
 
-DrawingContext* DrawingContext::get()
-{
-	static auto p = new DrawingContext();
-	return p;
-}
-
 CameraPtr DrawingContext::camera()
 {
 	return m_camera;

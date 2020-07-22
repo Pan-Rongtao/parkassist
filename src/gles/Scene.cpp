@@ -19,10 +19,11 @@ void Scene::clear()
 
 void Scene::doRender()
 {
-	DrawingContext::get()->clear();
+	m_dc.clear();
 	for (auto polygon : m_polygons)
 	{
-		polygon->draw();
+		m_dc.drawPolygon(polygon->side0(), polygon->side1(), polygon->brush(), 
+			polygon->controlPointsCount(), polygon->sampleCount(), polygon->mode());
 	}
-	DrawingContext::get()->renderAll();
+	m_dc.renderAll();
 }

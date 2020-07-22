@@ -17,18 +17,24 @@ public:
 	void setSide0(const std::vector<glm::vec2> &side0);
 	void setSide1(const std::vector<glm::vec2> &side1);
 
+	const std::vector<glm::vec2> &side0() const;
+	const std::vector<glm::vec2> &side1() const;
+
 	//贝塞尔参数
 	//controlPointsCount：每段控制点数，默认值为5
 	//sampleCount：每段贝塞尔采集点数，默认值20
 	void setBezierParams(int controlPointsCount, int sampleCount);
+	int controlPointsCount() const;
+	int sampleCount() const;
 
 	//设置画刷
 	void setBrush(BrushPtr brush);
-
+	BrushPtr brush() const;
 	//
 	void setMode(uint8_t mode);
+	uint8_t mode() const;
 
-	void draw();
+	//void draw();
 
 private:
 	std::vector<glm::vec2> m_side0;

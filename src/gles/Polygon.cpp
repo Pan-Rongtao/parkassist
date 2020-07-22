@@ -31,10 +31,30 @@ void Polygon::setSide1(const std::vector<glm::vec2>& side1)
 	m_side1 = side1;
 }
 
+const std::vector<glm::vec2>& Polygon::side0() const
+{
+	return m_side0;
+}
+
+const std::vector<glm::vec2>& Polygon::side1() const
+{
+	return m_side1;
+}
+
 void Polygon::setBezierParams(int controlPointsCount, int sampleCount)
 {
 	m_controlPointsCount = controlPointsCount;
 	m_sampleCount = sampleCount;
+}
+
+int Polygon::controlPointsCount() const
+{
+	return m_controlPointsCount;
+}
+
+int Polygon::sampleCount() const
+{
+	return m_sampleCount;
 }
 
 void Polygon::setBrush(BrushPtr brush)
@@ -42,12 +62,21 @@ void Polygon::setBrush(BrushPtr brush)
 	m_brush = brush;
 }
 
+BrushPtr Polygon::brush() const
+{
+	return m_brush;
+}
+
 void Polygon::setMode(uint8_t mode)
 {
 	m_drawMode = mode;
 }
-
-void Polygon::draw()
+uint8_t Polygon::mode() const
 {
-	DrawingContext::get()->drawPolygon(m_side0, m_side1, m_brush, m_controlPointsCount, m_sampleCount, m_drawMode);
+	return m_drawMode;
 }
+//
+//void Polygon::draw()
+//{
+//	DrawingContext::get()->drawPolygon(m_side0, m_side1, m_brush, m_controlPointsCount, m_sampleCount, m_drawMode);
+//}
