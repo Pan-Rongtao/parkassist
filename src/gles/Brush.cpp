@@ -31,3 +31,13 @@ LinearGradientBrush::LinearGradientBrush(const std::vector<GradientStop>& gradie
 	: GradientBrush(gradientStops)
 {
 }
+
+ImageBrush::ImageBrush(ImageSourcePtr imgSource)
+{
+	m_imgSource = imgSource;
+}
+
+ImageSourcePtr ImageBrush::source() const
+{
+	return m_imgSource;
+}

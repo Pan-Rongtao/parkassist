@@ -98,8 +98,14 @@ void Renderer::draw(CameraPtr camera) const
 
 	program->vertexAttributePointer(Program::nbPositionLocation, Vertex::positionDimension, Vertex::stride, m_mesh->positionData());
 	program->vertexAttributePointer(Program::nbColorLocation, Vertex::colorDimension, Vertex::stride, m_mesh->colorData());
-	program->vertexAttributePointer(Program::nbTexCoordLocaltion, Vertex::texCoordDimension, Vertex::stride, m_mesh->textureCoordinateData());
 	program->vertexAttributePointer(Program::nbNormalLocation, Vertex::normalDimension, Vertex::stride, m_mesh->normalData());
+
+	program->vertexAttributePointer(Program::nbTexCoordLocaltion, Vertex::texCoordDimension, Vertex::stride, m_mesh->textureCoordinateData());
+	for (auto const &tex : m_mesh->material.textures())
+	{
+		tex->bind();
+		tex->active();
+	}
 
 	glDrawElements(m_mesh->mode, m_mesh->indices.size(), GL_UNSIGNED_SHORT, m_mesh->indices.data());
 	program->disuse();

@@ -24,6 +24,19 @@ private:
 	Color m_color;
 };
 
+class ImageSource;
+using ImageSourcePtr = std::shared_ptr<ImageSource>;
+class NB_API ImageBrush : public Brush
+{
+public:
+	ImageBrush(ImageSourcePtr imgSource);
+
+	ImageSourcePtr source() const;
+
+private:
+	ImageSourcePtr m_imgSource;
+};
+
 class NB_API GradientStop
 {
 public:

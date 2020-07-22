@@ -31,6 +31,20 @@ void Window::resize(int width, int height)
 	glfwSetWindowSize(m_implWindow, width, height);
 }
 
+int Window::width() const
+{
+	int w = 0, h = 0;
+	glfwGetWindowSize(m_implWindow, &w, &h);
+	return w;
+}
+
+int Window::height() const
+{
+	int w = 0, h = 0;
+	glfwGetWindowSize(m_implWindow, &w, &h);
+	return h;
+}
+
 void Window::pollEvents()
 {
 	glfwPollEvents();

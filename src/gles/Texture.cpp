@@ -12,7 +12,7 @@ int TextureWrapping::glValue(TextureWrapping::WrappingModeE wrapping)
 	case WrappingModeE::Repeat:				nGl = GL_REPEAT;					break;
 	case WrappingModeE::MirroredRepeat:		nGl = GL_MIRRORED_REPEAT;			break;
 	case WrappingModeE::ClampToEdge:		nGl = GL_CLAMP_TO_EDGE;				break;
-	case WrappingModeE::ClampToBorder:		printf("not in opengl es 2.0");	break;
+	case WrappingModeE::ClampToBorder:		printf("not in opengl es 2.0\n");	break;
 	default:																	break;
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, nGl);
@@ -27,7 +27,7 @@ int TextureFilter::glValue(TextureFilter::FilterE filter)
 	case FilterE::Point:		nGl = GL_NEAREST;																break;
 	case FilterE::Bilinear:		nGl = GL_LINEAR;																break;
 	case FilterE::Trilinear:	nGl = GL_LINEAR_MIPMAP_LINEAR;													break;
-	case FilterE::Anisotropic:	nGl = GL_TEXTURE_MAX_ANISOTROPY_EXT;	printf("check if gpu supports\n");	break;
+	case FilterE::Anisotropic:	nGl = GL_TEXTURE_MAX_ANISOTROPY_EXT;	printf("check if gpu supports\n");		break;
 	default:																									break;
 	}
 	return nGl;
@@ -42,11 +42,6 @@ Texture::Texture()
 	{
 		nbThrowException(std::logic_error, "gl configure has not set.");
 	}
-}
-
-Texture::~Texture()
-{
-	glDeleteTextures(1, &m_handle);
 }
 
 TextureWrapping &Texture::wrapping()
@@ -69,26 +64,34 @@ const TextureFilter &Texture::filter() const
 	return m_filter;
 }
 
-void Texture::setSamplerUnit(const uint8_t & unit)
+void Texture::setSamplerUnit(int unit)
 {
 	m_samplerUnit = unit;
 }
 
-uint8_t Texture::samplerUnit()
+int Texture::samplerUnit()
 {
 	return m_samplerUnit;
 }
 
-void Texture::bitmapFormatToGlFormat(int bmChannels, int &glInteralFormat, int &glPixcelDepth) const
+void Texture::active()
 {
-	switch(bmChannels)
+	glActiveTexture(m_samplerUnit);
+}
+
+std::pair<int, int> Texture::getGlFormatAndType(int bmChannels)
+{
+	switch (bmChannels)
 	{
-	case 1:	glInteralFormat = GL_RGB;		glPixcelDepth = GL_UNSIGNED_BYTE;			break;
-	case 2:	glInteralFormat = GL_ALPHA;		glPixcelDepth = GL_UNSIGNED_BYTE;	break;
-	case 3:	glInteralFormat = GL_RGB;		glPixcelDepth = GL_UNSIGNED_BYTE;			break;
-//	case Bitmap::Format_Bpp16_Argb4444:	glInteralFormat = GL_RGBA;		glPixcelDepth = GL_UNSIGNED_SHORT_4_4_4_4;	break;
-//	case Bitmap::Format_Bpp1_Mono:		glInteralFormat = GL_RGBA;		glPixcelDepth = GL_UNSIGNED_SHORT_5_5_5_1;	break;
-	case 4:	glInteralFormat = GL_RGBA;		glPixcelDepth = GL_UNSIGNED_BYTE;			break;
+	case 1:	return{ GL_RGB, GL_UNSIGNED_BYTE };
+	case 2:	return{ GL_ALPHA, GL_UNSIGNED_BYTE };
+	case 3:	return{ GL_RGB, GL_UNSIGNED_BYTE };
+	case 4:	return{ GL_RGBA, GL_UNSIGNED_BYTE };
 	default: nbThrowException(std::invalid_argument, "bmChannels[%d] is invalid", bmChannels);	break;
 	}
+}
+
+Texture::~Texture()
+{
+	glDeleteTextures(1, &m_handle);
 }

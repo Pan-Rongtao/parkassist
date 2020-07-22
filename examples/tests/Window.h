@@ -16,6 +16,9 @@ public:
 
 	void resize(int width, int height);
 
+	int width() const;
+	int height() const;
+
 	static void pollEvents();
 
 	Event<int>	KeyEvent;

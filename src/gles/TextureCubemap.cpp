@@ -24,7 +24,7 @@ void TextureCubemap::setWrapping(const TextureWrapping &wrapping)
 	bind();
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, TextureWrapping::glValue(wrapping.s));
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, TextureWrapping::glValue(wrapping.t));
-//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, TextureWrapping::glValue(wrapping.r()));
+	//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, TextureWrapping::glValue(wrapping.r()));
 	unbind();
 	m_wrapping = wrapping;
 }
@@ -38,22 +38,14 @@ void TextureCubemap::setFilter(const TextureFilter &filter)
 	m_filter = filter;
 }
 
-void TextureCubemap::load(const std::vector<std::string> &paths)
+void TextureCubemap::update(unsigned int index, const unsigned char * data, int width, int height, int glFormat, int glType)
 {
-	//Bitmap bms[6];
-	//int glFormat[6] = { 0 };
-	//int glType[6] = { 0 };
-	//for (int i = 0; i != paths.size(); ++i)
-	//{
-	//	bms[i].load(paths[i].data());
-	//	bitmapFormatToGlFormat(bms[i].channels(), glFormat[i], glType[i]);
-	//}
+	if (index >= 6)
+	{
+		nbThrowException(std::out_of_range, "index[%d] is out of range[0, 6)", index);
+	}
 
-	//bind();
-	//for (int i = 0; i != paths.size(); ++i)
-	//{
-	//	int x = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
-	//	glTexImage2D(x, 0, glFormat[i], bms[i].width(), bms[i].height(), 0, glFormat[i], glType[i], bms[i].data());
-	//}
-	//unbind();
+	bind();
+	glTexImage2D(index, 0, glFormat, width, height, 0, glFormat, glType, data);
+	unbind();
 }

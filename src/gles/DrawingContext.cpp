@@ -3,6 +3,8 @@
 #include "parkassist/gles/Camera.h"
 #include "parkassist/gles/PolygonGeometry.h"
 #include "parkassist/gles/Brush.h"
+#include "parkassist/gles/ImageSource.h"
+#include "parkassist/gles/Texture2D.h"
 #include <GLES2/gl2.h>
 
 using namespace nb;
@@ -66,6 +68,28 @@ void DrawingContext::drawPolygon(const std::vector<glm::vec2>& side0, const std:
 		renderer->storeUniform("offsets", offsets);
 		m_renderers.push_back(renderer);
 	}
+	else if (nb::is<ImageBrush>(brush))
+	{
+		geometry->vertexs[0].texCoord = glm::vec2(0.0, 1.0);
+		geometry->vertexs[1].texCoord = glm::vec2(1.0, 1.0);
+		geometry->vertexs[2].texCoord = glm::vec2(0.0, 0.0);
+		geometry->vertexs[3].texCoord = glm::vec2(1.0, 0.0);
+		renderer->setProgram(Programs::image());
+		auto source = nb::as<ImageBrush>(brush)->source();
+		if (source)
+		{
+			auto const &stream = source->stream();
+			auto texture = std::make_shared<Texture2D>();
+			auto glFormatAndType = Texture::getGlFormatAndType(source->channels());
+			texture->update((const unsigned char *)stream.data(), (int)source->width(), (int)source->height(), glFormatAndType.first, glFormatAndType.second);
+			geometry->material.textures().push_back(texture);
+		}
+		m_renderers.push_back(renderer);
+	}
+}
+
+void DrawingContext::drawImage(ImageSourcePtr source, const Rect & rect)
+{
 }
 
 void DrawingContext::clear()
@@ -84,5 +108,4 @@ void DrawingContext::renderAll()
 	{
 		renderer->draw(m_camera);
 	}
-//	m_renderers.clear();
 }
