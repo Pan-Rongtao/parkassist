@@ -48,7 +48,7 @@ void Bitmap::operator = (const Bitmap &other)
 void Bitmap::load(const std::string &path)
 {
 	SOIL_free_image_data(m_data);
-	m_data = SOIL_load_image(path.data(), &m_width, &m_height, &m_channels, SOIL_LOAD_RGB);
+	m_data = SOIL_load_image(path.data(), &m_width, &m_height, &m_channels, SOIL_LOAD_AUTO);
 	if (!m_data)
 	{
 		m_width = 0;
@@ -60,7 +60,7 @@ void Bitmap::load(const std::string &path)
 void Bitmap::load(const unsigned char *buffer, uint32_t bytes)
 {
 	SOIL_free_image_data(m_data);
-	m_data = SOIL_load_image_from_memory(buffer, bytes, &m_width, &m_height, &m_channels, SOIL_LOAD_RGB);
+	m_data = SOIL_load_image_from_memory(buffer, bytes, &m_width, &m_height, &m_channels, SOIL_LOAD_AUTO);
 	if (!m_data)
 	{
 		m_width = 0;
