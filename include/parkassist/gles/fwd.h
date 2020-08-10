@@ -8,4 +8,3 @@
 #include "parkassist/gles/Scene.h"
 
 using namespace nb;
-using PolygonPtr = std::shared_ptr<Polygon>;

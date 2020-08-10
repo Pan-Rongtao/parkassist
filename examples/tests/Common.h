@@ -2,7 +2,9 @@
 #include <vector>
 #include "glm/glm.hpp"
 #include "parkassist/gles/fwd.h"
+#include "nlohmann/json.hpp"
 
+using json = nlohmann::json;
 class Common
 {
 public:
@@ -59,6 +61,24 @@ public:
 			polygons.push_back(polygon);
 		}
 		return polygons;
+	}
+
+	static json dataToJson(const std::vector<std::vector<double>> &data)
+	{
+		json root;
+		for (size_t i = 0; i < data.size() / 3; ++i)
+		{
+			auto const &side0Data = data[i * 3 + 0];
+			auto const &side1Data = data[i * 3 + 1];
+			auto const &colorData = data[i * 3 + 2];
+			json polygon;
+			polygon["Side0"] = side0Data;
+			polygon["Side1"] = side1Data;
+			polygon["Color"] = colorData;
+			auto polygonName = std::string("Polygon") + char(char('a') + i);
+			root[polygonName] = polygon;
+		}
+		return root;
 	}
 
 };

@@ -51,37 +51,18 @@ int Parser::getContextHeight() const
 	return m_contextHeight;
 }
 
-void Parser::enablePointsObjects(bool bOn)
-{
-	m_bEnablePiontsObject = bOn;
-}
-
-bool Parser::isPointsObjectsOn() const
-{
-	return m_bEnablePiontsObject;
-}
-
-int nb::Parser::drawingStatesCount() const
+int Parser::drawingStatesCount() const
 {
 	return m_drawingStates.size();
 }
 
-DrawingState nb::Parser::getDrawingState(int index) const
+std::vector<PolygonPtr> Parser::getDrawingState(int index) const
 {
-	if (index < 0 || index >= m_drawingStates.size())
+	if (index < 0 || index >= (int)m_drawingStates.size())
 	{
 		nbThrowException(std::out_of_range, "index[%d] is out of range[0, %zu)", index, m_drawingStates.size());
 	}
-	if (m_bEnablePiontsObject)
-	{
-		DrawingState state = m_drawingStates[index];
-		state.insert(state.end(), m_drawingStates_Points[index].begin(), m_drawingStates_Points[index].end());
-		return state;
-	}
-	else
-	{
-		return m_drawingStates[index];
-	}
+	return m_drawingStates[index];
 }
 
 void Parser::parseConfig()
@@ -121,7 +102,6 @@ void Parser::parseConfig()
 	m_stateCount = check("StateCount", 0);
 	m_bezierControlPointsCount = check("BezierControlPointsCount", 0);
 	m_bezierSampleCount = check("BezierSampleCount", 0);
-	m_drawPointMode = check("DrawPointMode", 0);
 
 	spdlog::info("parsing [{}] success, ContextWidth=[{}], ContextHeight=[{}], StateCount=[{}], BezierControlPointsCount=[{}], BezierSampleCount=[{}]", 
 		CfgFile, m_contextWidth, m_contextHeight, m_stateCount, m_bezierControlPointsCount, m_bezierSampleCount);
@@ -130,15 +110,13 @@ void Parser::parseConfig()
 void Parser::parseStates()
 {
 	m_drawingStates.resize(m_stateCount);
-	m_drawingStates_Points.resize(m_stateCount);
 	for (size_t i = 0; i != m_drawingStates.size(); ++i)
 	{
 		m_parsingFileName = fmt::format("{}{}.json", StateFileHead, i);
 		spdlog::info("parsing [{}] ...", m_parsingFileName);
 		json obj = parseOneFile(m_parsingFileName);
-		auto statePair = makeDrawingState(obj);
-		m_drawingStates[i] = statePair.first;
-		m_drawingStates_Points[i] = statePair.second;
+		auto state = makeDrawingState(obj);
+		m_drawingStates[i] = state;
 	}
 }
 
@@ -147,7 +125,7 @@ json Parser::parseOneFile(const std::string & fileName)
 	std::ifstream stream(m_dir + fileName.data());
 	if (!stream)
 	{
-		throw FileNotExistsException(fileName);
+		throw FileNotExistsException(m_dir + fileName);
 	}
 
 	json obj;
@@ -157,15 +135,14 @@ json Parser::parseOneFile(const std::string & fileName)
 	catch (std::exception &e) 
 	{
 		stream.close();
-		throw JsonParsingException(fileName, e.what());
+		throw JsonParsingException(m_dir + fileName, e.what());
 	}
 	return obj;
 }
 
-std::pair<DrawingState, DrawingState> Parser::makeDrawingState(const json &obj)
+std::vector<PolygonPtr> Parser::makeDrawingState(const json &obj)
 {
-	DrawingState state;
-	DrawingState state_Points;
+	std::vector<PolygonPtr> state;
 	for (auto iter = obj.begin(); iter != obj.end(); ++iter)
 	{
 		auto item = iter.value();
@@ -181,31 +158,22 @@ std::pair<DrawingState, DrawingState> Parser::makeDrawingState(const json &obj)
 			std::vector<float> s1 = item["Side1"];
 			if (s0.size() > s1.size())	s0.resize(s1.size());
 			else if(s1.size() > s0.size())	s1.resize(s0.size());
-			std::vector<int> arr = item["SolidColor"];
 			std::vector<glm::vec2> side0(s0.size() / 2);
 			std::vector<glm::vec2> side1(s0.size() / 2);
-			glm::vec4 solidColor{ arr[0] / 255.0f, arr[1] / 255.0f, arr[2] / 255.0f, arr[3] / 255.0f };
 			for (size_t i = 0; i != side0.size(); ++i)
 			{
 				side0[i] = { s0[i * 2], s0[i * 2 + 1] };
 				side1[i] = { s1[i * 2], s1[i * 2 + 1] };
 			}
-			auto polygon = std::make_shared<PolygonGeometry>();
-			polygon->setPoint(side0, side1, m_bezierControlPointsCount, m_bezierSampleCount);
-			auto renderer = std::make_shared<Renderer>(polygon, Programs::primitive());
-			renderer->mesh()->unifyColor(solidColor);
-			renderer->mesh()->mode = GL_TRIANGLES;
-			state.push_back(renderer);
+			auto polygon = std::make_shared<Polygon>(side0, side1);
+			polygon->setBezierParams(m_bezierControlPointsCount, m_bezierSampleCount);
+			auto brush = toBrush(item["Color"]);
+			polygon->setBrush(brush);
 
-			auto polygon_Points = std::make_shared<PolygonGeometry>();
-			polygon_Points->setPoint(side0, side1, 0, 0);
-			auto renderObj_Pionts = std::make_shared<Renderer>(polygon_Points, Programs::primitive());
-			renderObj_Pionts->mesh()->unifyColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
-			renderObj_Pionts->mesh()->mode = GL_POINTS;
-			state_Points.push_back(renderObj_Pionts);
+			state.push_back(polygon);
 		}
 	}
-	return{ state, state_Points };
+	return state;
 }
 
 bool Parser::isPoints(const json & arr)
@@ -226,30 +194,41 @@ bool Parser::isPoints(const json & arr)
 	return bIsIntegerArray;
 }
 
-bool Parser::isSolidColor(const json & arr)
+BrushPtr Parser::toBrush(const json & arr)
 {
-	if (arr.size() != 4)
+	if (arr.empty() || (arr.size() % 4 != 0 && arr.size() % 5 != 0))
 	{
 		throw InvalidArraySizeException();
 	}
 
-	bool bIsIntegerArray = false;
-	try {
-		bIsIntegerArray = isIntegerArray(arr);
-	}
-	catch (InvalidArrayValueException &ex)
+	BrushPtr brush;
+	if (arr.size() == 4)
 	{
-		throw ex;
+		Color color{ (uint8_t)arr[0], (uint8_t)arr[1], (uint8_t)arr[2], (uint8_t)arr[3] };
+		brush = std::make_shared<SolidColorBrush>(color);
 	}
-	return bIsIntegerArray;
+	else
+	{
+		std::vector<GradientStop> gradientStops;
+		for (size_t k = 0; k < arr.size() / 5; ++k)
+		{
+			Color color((uint8_t)arr[k * 5 + 0], (uint8_t)arr[k * 5 + 1], (uint8_t)arr[k * 5 + 2], (uint8_t)arr[k * 5 + 3]);
+			float offset = (float)arr[k * 5 + 4];
+			auto stop = GradientStop{ color, offset };
+			gradientStops.push_back(stop);
+		}
+		brush = std::make_shared<LinearGradientBrush>(gradientStops);
+	}
+
+	return brush;
 }
 
 bool Parser::isPolygon(const json & obj, const std::string &polygonName)
 {
-	json side0, side1, solidColor;
+	json side0, side1, color;
 	try { side0 = obj.at("Side0"); }catch(...) { throw Exception(fmt::format("[{}.Side0] not found in file [{}]", polygonName, m_parsingFileName)); }
 	try { side1 = obj.at("Side1"); }catch(...) { throw Exception(fmt::format("[{}.Side1] not found in file [{}]", polygonName, m_parsingFileName)); }
-	try { solidColor = obj.at("SolidColor"); }catch(...) { throw Exception(fmt::format("[{}.SolidColor] not found in file [{}]", polygonName, m_parsingFileName)); }
+	try { color = obj.at("Color"); }catch(...) { throw Exception(fmt::format("[{}.Color] not found in file [{}]", polygonName, m_parsingFileName)); }
 	bool sizeEqual = side0.size() == side1.size();
 
 	bool ret = false;
@@ -261,9 +240,9 @@ bool Parser::isPolygon(const json & obj, const std::string &polygonName)
 	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.Side1] must be a int array as [Points Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
 	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.Side1].size must be a multiple of 2", polygonName)); }
 
-	try { ret &= isSolidColor(solidColor); }
-	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.SolidColor] must be a int array as [SolidColor Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
-	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.SolidColor].size must be 4 as [SolidColor Type]", polygonName)); }
+	try { ret &= toBrush(color) != nullptr; }
+	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.Color] must be a int array as [Color Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
+	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.Color].size must be 4 as [Color Type]", polygonName)); }
 
 	if (!sizeEqual)
 	{

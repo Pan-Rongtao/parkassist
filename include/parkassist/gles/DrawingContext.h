@@ -38,6 +38,8 @@ public:
 private:
 	CameraPtr m_camera;
 	std::vector<RendererPtr> m_renderers;
+	int m_width;
+	int m_height;
 };
 
 

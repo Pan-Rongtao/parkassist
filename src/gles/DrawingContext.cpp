@@ -11,6 +11,8 @@ using namespace nb;
 
 DrawingContext::DrawingContext()
 	: m_camera(std::make_shared<Camera>())
+	, m_width(0)
+	, m_height(0)
 {
 }
 
@@ -23,6 +25,8 @@ void DrawingContext::resize(int width, int height)
 {
 	glViewport(0, 0, width, height);
 	m_camera->ortho(0.0f, (float)width, (float)height, 0.0f, -1000.0f, 1000.0f);
+	m_width = width;
+	m_height = height;
 }
 
 void DrawingContext::drawPolygon(const std::vector<glm::vec2>& side0, const std::vector<glm::vec2>& side1, BrushPtr brush, int controlPointsCount, int sampleCount, uint8_t drawMode)
@@ -48,7 +52,7 @@ void DrawingContext::drawPolygon(const std::vector<glm::vec2>& side0, const std:
 	else if (nb::is <LinearGradientBrush>(brush))
 	{
 		renderer->setProgram(Programs::gradientPrimitive());
-
+		renderer->storeUniform<float>("height", (float)m_height);
 		auto const &stops = nb::as<LinearGradientBrush>(brush)->gradientStops();
 		std::vector<glm::vec4> colors;
 		std::vector<float> offsets;

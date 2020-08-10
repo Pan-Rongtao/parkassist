@@ -1,0 +1,7 @@
+{
+	"ContextWidth" : 1280,
+	"ContextHeight" : 800,
+	"StateCount" : 65,
+	"BezierControlPointsCount":10,
+	"BezierSampleCount":50
+}

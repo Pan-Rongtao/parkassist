@@ -21,8 +21,8 @@ public:
 	const std::vector<glm::vec2> &side1() const;
 
 	//贝塞尔参数
-	//controlPointsCount：每段控制点数，默认值为5
-	//sampleCount：每段贝塞尔采集点数，默认值20
+	//controlPointsCount：每段控制点数，默认值为10
+	//sampleCount：每段贝塞尔采集点数，默认值50
 	void setBezierParams(int controlPointsCount, int sampleCount);
 	int controlPointsCount() const;
 	int sampleCount() const;
@@ -45,4 +45,5 @@ private:
 	uint8_t m_drawMode;
 };
 
+using PolygonPtr = std::shared_ptr<Polygon>;
 }

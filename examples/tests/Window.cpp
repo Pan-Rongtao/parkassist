@@ -16,7 +16,7 @@ Window::Window(int width, int height, const std::string &title)
 
 	sizeCallback(width, height);
 }
-
+ 
 Window::~Window()
 {
 }
