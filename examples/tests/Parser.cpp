@@ -2,7 +2,6 @@
 #include <fstream>
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
-#include "Exceptions.h"
 #include "parkassist/gles/Program.h"
 #include "parkassist/gles/Renderer.h"
 #include "parkassist/gles/PolygonGeometry.h"

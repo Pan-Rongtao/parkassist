@@ -7,19 +7,14 @@
 
 using namespace nb;
 
-#define PROJECT_NAME	"ParserDataScene"
-#define PROJECT_CFG		"../etc/project.json"
-#define WIDTH 1280
-#define HEIGHT 800
-
-Parser g_parser;
-TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
+std::string getCfgProjectName()
 {
+#define PROJECT_CFG		"../etc/project.json"
 	std::ifstream stream(PROJECT_CFG);
 	if (!stream)
 	{
 		printf("%s not found.\n", PROJECT_CFG);
-		return;
+		return "";
 	}
 
 	json obj;
@@ -30,98 +25,74 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	{
 		stream.close();
 		printf("parse error=%s.\n", e.what());
-		return;
+		return "";
 	}
 
 	json j;
 	try {
 		j = obj.at("Project");
 	}
-	catch (...) { printf("can't find field [Project] as int type in file [%s]\n", PROJECT_CFG); return; }
-	auto projectName = j.get<std::string>();
-	auto bkgPicPath = std::string("../etc/") + projectName + "/" + "BKG.bmp";
+	catch (...) { printf("can't find field [Project] as int type in file [%s]\n", PROJECT_CFG); return ""; }
+	return j.get<std::string>();
+}
 
-	Window w(WIDTH, HEIGHT, PROJECT_NAME + std::string(":") + projectName);
-	g_parser.setDir(std::string("../etc/") + projectName);
-	if (!g_parser.parse())
+int state = -1;
+enum class Direction
+{
+	prev,
+	next,
+};
+void gotoState(ScenePtr sc, PolygonPtr bkg, const Parser &parser, Direction d)
+{
+	int halfCount = (int)std::ceil(parser.drawingStatesCount() / 2.0);
+	if ((d == Direction::prev && state - 1 > -halfCount) || (d == Direction::next && state + 1 < halfCount))
 	{
-		return;
-	}
-	w.resize(g_parser.getContextWidth(), g_parser.getContextHeight());
-	std::shared_ptr<Scene> sc = std::make_shared<Scene>(g_parser.getContextWidth(), g_parser.getContextHeight());
-
-	w.ResizeEvent += [&w, &sc](const Window::Size &sz)
-	{
-		sc->doRender();
-		w.swapBuffers();
-	};
-
-	int state = 0;
-	auto polygonBG = Common::getBackground(bkgPicPath, WIDTH, HEIGHT);
-	sc->add(polygonBG);
-	auto polygons = g_parser.getDrawingState(state);
-	for (auto const p : polygons)
-	{
-		sc->add(p);
+		state = d == Direction::next ? state + 1 : state - 1;
+		auto index = state < 0 ? -(state - halfCount + 1) : state;
+		auto polygons = parser.getDrawingState(index);
+		sc->clear();
+		sc->add(bkg);
+		for (auto const p : polygons)
+		{
+			sc->add(p);
+		}
+		printf("state=%d, index=%d\n", state, index);
 	}
 	sc->doRender();
-	w.swapBuffers();
+}
 
-	w.KeyEvent += [&w, &sc, &state, polygonBG](const int &key)
+TEST_CASE("ParserDataScene", "[ParserDataScene]")
+{
+	Window w(800, 600, "parse data from json");
+
+	Parser parser;
+	auto projectName = getCfgProjectName();
+	parser.setDir(std::string("../etc/") + projectName);
+	if (!parser.parse())	return;
+
+	auto width = parser.getContextWidth();
+	auto height = parser.getContextHeight();
+	auto bkgPicPath = std::string("../etc/") + projectName + "/" + "BKG.bmp";
+	auto bkg = Common::getBackground(bkgPicPath, width, height);
+
+	auto sc = std::make_shared<Scene>(width, height);
+
+	w.resize(width, height);
+	w.ResizeEvent += [&w, &sc](const Window::Size &sz) { sc->doRender(); w.swapBuffers(); };
+	w.KeyEvent += [&w, &sc, bkg, &parser](const int &key)
 	{
-		auto index = 0;
-		int halfCount = (int)std::ceil(g_parser.drawingStatesCount() / 2.0);
 		switch (key)
 		{
-		case GLFW_KEY_LEFT:
-		{
-			if (state - 1 <= -halfCount)
-			{
-				return;
-			}
-
-			--state;
-
-			index = state < 0 ? -(state - halfCount + 1) : state;
-			auto polygons = g_parser.getDrawingState(index);
-			sc->clear();
-			sc->add(polygonBG);
-			for (auto const p : polygons)
-			{
-				sc->add(p);
-			}
-		}
-		break;
-		case GLFW_KEY_RIGHT:
-		{
-			if (state + 1 >= halfCount)
-			{
-				return;
-			}
-
-			++state;
-			index = state < 0 ? -(state - halfCount + 1) : state;
-			auto polygons = g_parser.getDrawingState(index);
-			sc->clear();
-			sc->add(polygonBG);
-			for (auto const p : polygons)
-			{
-				sc->add(p);
-			}
-		}
-		break;
-		case GLFW_KEY_SPACE:
-		{
-			sc->enableBorder(!sc->isBorderEnable());
-		}
-		break;
+		case GLFW_KEY_LEFT: gotoState(sc, bkg, parser, Direction::prev);	break;
+		case GLFW_KEY_RIGHT:gotoState(sc, bkg, parser, Direction::next);	break;
+		case GLFW_KEY_SPACE:{ sc->enableBorder(!sc->isBorderEnable()); sc->doRender(); break; }
 		default:	break;
 		}
-		sc->doRender();
 		w.swapBuffers();
-		printf("state=%d, index=%d\n", state, index);
 	};
 
+	gotoState(sc, bkg, parser, Direction::next);
+	w.swapBuffers();
 
 	while (true)
 	{

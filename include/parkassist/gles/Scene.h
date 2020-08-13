@@ -32,4 +32,5 @@ private:
 	bool m_enableBorder;
 };
 
+using ScenePtr = std::shared_ptr<Scene>;
 }

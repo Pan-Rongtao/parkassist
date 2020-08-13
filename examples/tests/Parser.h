@@ -1,12 +1,50 @@
 #pragma once
 #include <string>
+#include <exception>
 #include "parkassist/gles/Def.h"
 #include "nlohmann/json.hpp"
 #include "parkassist/gles/fwd.h"
+#include "spdlog/fmt/fmt.h"
 
 using nlohmann::json;
 
 namespace nb {
+	
+class Exception : public std::exception
+{
+public:
+	Exception() = default;
+	Exception(const std::string &msg) : m_msg(msg) { }
+
+protected:
+	virtual char const* what() const { return m_msg.data(); }
+	std::string m_msg;
+};
+
+class FileNotExistsException : public Exception
+{
+public:
+	FileNotExistsException(const std::string &path) { m_msg = "can't find [" + path + "]"; }
+};
+
+class JsonParsingException : public Exception
+{
+public:
+	JsonParsingException(const std::string &filePath, const std::string &errorMsg) { m_msg = fmt::format("[{}] syntax error.\n\t{}", filePath, errorMsg); }
+};
+
+class InvalidArraySizeException : public Exception
+{
+public:
+	InvalidArraySizeException() = default;
+};
+
+class InvalidArrayValueException : public Exception
+{
+public:
+	InvalidArrayValueException(int invalidIndex) : InvalidIndex(invalidIndex) { m_msg = fmt::format("invalidIndex({})", invalidIndex); }
+	int InvalidIndex;
+};
 
 enum class ValueType
 {

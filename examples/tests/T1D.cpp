@@ -15,12 +15,6 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	Window w(WIDTH, HEIGHT, PROJECT_NAME);
 	std::shared_ptr<Scene> sc = std::make_shared<Scene>(WIDTH, HEIGHT);
 
-	w.ResizeEvent += [&w, &sc](const Window::Size &sz)
-	{
-		sc->doRender();
-		w.swapBuffers();
-	};
-
 	int state = 0;
 	auto polygonBG = Common::getBackground(std::string("../etc/") + PROJECT_NAME + ".bmp", WIDTH, HEIGHT);
 	sc->add(polygonBG);
@@ -32,6 +26,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	sc->doRender();
 	w.swapBuffers();
 
+	w.ResizeEvent += [&w, &sc](const Window::Size &sz) { sc->doRender(); w.swapBuffers(); };
 	w.KeyEvent += [&w, &sc, polygonBG, &state](const int &key)
 	{
 		switch (key)
