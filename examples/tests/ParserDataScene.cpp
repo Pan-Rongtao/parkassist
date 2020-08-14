@@ -83,9 +83,9 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 	{
 		switch (key)
 		{
-		case GLFW_KEY_LEFT: gotoState(sc, bkg, parser, Direction::prev);	break;
-		case GLFW_KEY_RIGHT:gotoState(sc, bkg, parser, Direction::next);	break;
-		case GLFW_KEY_SPACE:{ sc->enableBorder(!sc->isBorderEnable()); sc->doRender(); break; }
+		case 263: gotoState(sc, bkg, parser, Direction::prev);	break;
+		case 262:gotoState(sc, bkg, parser, Direction::next);	break;
+		case 32:{ sc->enableBorder(!sc->isBorderEnable()); sc->doRender(); break; }
 		default:	break;
 		}
 		w.swapBuffers();
@@ -93,6 +93,7 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 
 	gotoState(sc, bkg, parser, Direction::next);
 	w.swapBuffers();
+
 
 	while (true)
 	{

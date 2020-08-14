@@ -88,7 +88,7 @@ std::string nb::getClassName(const std::type_index & t)
 	nbThrowException(std::runtime_error, "not implement.");
 #endif
 }
-
+/*
 std::vector<std::string> nb::stringSplit(const std::string & s, const std::string & sSymbol, bool bSkipEmptyString)
 {
 	std::vector<std::string> ret;
@@ -108,4 +108,4 @@ std::vector<std::string> nb::stringSplit(const std::string & s, const std::strin
 		token = STRTOK(nullptr, sSymbol.data(), &p);
 	}
 	return ret;
-}
+}*/

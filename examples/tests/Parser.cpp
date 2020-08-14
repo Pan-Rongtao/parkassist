@@ -10,8 +10,8 @@
 using namespace nb;
 using namespace nlohmann;
 
-constexpr char *CfgFile = "config.json";
-constexpr char *StateFileHead = "state";
+constexpr const char *CfgFile = "config.json";
+constexpr const char *StateFileHead = "state";
 
 void Parser::setDir(const std::string & dir)
 {

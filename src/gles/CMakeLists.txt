@@ -28,7 +28,7 @@ set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME gles)
 if(WIN32 AND NOT MINGW)
 	target_link_libraries(${LIB_NAME} libGLESv2 libEGL openGL32 SOIL)
 elseif(UNIX AND NOT ANDROID)
-	target_link_libraries(${LIB_NAME} GLESv2 EGL)
+	target_link_libraries(${LIB_NAME} GLESv2 )
 endif()
 
 # 4. Project Install

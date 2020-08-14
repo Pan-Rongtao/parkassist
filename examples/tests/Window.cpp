@@ -4,6 +4,88 @@
 
 using namespace nb;
 
+#ifndef WIN32
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define MAX_DISPLAYS 	(4)
+uint8_t DISP_ID = 0;
+uint8_t all_display = 0;
+int8_t connector_id = -1;
+
+static struct {
+	EGLDisplay display;
+	EGLConfig config;
+	EGLContext context;
+	EGLSurface surface;
+} gl;
+
+static struct {
+	struct gbm_device *dev;
+	struct gbm_surface *surface;
+} gbm;
+
+static struct {
+	int fd;
+	uint32_t ndisp;
+	uint32_t crtc_id[MAX_DISPLAYS];
+	uint32_t connector_id[MAX_DISPLAYS];
+	uint32_t resource_id;
+	uint32_t encoder[MAX_DISPLAYS];
+	drmModeModeInfo *mode[MAX_DISPLAYS];
+	drmModeConnector *connectors[MAX_DISPLAYS];
+} drm;
+
+struct drm_fb 
+{
+	struct gbm_bo *bo;
+	uint32_t fb_id;
+};
+
+struct gbm_bo *m_bo;
+fd_set m_fds;
+
+void drm_fb_destroy_callback(struct gbm_bo *bo, void *data)
+{
+	struct drm_fb *fb = (drm_fb *)data;
+	struct gbm_device *gbm = gbm_bo_get_device(bo);
+
+	if (fb->fb_id)
+		drmModeRmFB(drm.fd, fb->fb_id);
+
+	free(fb);
+}
+
+struct drm_fb * drm_fb_get_from_bo(struct gbm_bo *bo)
+{
+	struct drm_fb *fb = (drm_fb*)gbm_bo_get_user_data(bo);
+	uint32_t width, height, stride, handle;
+	int ret;
+
+	if (fb)
+		return fb;
+
+	fb = (drm_fb*)calloc(1, sizeof *fb);
+	fb->bo = bo;
+
+	width = gbm_bo_get_width(bo);
+	height = gbm_bo_get_height(bo);
+	stride = gbm_bo_get_stride(bo);
+	handle = gbm_bo_get_handle(bo).u32;
+
+	ret = drmModeAddFB(drm.fd, width, height, 24, 32, stride, handle, &fb->fb_id);
+	if (ret) {
+		printf("failed to create fb: %s\n", strerror(errno));
+		free(fb);
+		return NULL;
+	}
+
+	gbm_bo_set_user_data(bo, fb, drm_fb_destroy_callback);
+
+	return fb;
+}
+
+#endif
+
 Window::Window(int width, int height, const std::string &title)
 {
 	init();
@@ -41,10 +123,10 @@ void Window::swapBuffers()
 
 	while (waiting_for_flip) 
 	{
-		ret = select(drm.fd + 1, &fds, NULL, NULL, NULL);
+		ret = select(drm.fd + 1, &m_fds, NULL, NULL, NULL);
 		if (ret < 0)				{ printf("select err: %s\n", strerror(errno)); return; }
 		else if (ret == 0)			{ printf("select timeout!\n"); return; }
-		else if (FD_ISSET(0, &fds)) { continue; }
+		else if (FD_ISSET(0, &m_fds)) { continue; }
 
 		static drmEventContext evctx = { .version = DRM_EVENT_CONTEXT_VERSION,
 			.vblank_handler = [](int fd, unsigned int frame, unsigned int sec, unsigned int usec, void *data) {},
@@ -115,28 +197,29 @@ void Window::init()
 	printf("### Primary display => ConnectorId = %d, Resolution = %dx%d\n", drm.connector_id[DISP_ID], drm.mode[DISP_ID]->hdisplay, drm.mode[DISP_ID]->vdisplay);
 
 	ret = initGBM();
-	if (ret) { printf("failed to initialize GBM\n"); return ret; }
+	if (ret) { printf("failed to initialize GBM\n"); return; }
 
 	ret = initEGL();
-	if (ret) { printf("failed to initialize EGL\n"); return ret; }
+	if (ret) { printf("failed to initialize EGL\n"); return; }
 
-	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(drm.fd, &fds);
+
+	FD_ZERO(&m_fds);
+	FD_SET(drm.fd, &m_fds);
+	eglSwapBuffers(gl.display, gl.surface);
 	m_bo = gbm_surface_lock_front_buffer(gbm.surface);
-	struct gbm_bo *fb = drm_fb_get_from_bo(m_bo);
+	struct drm_fb *fb = drm_fb_get_from_bo(m_bo);
 
 	/* set mode: */
 	int all_display = 0;
 	if (all_display) 
 	{
-		for (i = 0; i<drm.ndisp; i++) 
+		for (int i = 0; i<drm.ndisp; i++) 
 		{
 			ret = drmModeSetCrtc(drm.fd, drm.crtc_id[i], fb->fb_id, 0, 0, &drm.connector_id[i], 1, drm.mode[i]);
 			if (ret) 
 			{
 				printf("display %d failed to set mode: %s\n", i, strerror(errno));
-				return ret;
+				return;
 			}
 		}
 	}
@@ -146,7 +229,7 @@ void Window::init()
 		if (ret) 
 		{
 			printf("display %d failed to set mode: %s\n", DISP_ID, strerror(errno));
-			return ret;
+			return;
 		}
 	}
 #endif
@@ -161,14 +244,15 @@ void Window::sizeCallback(int width, int height)
 
 void Window::keyCallback(int key, int scancode, int action, int mods)
 {
-	if (action == 1 || action == GLFW_REPEAT)
+	if (action == 1 || action == 2)
 	{
 		KeyEvent.invoke({ key });
 	}
 }
 
 #ifndef WIN32
-void EGL::initEGL()
+
+int Window::initEGL()
 {
 	EGLint major, minor, n;
 
@@ -178,6 +262,7 @@ void EGL::initEGL()
 		EGL_NONE
 	};
 
+	int samples = 4;
 	static const EGLint config_attribs[] =
 	{
 		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
@@ -186,9 +271,10 @@ void EGL::initEGL()
 		EGL_GREEN_SIZE, 1,
 		EGL_BLUE_SIZE, 1,
 		EGL_ALPHA_SIZE, 0,
-		EGL_SAMPLES, 4,
+		EGL_SAMPLES, samples,
 		EGL_NONE
 	};
+	printf("EGL_SAMPLES=%d\n", samples);
 
 	gl.display = eglGetDisplay((EGLNativeDisplayType)gbm.dev);
 
@@ -234,7 +320,7 @@ void EGL::initEGL()
 	return 0;
 }
 
-void Window::initDRM()
+int Window::initDRM()
 {
 	static const char *modules[] = {
 		"omapdrm", "i915", "radeon", "nouveau", "vmwgfx", "exynos"
@@ -332,7 +418,7 @@ void Window::initDRM()
 	return 0;
 }
 
-void Window::initGBM()
+int Window::initGBM()
 {
 	gbm.dev = gbm_create_device(drm.fd);
 

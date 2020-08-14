@@ -31,7 +31,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	{
 		switch (key)
 		{
-		case GLFW_KEY_LEFT:
+		case 263:
 		{
 			if (state - 1 <= -((int)pointsT1D_L.size()))	return;
 
@@ -45,7 +45,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			}
 		}
 		break;
-		case GLFW_KEY_RIGHT:
+		case 262:
 		{
 			if (state + 1 >= (int)pointsT1D_R.size())	return;
 
@@ -59,7 +59,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			}
 		}
 		break;
-		case GLFW_KEY_SPACE:
+		case 32:
 		{
 			sc->enableBorder(!sc->isBorderEnable());
 		}

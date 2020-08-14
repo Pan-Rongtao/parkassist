@@ -17,7 +17,7 @@ public:
 	Exception(const std::string &msg) : m_msg(msg) { }
 
 protected:
-	virtual char const* what() const { return m_msg.data(); }
+	virtual char const* what() const noexcept { return m_msg.data(); }
 	std::string m_msg;
 };
 

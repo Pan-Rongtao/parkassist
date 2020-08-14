@@ -72,7 +72,7 @@ public:
 
 	void operator -=(int handler)
 	{
-		remove(callback);
+		removeHandler(handler);
 	}
 
 private:

@@ -35,7 +35,7 @@
 #endif
 #elif defined(linux) || defined(__linux__) || defined(__LINUX__)				//linux
 #define NB_OS_FAMILY_UNIX 1
-#ifdef (__ANDROID__)
+#if defined(__ANDROID__)
 #define NB_OS NB_OS_ANDROID
 #else
 #define NB_OS NB_OS_LINUX
@@ -114,7 +114,7 @@ namespace nb
 		return (std::max)((std::min)(lower, upper), (std::min)((std::max)(lower, upper), value));
 	}
 
-	NB_API std::vector<std::string> stringSplit(const std::string &s, const std::string &sSymbol, bool bSkipEmptyString);
+	//NB_API std::vector<std::string> stringSplit(const std::string &s, const std::string &sSymbol, bool bSkipEmptyString);
 
 	template<class T1, class T2>
 	NB_API std::shared_ptr<T1> as(const std::shared_ptr<T2> &other)

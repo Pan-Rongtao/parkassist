@@ -1,4 +1,4 @@
-#include "parkassist/gles/Program.h"
+ï»¿#include "parkassist/gles/Program.h"
 #include "parkassist/gles/Shader.h"
 #include <GLES2/gl2.h>
 #include <cstring>
@@ -272,6 +272,7 @@ std::shared_ptr<Program> Programs::gradientPrimitive()
 		"	gl_Position = nbMvp * nbPos;"
 		"}";
 	constexpr char fs[] =
+		"precision mediump float;"
 		"uniform int size;"
 		"uniform vec4 colors[100];"
 		"uniform float offsets[100];"
@@ -304,6 +305,7 @@ std::shared_ptr<Program> Programs::image()
 		"	gl_Position = nbMvp * nbPos;"
 		"}";
 	constexpr char fs[] =
+		"precision mediump float;"
 		"uniform sampler2D sampler;"
 		"varying vec2 _texCoord;"
 		"void main()"
@@ -506,7 +508,7 @@ std::shared_ptr<Program> Programs::compileBindLink(const std::string &vs, const 
 	auto p = std::make_shared<Program>(std::make_shared<VertexShader>(vs), std::make_shared<FragmentShader>(fs));
 	p->vertexShader()->compile();
 	p->fragmentShader()->compile();
-	//±ØÐëÔÚlinkÖ®Ç°°ó¶¨
+	//å¿…é¡»åœ¨linkä¹‹å‰ç»‘å®š
 	p->bindAttributeLocation(Program::nbPositionLocation, Program::nbPositionLocationStr);
 	p->bindAttributeLocation(Program::nbColorLocation, Program::nbColorLocationStr);
 	p->bindAttributeLocation(Program::nbTexCoordLocaltion, Program::nbTexCoordLocaltionStr);
