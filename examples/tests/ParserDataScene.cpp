@@ -4,6 +4,7 @@
 #include "parkassist/gles/fwd.h"
 #include "Parser.h"
 #include <fstream>
+#include "Timer.h"
 
 using namespace nb;
 
@@ -36,7 +37,7 @@ std::string getCfgProjectName()
 	return j.get<std::string>();
 }
 
-int state = -1;
+int state = -33;
 enum class Direction
 {
 	prev,
@@ -94,9 +95,18 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 	gotoState(sc, bkg, parser, Direction::next);
 	w.swapBuffers();
 
+	Timer timer;
+	timer.setInterval(10);
+	timer.Tick += [sc, bkg, parser, &w](const Timer::TickEventArgs &args)
+	{
+		gotoState(sc, bkg, parser, Direction::next);
+		w.swapBuffers();
+	};
+//	timer.start();
 
 	while (true)
 	{
 		Window::pollEvents();
+		Timer::driveInLoop();
 	}
 }
