@@ -33,7 +33,7 @@ include_directories(include)
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include)
 if(WIN32)
 	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include/opengl)
-	link_directories(${CMAKE_SOURCE_DIR}/3rdparty/lib/win32)
+	link_directories(${CMAKE_SOURCE_DIR}/3rdparty/lib)
 else()
 endif()
 

@@ -11,8 +11,8 @@ do{\
 		bzInput.push_back({ input[i].x, input[i].y });\
 	}\
 	Bezier::Bezier<N> bz(bzInput);\
-	float step = 1.0 / m_sampleCount;\
-	for (float i = 0.0f; i <= 1.000001; i += step)\
+	float step = (float)(1.0 / m_sampleCount);\
+	for (float i = 0.0f; i <= 1.000001f; i += step)\
 	{\
 		Bezier::Point p = bz.valueAt(i);\
 		out.push_back({ p.x, p.y });\
