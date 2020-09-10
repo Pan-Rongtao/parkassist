@@ -191,6 +191,7 @@ void Window::init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_SAMPLES, 32);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #else
 	auto ret = initDRM();
 	if (ret != 0) { printf("failed to initialize DRM\n"); return; }
