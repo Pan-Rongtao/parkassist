@@ -242,4 +242,5 @@ inline T any_cast(Any&& operand)
 	return any_cast<T>(operand);
 }
 
+using var = Any;
 }

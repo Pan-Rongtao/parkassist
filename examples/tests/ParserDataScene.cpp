@@ -1,7 +1,6 @@
 #include "catch2/catch.hpp"
 #include "Window.h"
 #include "Common.h"
-#include "parkassist/gles/fwd.h"
 #include "Parser.h"
 #include <fstream>
 #include "Timer.h"
@@ -43,7 +42,7 @@ enum class Direction
 	prev,
 	next,
 };
-void gotoState(ScenePtr sc, PolygonPtr bkg, const Parser &parser, Direction d)
+void gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 {
 	int halfCount = (int)std::ceil(parser.drawingStatesCount() / 2.0);
 	if ((d == Direction::prev && state - 1 > -halfCount) || (d == Direction::next && state + 1 < halfCount))

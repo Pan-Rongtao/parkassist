@@ -74,4 +74,7 @@ public:
 
 };
 
+using ShaderPtr = std::shared_ptr<Shader>;
+using VertexShaderPtr = std::shared_ptr<VertexShader>;
+using FragmentShaderPtr = std::shared_ptr<FragmentShader>;
 }

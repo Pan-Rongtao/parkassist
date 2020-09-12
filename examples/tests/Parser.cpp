@@ -2,9 +2,6 @@
 #include <fstream>
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
-#include "parkassist/gles/Program.h"
-#include "parkassist/gles/Renderer.h"
-#include "parkassist/gles/PolygonGeometry.h"
 #include "GLES2/gl2.h"
 
 using namespace nb;
@@ -164,10 +161,9 @@ std::vector<PolygonPtr> Parser::makeDrawingState(const json &obj)
 				side0[i] = { s0[i * 2], s0[i * 2 + 1] };
 				side1[i] = { s1[i * 2], s1[i * 2 + 1] };
 			}
-			auto polygon = std::make_shared<Polygon>(side0, side1);
-			polygon->setBezierParams(m_bezierControlPointsCount, m_bezierSampleCount);
-			auto brush = toBrush(item["Color"]);
-			polygon->setBrush(brush);
+			auto polygon = std::make_shared<Polygon>();
+			polygon->set(side0, side1, m_bezierControlPointsCount, m_bezierSampleCount);
+			polygon->material = toMaterial(item["Color"]);
 
 			state.push_back(polygon);
 		}
@@ -193,18 +189,18 @@ bool Parser::isPoints(const json & arr)
 	return bIsIntegerArray;
 }
 
-BrushPtr Parser::toBrush(const json & arr)
+MaterialPtr Parser::toMaterial(const json & arr)
 {
 	if (arr.empty() || (arr.size() % 4 != 0 && arr.size() % 5 != 0))
 	{
 		throw InvalidArraySizeException();
 	}
 
-	BrushPtr brush;
+	MaterialPtr brush;
 	if (arr.size() == 4)
 	{
 		Color color{ (uint8_t)arr[0], (uint8_t)arr[1], (uint8_t)arr[2], (uint8_t)arr[3] };
-		brush = std::make_shared<SolidColorBrush>(color);
+		brush = std::make_shared<ColorMaterial>(color);
 	}
 	else
 	{
@@ -213,10 +209,10 @@ BrushPtr Parser::toBrush(const json & arr)
 		{
 			Color color((uint8_t)arr[k * 5 + 0], (uint8_t)arr[k * 5 + 1], (uint8_t)arr[k * 5 + 2], (uint8_t)arr[k * 5 + 3]);
 			float offset = (float)arr[k * 5 + 4];
-			auto stop = GradientStop{ color, offset };
+			auto stop = GradientStop{ offset, color};
 			gradientStops.push_back(stop);
 		}
-		brush = std::make_shared<LinearGradientBrush>(gradientStops);
+		brush = std::make_shared<LinearGrandientMaterial>(m_contextHeight, gradientStops);
 	}
 
 	return brush;
@@ -239,7 +235,7 @@ bool Parser::isPolygon(const json & obj, const std::string &polygonName)
 	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.Side1] must be a int array as [Points Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
 	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.Side1].size must be a multiple of 2", polygonName)); }
 
-	try { ret &= toBrush(color) != nullptr; }
+	try { ret &= toMaterial(color) != nullptr; }
 	catch (InvalidArrayValueException &e)	{ throw Exception(fmt::format("[{}.Color] must be a int array as [Color Type], invalid value index=[{}]", polygonName, e.InvalidIndex)); }
 	catch (InvalidArraySizeException &e)	{ (void)e; throw Exception(fmt::format("[{}.Color].size must be 4 as [Color Type]", polygonName)); }
 

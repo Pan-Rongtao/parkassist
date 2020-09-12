@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 #include <typeindex>
+#include "rttr/registration.h"
+using namespace rttr;
 
 //要求c++11
 //#if __cplusplus < 201103L

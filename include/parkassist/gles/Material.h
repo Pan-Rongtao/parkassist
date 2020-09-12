@@ -1,54 +1,249 @@
-﻿/*******************************************************
-**	Material
-**
-**	材质
-**	
-**	材质是物体对光的交互（反射、折射等）性质的描述，
-**	它最终被表达为颜色，其中也包含纹理这部分数据，以及对
-**		光照影响的反映产生的最终效果
-**		
-**		潘荣涛
-**	
-********************************************************/
-#pragma once
-#include <vector>
-#include "parkassist/gles/Def.h"
+﻿#pragma once
+#include "parkassist/gles/Object.h"
 #include "parkassist/gles/Program.h"
+#include "parkassist/gles/Camera.h"
 #include "parkassist/gles/Texture.h"
+#include "parkassist/gles/Color.h"
 
-namespace nb{
+namespace nb {
 
-class NB_API Material
+class NB_API Material : public Object
 {
+	RTTR_ENABLE(Object)
 public:
-	//构建一个材质，纹理为空
-	Material();
-	~Material() = default;
+	void setName(const std::string &name);
+	const std::string &name() const;
 
-	//构建一个材质，它的Program为program，它的纹理texture
-	Material(const std::vector<std::shared_ptr<Texture>> &textures);
+	//program
+	void setProgram(ProgramPtr program);
+	ProgramPtr program();
 
-	Material(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular);
+	//执行更新uniform的动作，在mesh渲染时调用
+	virtual void uploadUniform(CameraPtr camera);
 
-	//纹理
-	std::vector<std::shared_ptr<Texture>> &textures();
-	const std::vector<std::shared_ptr<Texture>> &textures() const;
+protected:
+	Material() = default;
+	Material(ProgramPtr program);
 
-	//颜色
-	glm::vec3 &getAmbient();
-	const glm::vec3 &getAmbient() const;
+	std::string m_name;
+	ProgramPtr m_program;
+};
 
-	glm::vec3 &getDiffuse();
-	const glm::vec3 &getDiffuse() const;
+//////
+class NB_API ColorMaterial : public Material
+{
+	RTTR_ENABLE(Material)
+public:
+	ColorMaterial();
+	ColorMaterial(const Color &color);
 
-	glm::vec3 &getSpecular();
-	const glm::vec3 &getSpecular() const;
+	void setColor(const Color &color);
+	const Color &color() const;
+
+protected:
+	virtual void uploadUniform(CameraPtr camera) override;
 
 private:
-	std::vector<std::shared_ptr<Texture>>	m_textures;
-	glm::vec3 m_ambient;
-	glm::vec3 m_diffuse;
-	glm::vec3 m_specular;
+	Color m_color;
 };
+
+//////
+class NB_API ImageMaterial : public Material
+{
+	RTTR_ENABLE(Material)
+public:
+	ImageMaterial();
+	ImageMaterial(const Texture2DPtr &texture);
+
+	void setTexture(const Texture2DPtr &texture);
+	const Texture2DPtr &texture() const;
+
+protected:
+	virtual void uploadUniform(CameraPtr camera) override;
+
+private:
+	Texture2DPtr m_texture;
+};
+
+////////////////
+class NB_API GradientStop
+{
+public:
+	float offset;
+	Color color;
+};
+
+class NB_API LinearGrandientMaterial : public Material
+{
+	RTTR_ENABLE(Material)
+public:
+	LinearGrandientMaterial();
+	LinearGrandientMaterial(float height, const std::vector<GradientStop> &grandients);
+
+	void setHeight(float height);
+	float height() const;
+
+	void setGrandients(const std::vector<GradientStop> &grandients);
+	const std::vector<GradientStop> &grandients();
+
+protected:
+	virtual void uploadUniform(CameraPtr camera) override;
+
+private:
+	float m_height;
+	std::vector<GradientStop> m_grandients;
+};
+
+/////////////////////////////
+class NB_API PhongMaterial : public Material
+{
+	RTTR_ENABLE(Material)
+public:
+	PhongMaterial();
+
+	virtual void uploadUniform(CameraPtr camera) override;
+	
+	//环境光影响因子
+	void setAmbient(const Color &ambient);
+	const Color &ambient() const;
+
+	//漫反射光影响因子
+	void setDiffuse(const Color &diffuse);
+	const Color &diffuse() const;
+
+	//镜面高光音影响因子
+	void setSpecular(const Color &specular);
+	const Color &specular() const;
+
+	//自发光颜色
+	void setEmission(const Color &emission);
+	const Color &emission() const;
+
+	//光照强度因子
+	void setShineness(const float &shineness);
+	const float &shineness() const;
+
+	//漫反射贴图
+	void setDiffuseMapping(TextureMipmapPtr diffuseMapping);
+	TextureMipmapPtr diffuseMapping();
+
+	//高光贴图
+	void setSpecularMapping(TextureMipmapPtr specularMapping);
+	TextureMipmapPtr specularMapping();
+
+	//自发光贴图
+	void setEmissionMapping(TextureMipmapPtr emissionMapping);
+	TextureMipmapPtr emissionMapping();
+
+private:
+	Color m_ambient;
+	Color m_diffuse;
+	Color m_specular;
+	Color m_emission;
+	float m_shineness;
+
+	TextureMipmapPtr m_diffuseMapping;
+	TextureMipmapPtr m_specularMapping;
+	TextureMipmapPtr m_emissionMapping;
+};
+
+class NB_API CubemapMaterial : public Material
+{
+	RTTR_ENABLE(Material)
+public:
+	CubemapMaterial();
+
+	virtual void uploadUniform(CameraPtr camera) override;
+
+	//环境光影响因子
+	void setAmbient(const Color &ambient);
+	const Color &ambient() const;
+
+	//漫反射光影响因子
+	void setDiffuse(const Color &diffuse);
+	const Color &diffuse() const;
+
+	//镜面高光音影响因子
+	void setSpecular(const Color &specular);
+	const Color &specular() const;
+
+	//漫反射贴图
+	void setDiffuseMapping(TextureMipmapPtr diffuseMapping);
+	TextureMipmapPtr diffuseMapping();
+
+	//立方体贴图
+	void setCubeMapping(TextureCubemapPtr cubeMapping);
+	TextureCubemapPtr cubeMapping();
+
+private:
+	Color m_ambient;
+	Color m_diffuse;
+	Color m_specular;
+
+	TextureMipmapPtr m_diffuseMapping;
+	TextureCubemapPtr m_cubeMapping;
+};
+
+/////////////////////////////
+class NB_API VarMaterial : public Material
+{
+	RTTR_ENABLE(Material)
+public:
+	virtual void uploadUniform(CameraPtr camera) override;
+
+	//存储uniform变量，以便下次上传数据使用
+	template<class T>
+	void storeUniform(const std::string &name, const T &v)
+	{
+		static_assert(
+			std::is_same<T, bool>::value ||
+			std::is_same<T, short>::value ||
+			std::is_same<T, unsigned short>::value ||
+			std::is_same<T, int>::value ||
+			std::is_same<T, unsigned int>::value ||
+			std::is_same<T, long>::value ||
+			std::is_same<T, unsigned long>::value ||
+			std::is_same<T, float>::value ||
+			std::is_same<T, double>::value ||
+
+			std::is_same<T, glm::vec2>::value ||
+			std::is_same<T, glm::vec3>::value ||
+			std::is_same<T, glm::vec4>::value ||
+			std::is_same<T, glm::ivec2>::value ||
+			std::is_same<T, glm::ivec3>::value ||
+			std::is_same<T, glm::ivec4>::value ||
+			std::is_same<T, glm::mat2x2>::value ||
+			std::is_same<T, glm::mat3x3>::value ||
+			std::is_same<T, glm::mat4x4>::value ||
+
+			std::is_same<T, std::vector<float>>::value ||
+			std::is_same<T, std::vector<glm::vec2>>::value ||
+			std::is_same<T, std::vector<glm::vec3>>::value ||
+			std::is_same<T, std::vector<glm::vec4>>::value ||
+			std::is_same<T, std::vector<int>>::value ||
+			std::is_same<T, std::vector<glm::ivec2>>::value ||
+			std::is_same<T, std::vector<glm::ivec3>>::value ||
+			std::is_same<T, std::vector<glm::ivec4>>::value ||
+			std::is_same<T, std::vector<glm::mat2x2>>::value ||
+			std::is_same<T, std::vector<glm::mat3x3>>::value ||
+			std::is_same<T, std::vector<glm::mat4x4>>::value
+			, "only support type[short, int, long, float, double, vec2, vec3, vec4, mat2x2, mat3x3, mat4x4 or their vector types].");
+
+		if (name.empty())
+		{
+			nbThrowException(std::invalid_argument, "name is empty.");
+		}
+		m_uniforms[name] = v;
+	}
+
+private:
+	std::map<std::string, var> m_uniforms;
+};
+
+using MaterialPtr = std::shared_ptr<Material>;
+using ImageMaterialPtr = std::shared_ptr<ImageMaterial>;
+using PhongMaterialPtr = std::shared_ptr<PhongMaterial>;
+using CubemapMaterialPtr = std::shared_ptr<CubemapMaterial>;
+using VarMaterialPtr = std::shared_ptr<VarMaterial>;
 
 }

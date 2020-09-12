@@ -25,22 +25,22 @@ SmartBezier::SmartBezier(int maxControlPointsCount, int sampleCount)
 {
 }
 
-std::vector<glm::vec2> SmartBezier::doBezier(const std::vector<glm::vec2> &inputs)
+std::vector<glm::vec2> SmartBezier::doBezier(const std::vector<glm::vec2> &points)
 {
 	std::vector<glm::vec2> ret;
-	for (size_t i = 0; i + 1 < inputs.size();)
+	for (size_t i = 0; i + 1 < points.size();)
 	{
 		std::vector<glm::vec2> segOut;
 		int controlPointCount = 0;
-		if (i + m_maxControlPointsCount >= inputs.size())
+		if (i + m_maxControlPointsCount >= points.size())
 		{
-			controlPointCount = inputs.size() - i;
+			controlPointCount = points.size() - i;
 		}
 		else
 		{
 			controlPointCount = m_maxControlPointsCount;
 		}
-		std::vector<glm::vec2> segInput(inputs.begin() + i, inputs.begin() + i + controlPointCount);
+		std::vector<glm::vec2> segInput(points.begin() + i, points.begin() + i + controlPointCount);
 		auto step = controlPointCount - 1;
 		switch (step)
 		{

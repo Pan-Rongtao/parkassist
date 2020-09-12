@@ -12,14 +12,12 @@
 **	
 ********************************************************/
 #pragma once
-#include "parkassist/gles/Def.h"
+#include "parkassist/gles/Shader.h"
+#include "parkassist/gles/Any.h"
 #include "glm/glm.hpp"
-#include <map>
 
 namespace nb{
 
-class VertexShader;
-class FragmentShader;
 class NB_API Program
 {
 public:
@@ -28,35 +26,35 @@ public:
 	static constexpr int nbColorLocation			= 1;
 	static constexpr int nbTexCoordLocaltion		= 2;
 	static constexpr int nbNormalLocation			= 3;
-	static constexpr const char *nbPositionLocationStr	= "nbPos";
-	static constexpr const char *nbColorLocationStr		= "nbColor";
-	static constexpr const char *nbTexCoordLocaltionStr	= "nbTexCoord";
-	static constexpr const char *nbNormalLocationStr	= "nbNormal";
-	static constexpr const char *nbMvpStr			= "nbMvp";
-	static constexpr const char *nbMStr			= "nbM";
-	static constexpr const char *nbVStr			= "nbV";
-	static constexpr const char *nbPStr			= "nbP";
+	static constexpr char *nbPositionLocationStr	= "nbPos";
+	static constexpr char *nbColorLocationStr		= "nbColor";
+	static constexpr char *nbTexCoordLocaltionStr	= "nbTexCoord";
+	static constexpr char *nbNormalLocationStr		= "nbNormal";
+	static constexpr char *nbMvpStr					= "nbMvp";
+	static constexpr char *nbMStr					= "nbM";
+	static constexpr char *nbVStr					= "nbV";
+	static constexpr char *nbPStr					= "nbP";
 
 public:
 	//构建一个Program，未指定顶点着色器和片元着色器
 	Program();
 
 	//构建一个Program，并为它指定了顶点着色器和片元着色器
-	Program(std::shared_ptr<VertexShader> verShader, std::shared_ptr<FragmentShader> fragShader);
+	Program(VertexShaderPtr verShader, FragmentShaderPtr fragShader);
 	virtual ~Program();
 
 public:
 	//设置顶点着色器
-	void setVertexShader(std::shared_ptr<VertexShader> verShader);
+	void setVertexShader(VertexShaderPtr verShader);
 
 	//获取顶点着色器
-	std::shared_ptr<VertexShader> vertexShader();
+	VertexShaderPtr vertexShader();
 
 	//设置片元着色器
-	void setFragmentShader(std::shared_ptr<FragmentShader> fragShader);
+	void setFragmentShader(FragmentShaderPtr fragShader);
 
 	//获取片元着色器
-	std::shared_ptr<FragmentShader> fragmentShader();
+	FragmentShaderPtr fragmentShader();
 
 	//链接
 	//异常：
@@ -89,7 +87,7 @@ public:
 	void vertexAttributePointer(int location, int dimension, int stride, const void *data);
 
 	//更新位置为location的unform
-	//float
+	void uniform(int location, bool v);
 	void uniform(int location, float v);
 	void uniform(int location, const std::vector<float> &v);
 	void uniform(int location, const glm::vec2 &v);
@@ -117,37 +115,36 @@ public:
 	void uniform(int location, const glm::mat4x4 &matrix);
 	void uniform(int location, const std::vector<glm::mat4x4> &v);
 
+	void uniformVar(int location, const var &v);
+
 private:
-	std::shared_ptr<VertexShader>	m_vertexShader;
-	std::shared_ptr<FragmentShader>	m_fragmentShader;
-	unsigned int					m_programHandle;
+	VertexShaderPtr	m_vertexShader;
+	FragmentShaderPtr m_fragmentShader;
+	unsigned int m_programHandle;
 };
+
+using ProgramPtr = std::shared_ptr<Program>;
 
 class NB_API Programs
 {
 public:
 	//简单program
-	static std::shared_ptr<Program> primitive();
+	static ProgramPtr primitive();
 
 	//渐变图元
-	static std::shared_ptr<Program> gradientPrimitive();
+	static ProgramPtr gradientPrimitive();
 
 	//图片program
-	static std::shared_ptr<Program> image();
+	static ProgramPtr image();
 
 	//phong program
-	static std::shared_ptr<Program> phong();
+	static ProgramPtr phong();
 
 	//cube program
-	static std::shared_ptr<Program> cube();
-
-	static std::shared_ptr<Program> model();
-
-	//glyp program
-	static std::shared_ptr<Program> glpy();
+	static ProgramPtr cube();
 
 private:
-	static std::shared_ptr<Program> compileBindLink(const std::string &vs, const std::string &fs);
+	static ProgramPtr compileBindLink(const std::string &vs, const std::string &fs);
 };
 
 }

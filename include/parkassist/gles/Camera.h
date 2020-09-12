@@ -44,4 +44,5 @@ private:
 	glm::mat4 m_projectionMatrix;	//Õ∂”∞æÿ’Û
 };
 
+using CameraPtr = std::shared_ptr<Camera>;
 }

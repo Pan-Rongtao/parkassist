@@ -1,9 +1,8 @@
 #pragma once
 #include <string>
 #include <exception>
-#include "parkassist/gles/Def.h"
+#include "parkassist/gles/Polygon.h"
 #include "nlohmann/json.hpp"
-#include "parkassist/gles/fwd.h"
 #include "spdlog/fmt/fmt.h"
 
 using nlohmann::json;
@@ -82,7 +81,7 @@ private:
 	std::vector<PolygonPtr> makeDrawingState(const json &obj);
 
 	bool isPoints(const json &arr);
-	BrushPtr toBrush(const json &arr);
+	MaterialPtr toMaterial(const json &arr);
 	bool isPolygon(const json &obj, const std::string &polygonName = "");
 	bool isIntegerArray(const json &arr);
 

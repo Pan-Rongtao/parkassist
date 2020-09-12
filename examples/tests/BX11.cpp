@@ -1,7 +1,6 @@
 #include "catch2/catch.hpp"
 #include "Window.h"
 #include "Common.h"
-#include "parkassist/gles/fwd.h"
 
 using namespace nb;
 
@@ -28,383 +27,325 @@ TEST_CASE("Test BX11", "[BX11]")
 		}
 	};
 
-	auto polygonBG = std::make_shared<Polygon>();
-	polygonBG->setSide0({ { 0, 600 },{ 0,0 } });
-	polygonBG->setSide1({ { 800, 600 },{ 800,0 } });
-	polygonBG->setBezierParams(0, 0);
-	auto imgBrush = std::make_shared<ImageBrush>(std::make_shared<ImageSource>("../etc/1.bmp"));
-	polygonBG->setBrush(imgBrush);
+	auto polygonBG = Common::getBackground(std::string("../etc/CN220/BKG.bmp"), width, height);
 	sc->add(polygonBG);
 
 	auto polygon0 = std::make_shared<Polygon>();
 	std::vector<double> side0Array0 = { 55.862522, 432.571503,59.046097, 423.332977,62.211681, 414.258453,65.357185, 405.347931,68.480698, 396.601105,71.580498, 388.017456,74.654831, 379.596313,77.702301, 371.336639,80.721466, 363.237244,83.711075, 355.296814,86.670013, 347.513702,89.597305, 339.886139,92.491997, 332.412323,95.353363, 325.090240,98.180656, 317.917755,100.973320, 310.892609,103.730858, 304.012573,106.452881, 297.275177,109.139030, 290.678070,111.789070, 284.218658,114.402840, 277.894440,116.980209, 271.702881,119.521111, 265.641296,122.025612, 259.707184,124.493706, 253.897842,126.925575, 248.210709,129.321335, 242.643158,131.681168, 237.192596,134.005341, 231.856415,136.294128, 226.632034,138.547775, 221.517044,140.766678, 216.508804,142.951172, 211.604904,145.101578, 206.802917,147.218323, 202.100433,149.301804, 197.495071,151.352509, 192.984482,153.370758, 188.566483,155.357101, 184.238754,157.311905, 179.999130,159.235733, 175.845444,161.128952, 171.775665,162.992126, 167.787659,164.825638, 163.879501,166.630035, 160.049118,168.405762, 156.294724,170.153305, 152.614349,171.873169, 149.006241,173.565765, 145.468567,175.231644, 141.999588,176.871231, 138.597687,178.485001, 135.261108,180.073380, 131.988358,181.636917, 128.777710,183.175964, 125.627831,184.691040, 122.537148,186.182541, 119.504204,187.650940, 116.527596,189.096664, 113.605972,190.520096, 110.737976,191.921722, 107.922363,193.301880, 105.157837,194.661011, 102.443146,195.999527, 99.777138,197.317810, 97.158623,198.616226, 94.586563,199.895172, 92.059708,201.154999, 89.577126,202.396072, 87.137711,203.618759, 84.740433,204.823441, 82.384354,206.010391, 80.068535,207.180008, 77.792000,208.332596, 75.553841,209.468460, 73.353195,210.587982, 71.189171,211.691391, 69.061035,212.779037, 66.967865,213.851212, 64.908966,214.908188, 62.883518,215.950287, 60.890736,216.977768, 58.930000,217.990906, 57.000473,218.989960, 55.101585,219.975250, 53.232609,220.946899, 51.392868,221.905319, 49.581791,222.850632, 47.798748,223.783173, 46.043068,224.703125, 44.314281,225.610764, 42.611713,226.506210, 40.934841,227.389801, 39.283146,228.261658, 37.656109,229.122116, 36.053154,229.971237, 34.473820,230.809341, 32.917629,231.636581, 31.384069,232.453125, 29.872721,233.259186, 28.383169 };
 	std::vector<double> side1Array0 = { 65.069481, 435.191467,68.226906, 425.771515,71.365036, 416.522705,74.481773, 407.445099,77.575172, 398.538361,80.643547, 389.801788,83.685188, 381.234528,86.698616, 372.835419,89.682526, 364.603119,92.635635, 356.536011,95.556862, 348.632446,98.445259, 340.890381,101.299980, 333.307831,104.120262, 325.882477,106.905457, 318.612152,109.655037, 311.494354,112.368607, 304.526550,115.045738, 297.706207,117.686180, 291.030609,120.289757, 284.497162,122.856346, 278.103088,125.385880, 271.845551,127.878357, 265.721924,130.333878, 259.729340,132.752502, 253.864975,135.134460, 248.126129,137.479889, 242.509933,139.789093, 237.013702,142.062332, 231.634720,144.299911, 226.370285,146.502151, 221.217636,148.669479, 216.174225,150.802246, 211.237396,152.900894, 206.404663,154.965790, 201.673462,156.997406, 197.041367,158.996292, 192.505814,160.962738, 188.064621,162.897369, 183.715286,164.800613, 179.455643,166.672928, 175.283386,168.514862, 171.196381,170.326889, 167.192520,172.109497, 163.269684,173.863205, 159.425827,175.588470, 155.658997,177.285828, 151.967239,178.955750, 148.348724,180.598724, 144.801575,182.215271, 141.323929,183.805817, 137.914215,185.370895, 134.570557,186.910950, 131.291458,188.426498, 128.075150,189.917892, 124.920273,191.385666, 121.825119,192.830276, 118.788322,194.252151, 115.808388,195.651733, 112.883904,197.029419, 110.013565,198.385651, 107.196030,199.720840, 104.429993,201.035400, 101.714157,202.329727, 99.047470,203.604248, 96.428543,204.859283, 93.856331,206.095261, 91.329681,207.312515, 88.847610,208.511429, 86.408928,209.692383, 84.012695,210.855667, 81.657814,212.001709, 79.343399,213.130798, 77.068520,214.243210, 74.832191,215.339371, 72.633575,216.419479, 70.471733,217.483978, 68.345940,218.533035, 66.255203,219.567062, 64.198860,220.586243, 62.176170,221.590988, 60.186249,222.581451, 58.228374,223.557953, 56.301914,224.520767, 54.406151,225.470139, 52.540398,226.406281, 50.703934,227.329575, 48.896183,228.240158, 47.116577,229.138229, 45.364380,230.024109, 43.639080,230.898010, 41.940102,231.760162, 40.266819,232.610718, 38.618767,233.449951, 36.995422,234.278030, 35.396160,235.095230, 33.820568,235.901627, 32.268177,236.697540, 30.738415,237.483093, 29.230864,238.258499, 27.745056 };
-	polygon0->setSide0(Common::doublesToSide(side0Array0));
-	polygon0->setSide1(Common::doublesToSide(side1Array0));
-	polygon0->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
-	std::vector<GradientStop> stops = { { Color(255,0,0,255), 0.33f },{ Color(255,0,0,50), 0.8f } };
-	auto linearBrush = std::make_shared<LinearGradientBrush>(stops);
-	polygon0->setBrush(linearBrush);
+	polygon0->set(Common::doublesToSide(side0Array0), Common::doublesToSide(side1Array0));
+	polygon0->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
+	std::vector<GradientStop> stops0 = { { 0.33f, Color(255,0,0,255), },{ 0.8f, Color(255,0,0,50) } };
+	polygon0->material = std::make_shared<LinearGrandientMaterial>(height, stops0);
 
 	auto polygon1 = std::make_shared<Polygon>();
 	std::vector<double> side0Array1 = { 641.966309, 423.624512,638.624573, 414.031555,635.305115, 404.621887,632.010193, 395.395203,628.741821, 386.350830,625.502014, 377.487732,622.292480, 368.804840,619.114807, 360.300659,615.970459, 351.973297,612.860657, 343.821045,609.786560, 335.841644,606.749207, 328.032776,603.749451, 320.392090,600.788025, 312.916901,597.865479, 305.604553,594.982422, 298.452240,592.139221, 291.457153,589.336243, 284.616241,586.573608, 277.926544,583.851624, 271.385101,581.170105, 264.988739,578.529297, 258.734436,575.928955, 252.619080,573.368958, 246.639587,570.849182, 240.792908,568.369385, 235.075897,565.929199, 229.485626,563.528259, 224.018982,561.166382, 218.673080,558.843079, 213.444901,556.557861, 208.331635,554.310303, 203.330353,552.100037, 198.438263,549.926453, 193.652664,547.789063, 188.970825,545.687317, 184.390121,543.620850, 179.907883,541.588928, 175.521729,539.591125, 171.229050,537.626709, 167.027466,535.695313, 162.914658,533.796265, 158.888214,531.929077, 154.946030,530.093140, 151.085785,528.287964, 147.305435,526.512817, 143.602859,524.767273, 139.976013,523.050842, 136.422989,521.362854, 132.941910,519.702820, 129.530731,518.070129, 126.187866,516.464355, 122.911316,514.885010, 119.699585,513.331421, 116.550850,511.803253, 113.463593,510.299835, 110.436218,508.820862, 107.467201,507.365662, 104.554993,505.933868, 101.698235,504.524994, 98.895523,503.138611, 96.145462,501.774261, 93.446732,500.431366, 90.798050,499.109711, 88.198265,497.808716, 85.645973,496.528107, 83.140182,495.267273, 80.679649,494.025970, 78.263336,492.803772, 75.890144,491.600281, 73.558983,490.415131, 71.268867,489.247955, 69.018852,488.098389, 66.807907,486.966095, 64.635139,485.850677, 62.499672,484.751892, 60.400616,483.669373, 58.337093,482.602753, 56.308262,481.551758, 54.313351,480.516083, 52.351570,479.495392, 50.422150,478.489471, 48.524357,477.497955, 46.657459,476.520538, 44.820786,475.557068, 43.013607,474.607178, 41.235352,473.670624, 39.485291,472.747131, 37.762798,471.836487, 36.067356,470.938477, 34.398289,470.052795, 32.755020,469.179230, 31.137033,468.317535, 29.543808,467.467560, 27.974718,466.628998, 26.429350,465.801697, 24.907129,464.985352, 23.407589,464.179871, 21.930210,463.385010, 20.474625,462.600616, 19.040316 };
 	std::vector<double> side1Array1 = { 631.875793, 426.800659,628.574707, 417.019897,625.297241, 407.430328,622.045715, 398.031555,618.822205, 388.822815,615.628540, 379.802948,612.466370, 370.970551,609.337463, 362.323975,606.242981, 353.861267,603.184387, 345.580322,600.162598, 337.478729,597.178650, 329.553955,594.233276, 321.803406,591.327148, 314.224121,588.460876, 306.813293,585.635010, 299.567841,582.849670, 292.484680,580.105286, 285.560577,577.401978, 278.792450,574.739746, 272.176910,572.118591, 265.710754,569.538574, 259.390656,566.999451, 253.213333,564.500977, 247.175537,562.043030, 241.273972,559.625183, 235.505371,557.247192, 229.866608,554.908630, 224.354401,552.609131, 218.965698,550.348145, 213.697403,548.125244, 208.546417,545.940063, 203.509827,543.791931, 198.584656,541.680420, 193.768036,539.604858, 189.057129,537.564819, 184.449265,535.559692, 179.941650,533.588867, 175.531723,531.651855, 171.216827,529.747986, 166.994537,527.876770, 162.862335,526.037476, 158.817886,524.229675, 154.858856,522.452698, 150.983002,520.706055, 147.188080,518.989075, 143.471985,517.301147, 139.832611,515.641846, 136.267975,514.010681, 132.776077,512.406799, 129.354919,510.829895, 126.002785,509.279358, 122.717758,507.754700, 119.498169,506.255341, 116.342255,504.780884, 113.248398,503.330688, 110.214981,501.904327, 107.240402,500.501282, 104.323151,499.121124, 101.461861,497.763306, 98.654938,496.427460, 95.901176,495.113129, 93.199127,493.819794, 90.547424,492.547119, 87.944984,491.294525, 85.390404,490.061798, 82.882591,488.848419, 80.420288,487.654022, 78.002518,486.478180, 75.628021,485.320557, 73.295876,484.180756, 71.004974,483.058441, 68.754333,481.953247, 66.543022,480.864807, 64.370056,479.792816, 62.234535,478.736908, 60.135532,477.696777, 58.072266,476.672028, 56.043850,475.662506, 54.049458,474.667847, 52.088306,473.687653, 50.159611,472.721771, 48.262650,471.769836, 46.396744,470.831604, 44.561058,469.906860, 42.755024,468.995239, 40.977966,468.096497, 39.229153,467.210419, 37.508011,466.336792, 35.813923,465.475372, 34.146309,464.625854, 32.504604,463.787994, 30.888176,462.961700, 29.296511,462.146637, 27.729088,461.342682, 26.185331,460.549530, 24.664827,459.767059, 23.167004,458.994934, 21.691444,458.233154, 20.237629,457.481415, 18.805088 };
-	polygon1->setSide0(Common::doublesToSide(side0Array1));
-	polygon1->setSide1(Common::doublesToSide(side1Array1));
-	polygon1->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
-	std::vector<GradientStop> stops1 = { { Color(255, 0, 0, 255), 0.5f },{ Color(0,255,0, 255), 0.7f },{ Color(0, 0, 255, 255), 0.9f } };
-	auto linearBrush1 = std::make_shared<LinearGradientBrush>(stops1);
-	polygon1->setBrush(linearBrush1);
+	polygon1->set(Common::doublesToSide(side0Array1), Common::doublesToSide(side1Array1));
+	std::vector<GradientStop> stops1 = { { 0.5f, Color(255,0,0,255), },{ 0.7f, Color(0,255,0, 255) },{ 0.9f, Color(0, 0, 255, 255) } };
+	polygon1->material = std::make_shared<LinearGrandientMaterial>(height, stops1);
 
 	auto polygon2 = std::make_shared<Polygon>();
 	std::vector<double> side0Array2 = { 96.030472, 443.243225,98.711731, 434.376953,98.878014, 433.830353 };
 	std::vector<double> side1Array2 = { 83.599442, 440.148834,86.334831, 431.482544,86.504486, 430.948090 };
-	polygon2->setSide0(Common::doublesToSide(side0Array2));
-	polygon2->setSide1(Common::doublesToSide(side1Array2));
-	polygon2->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon2->set(Common::doublesToSide(side0Array2), Common::doublesToSide(side1Array2));
+	polygon2->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon3 = std::make_shared<Polygon>();
 	std::vector<double> side0Array3 = { 108.370544, 403.204132,109.242699, 400.445374,111.116386, 394.548492 };
 	std::vector<double> side1Array3 = { 96.201530, 400.977112,97.093506, 398.274597,99.010384, 392.496399 };
-	polygon3->setSide0(Common::doublesToSide(side0Array3));
-	polygon3->setSide1(Common::doublesToSide(side1Array3));
-	polygon3->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon3->set(Common::doublesToSide(side0Array3), Common::doublesToSide(side1Array3));
+	polygon3->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon4 = std::make_shared<Polygon>();
 	std::vector<double> side0Array4 = { 120.218697, 366.457733,121.880920, 361.423004,122.838196, 358.536285 };
 	std::vector<double> side1Array4 = { 108.334702, 364.940338,110.039719, 359.996033,111.021988, 357.160339 };
-	polygon4->setSide0(Common::doublesToSide(side0Array4));
-	polygon4->setSide1(Common::doublesToSide(side1Array4));
-	polygon4->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon4->set(Common::doublesToSide(side0Array4), Common::doublesToSide(side1Array4));
+	polygon4->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon5 = std::make_shared<Polygon>();
 	std::vector<double> side0Array5 = { 131.483932, 332.872589,131.504807, 332.811462,133.838638, 326.005249,133.962296, 325.645996 };
 	std::vector<double> side1Array5 = { 119.904221, 331.925110,119.925682, 331.864929,122.326813, 325.164642,122.454102, 324.810913 };
-	polygon5->setSide0(Common::doublesToSide(side0Array5));
-	polygon5->setSide1(Common::doublesToSide(side1Array5));
-	polygon5->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon5->set(Common::doublesToSide(side0Array5), Common::doublesToSide(side1Array5));
+	polygon5->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon6 = std::make_shared<Polygon>();
 	std::vector<double> side0Array6 = { 142.115479, 302.257446,142.876495, 300.103516,144.445877, 295.676788 };
 	std::vector<double> side1Array6 = { 130.854340, 301.760468,131.639374, 299.635681,133.258713, 295.267761 };
-	polygon6->setSide0(Common::doublesToSide(side0Array6));
-	polygon6->setSide1(Common::doublesToSide(side1Array6));
-	polygon6->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon6->set(Common::doublesToSide(side0Array6), Common::doublesToSide(side1Array6));
+	polygon6->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon7 = std::make_shared<Polygon>();
 	std::vector<double> side0Array7 = { 152.094009, 274.388123,153.497421, 270.531525,154.275513, 268.399811 };
 	std::vector<double> side1Array7 = { 141.160400, 274.242310,142.612122, 270.429840,143.417236, 268.322083 };
-	polygon7->setSide0(Common::doublesToSide(side0Array7));
-	polygon7->setSide1(Common::doublesToSide(side1Array7));
-	polygon7->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon7->set(Common::doublesToSide(side0Array7), Common::doublesToSide(side1Array7));
+	polygon7->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon8 = std::make_shared<Polygon>();
 	std::vector<double> side0Array8 = { 161.423370, 249.027405,161.457703, 248.935226,163.374771, 243.802963,163.459305, 243.577194 };
 	std::vector<double> side1Array8 = { 150.821243, 249.151978,150.856857, 249.060684,152.845032, 243.977432,152.932770, 243.753799 };
-	polygon8->setSide0(Common::doublesToSide(side0Array8));
-	polygon8->setSide1(Common::doublesToSide(side1Array8));
-	polygon8->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon8->set(Common::doublesToSide(side0Array8), Common::doublesToSide(side1Array8));
+	polygon8->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon9 = std::make_shared<Polygon>();
 	std::vector<double> side0Array9 = { 170.123322, 225.939407,170.758957, 224.272888,172.019852, 220.974808 };
 	std::vector<double> side1Array9 = { 159.852188, 226.269669,160.512817, 224.616531,161.823654, 221.344345 };
-	polygon9->setSide0(Common::doublesToSide(side0Array9));
-	polygon9->setSide1(Common::doublesToSide(side1Array9));
-	polygon9->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon9->set(Common::doublesToSide(side0Array9), Common::doublesToSide(side1Array9));
+	polygon9->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon10 = std::make_shared<Polygon>();
 	std::vector<double> side0Array10 = { 178.223907, 204.898773,179.374222, 201.945099,179.988754, 200.370605 };
 	std::vector<double> side1Array10 = { 168.279617, 205.383423,169.477768, 202.449005,170.118027, 200.884445 };
-	polygon10->setSide0(Common::doublesToSide(side0Array10));
-	polygon10->setSide1(Common::doublesToSide(side1Array10));
-	polygon10->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon10->set(Common::doublesToSide(side0Array10), Common::doublesToSide(side1Array10));
+	polygon10->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon11 = std::make_shared<Polygon>();
 	std::vector<double> side0Array11 = { 185.760696, 185.695847,185.802246, 185.590973,187.347931, 181.695984,187.402481, 181.558807 };
 	std::vector<double> side1Array11 = { 176.136398, 186.294678,176.179733, 186.190338,177.792892, 182.315414,177.849838, 182.178925 };
-	polygon11->setSide0(Common::doublesToSide(side0Array11));
-	polygon11->setSide1(Common::doublesToSide(side1Array11));
-	polygon11->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon11->set(Common::doublesToSide(side0Array11), Common::doublesToSide(side1Array11));
+	polygon11->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon12 = std::make_shared<Polygon>();
 	std::vector<double> side0Array12 = { 192.772125, 168.139145,193.296875, 166.836655,194.299622, 164.352142 };
 	std::vector<double> side1Array12 = { 183.458786, 168.820587,184.007355, 167.523453,185.055740, 165.048828 };
-	polygon12->setSide0(Common::doublesToSide(side0Array12));
-	polygon12->setSide1(Common::doublesToSide(side1Array12));
-	polygon12->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon12->set(Common::doublesToSide(side0Array12), Common::doublesToSide(side1Array12));
+	polygon12->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon13 = std::make_shared<Polygon>();
 	std::vector<double> side0Array13 = { 199.296860, 152.055786,200.235596, 149.761505,200.718933, 148.582138 };
 	std::vector<double> side1Array13 = { 190.284164, 152.795486,191.267029, 150.508179,191.773132, 149.332291 };
-	polygon13->setSide0(Common::doublesToSide(side0Array13));
-	polygon13->setSide1(Common::doublesToSide(side1Array13));
-	polygon13->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon13->set(Common::doublesToSide(side0Array13), Common::doublesToSide(side1Array13));
+	polygon13->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon14 = std::make_shared<Polygon>();
 	std::vector<double> side0Array14 = { 205.372940, 137.291138,205.417618, 137.183243,206.664886, 134.177460,206.697891, 134.098022 };
 	std::vector<double> side1Array14 = { 196.649612, 138.070160,196.696457, 137.962479,198.004211, 134.963089,198.038849, 134.883820 };
-	polygon14->setSide0(Common::doublesToSide(side0Array14));
-	polygon14->setSide1(Common::doublesToSide(side1Array14));
-	polygon14->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon14->set(Common::doublesToSide(side0Array14), Common::doublesToSide(side1Array14));
+	polygon14->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon15 = std::make_shared<Polygon>();
 	std::vector<double> side0Array15 = { 211.036362, 123.707726,211.471176, 122.671768,212.272171, 120.766068 };
 	std::vector<double> side1Array15 = { 202.590622, 124.511414,203.047089, 123.476913,203.887985, 121.573708 };
-	polygon15->setSide0(Common::doublesToSide(side0Array15));
-	polygon15->setSide1(Common::doublesToSide(side1Array15));
-	polygon15->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon15->set(Common::doublesToSide(side0Array15), Common::doublesToSide(side1Array15));
+	polygon15->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon16 = std::make_shared<Polygon>();
 	std::vector<double> side0Array16 = { 216.321045, 111.183617,217.092316, 109.367599,217.475006, 108.467674 };
 	std::vector<double> side1Array16 = { 208.140991, 112.000778,208.951614, 110.186005,209.353851, 109.286659 };
-	polygon16->setSide0(Common::doublesToSide(side0Array16));
-	polygon16->setSide1(Common::doublesToSide(side1Array16));
-	polygon16->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon16->set(Common::doublesToSide(side0Array16), Common::doublesToSide(side1Array16));
+	polygon16->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon17 = std::make_shared<Polygon>();
 	std::vector<double> side0Array17 = { 221.258301, 99.610939,221.303772, 99.504875,222.319397, 97.139641,222.337357, 97.097969 };
 	std::vector<double> side1Array17 = { 213.332092, 100.432991,213.379929, 100.326920,214.448441, 97.961845,214.467316, 97.920128 };
-	polygon17->setSide0(Common::doublesToSide(side0Array17));
-	polygon17->setSide1(Common::doublesToSide(side1Array17));
-	polygon17->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon17->set(Common::doublesToSide(side0Array17), Common::doublesToSide(side1Array17));
+	polygon17->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon18 = std::make_shared<Polygon>();
 	std::vector<double> side0Array18 = { 225.877136, 88.894325,226.240952, 88.054535,226.887390, 86.564201 };
 	std::vector<double> side1Array18 = { 218.193069, 89.714714,218.576218, 88.874557,219.256927, 87.383446 };
-	polygon18->setSide0(Common::doublesToSide(side0Array18));
-	polygon18->setSide1(Common::doublesToSide(side1Array18));
-	polygon18->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon18->set(Common::doublesToSide(side0Array18), Common::doublesToSide(side1Array18));
+	polygon18->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon19 = std::make_shared<Polygon>();
 	std::vector<double> side0Array19 = { 230.203857, 78.949516,230.844727, 77.484100,231.151077, 76.784393 };
 	std::vector<double> side1Array19 = { 222.750702, 79.763290,223.426117, 78.296471,223.748978, 77.596092 };
-	polygon19->setSide0(Common::doublesToSide(side0Array19));
-	polygon19->setSide1(Common::doublesToSide(side1Array19));
-	polygon19->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon19->set(Common::doublesToSide(side0Array19), Common::doublesToSide(side1Array19));
+	polygon19->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon20 = std::make_shared<Polygon>();
 	std::vector<double> side0Array20 = { 234.262634, 69.701904,234.307587, 69.599899,235.144516, 67.702835,235.151917, 67.686081 };
 	std::vector<double> side1Array20 = { 227.029465, 70.505386,227.076904, 70.403221,227.959579, 68.503609,227.967438, 68.486809 };
-	polygon20->setSide0(Common::doublesToSide(side0Array20));
-	polygon20->setSide1(Common::doublesToSide(side1Array20));
-	polygon20->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon20->set(Common::doublesToSide(side0Array20), Common::doublesToSide(side1Array20));
+	polygon20->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon21 = std::make_shared<Polygon>();
 	std::vector<double> side0Array21 = { 238.075272, 61.085495,238.383331, 60.392296,238.911362, 59.205021 };
 	std::vector<double> side1Array21 = { 231.051727, 61.875969,231.376816, 61.181572,231.934143, 59.992218 };
-	polygon21->setSide0(Common::doublesToSide(side0Array21));
-	polygon21->setSide1(Common::doublesToSide(side1Array21));
-	polygon21->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon21->set(Common::doublesToSide(side0Array21), Common::doublesToSide(side1Array21));
+	polygon21->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon22 = std::make_shared<Polygon>();
 	std::vector<double> side0Array22 = { 241.661728, 53.041756,242.200821, 51.837730,242.448853, 51.284203 };
 	std::vector<double> side1Array22 = { 234.837845, 53.817249,235.407150, 52.610729,235.669128, 52.056053 };
-	polygon22->setSide0(Common::doublesToSide(side0Array22));
-	polygon22->setSide1(Common::doublesToSide(side1Array22));
-	polygon22->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon22->set(Common::doublesToSide(side0Array22), Common::doublesToSide(side1Array22));
+	polygon22->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon23 = std::make_shared<Polygon>();
 	std::vector<double> side0Array23 = { 245.039978, 45.518616,245.083755, 45.421551,245.782089, 43.872955 };
 	std::vector<double> side1Array23 = { 238.406326, 46.277725,238.452530, 46.180450,239.190445, 44.628212 };
-	polygon23->setSide0(Common::doublesToSide(side0Array23));
-	polygon23->setSide1(Common::doublesToSide(side1Array23));
-	polygon23->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon23->set(Common::doublesToSide(side0Array23), Common::doublesToSide(side1Array23));
+	polygon23->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon24 = std::make_shared<Polygon>();
 	std::vector<double> side0Array24 = { 611.592285, 432.806091,608.758179, 423.811035,608.582397, 423.256714 };
 	std::vector<double> side1Array24 = { 598.010559, 436.551025,595.251770, 427.353088,595.080750, 426.786407 };
-	polygon24->setSide0(Common::doublesToSide(side0Array24));
-	polygon24->setSide1(Common::doublesToSide(side1Array24));
-	polygon24->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon24->set(Common::doublesToSide(side0Array24), Common::doublesToSide(side1Array24));
+	polygon24->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon25 = std::make_shared<Polygon>();
 	std::vector<double> side0Array25 = { 598.559387, 392.240936,597.639404, 389.451355,595.663391, 383.490967 };
 	std::vector<double> side1Array25 = { 585.337708, 395.109161,584.444458, 392.262939,582.526733, 386.183319 };
-	polygon25->setSide0(Common::doublesToSide(side0Array25));
-	polygon25->setSide1(Common::doublesToSide(side1Array25));
-	polygon25->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon25->set(Common::doublesToSide(side0Array25), Common::doublesToSide(side1Array25));
+	polygon25->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon26 = std::make_shared<Polygon>();
 	std::vector<double> side0Array26 = { 586.075195, 355.143951,584.326233, 350.071594,583.319336, 347.164490 };
 	std::vector<double> side1Array26 = { 573.233459, 357.301147,571.540649, 352.138763,570.566345, 349.180847 };
-	polygon26->setSide0(Common::doublesToSide(side0Array26));
-	polygon26->setSide1(Common::doublesToSide(side1Array26));
-	polygon26->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon26->set(Common::doublesToSide(side0Array26), Common::doublesToSide(side1Array26));
+	polygon26->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon27 = std::make_shared<Polygon>();
 	std::vector<double> side0Array27 = { 574.235229, 321.357452,574.213379, 321.296051,571.764343, 314.463562,571.634705, 314.103088 };
 	std::vector<double> side1Array27 = { 561.788025, 322.948120,561.766846, 322.885803,559.403870, 315.948456,559.278687, 315.582489 };
-	polygon27->setSide0(Common::doublesToSide(side0Array27));
-	polygon27->setSide1(Common::doublesToSide(side1Array27));
-	polygon27->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon27->set(Common::doublesToSide(side0Array27), Common::doublesToSide(side1Array27));
+	polygon27->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon28 = std::make_shared<Polygon>();
 	std::vector<double> side0Array28 = { 563.090454, 290.663330,562.293945, 288.507629,560.651550, 284.079102 };
 	std::vector<double> side1Array28 = { 551.046143, 291.808685,550.279480, 289.624268,548.699524, 285.137604 };
-	polygon28->setSide0(Common::doublesToSide(side0Array28));
-	polygon28->setSide1(Common::doublesToSide(side1Array28));
-	polygon28->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon28->set(Common::doublesToSide(side0Array28), Common::doublesToSide(side1Array28));
+	polygon28->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon29 = std::make_shared<Polygon>();
 	std::vector<double> side0Array29 = { 552.657349, 262.812103,551.192139, 258.964874,550.380066, 256.839081 };
 	std::vector<double> side1Array29 = { 541.018066, 263.611237,539.611877, 259.720490,538.832764, 257.571075 };
-	polygon29->setSide0(Common::doublesToSide(side0Array29));
-	polygon29->setSide1(Common::doublesToSide(side1Array29));
-	polygon29->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon29->set(Common::doublesToSide(side0Array29), Common::doublesToSide(side1Array29));
+	polygon29->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon30 = std::make_shared<Polygon>();
 	std::vector<double> side0Array30 = { 542.927307, 237.544388,542.891479, 237.452637,540.895142, 232.348251,540.807129, 232.123795 };
 	std::vector<double> side1Array30 = { 531.689941, 238.076492,531.655701, 237.983902,529.744629, 232.830933,529.660400, 232.604401 };
-	polygon30->setSide0(Common::doublesToSide(side0Array30));
-	polygon30->setSide1(Common::doublesToSide(side1Array30));
-	polygon30->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon30->set(Common::doublesToSide(side0Array30), Common::doublesToSide(side1Array30));
+	polygon30->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon31 = std::make_shared<Polygon>();
 	std::vector<double> side0Array31 = { 533.875244, 214.605545,533.214722, 212.952179,531.904724, 209.681152 };
 	std::vector<double> side1Array31 = { 523.032349, 214.933212,522.401367, 213.266479,521.150269, 209.969543 };
-	polygon31->setSide0(Common::doublesToSide(side0Array31));
-	polygon31->setSide1(Common::doublesToSide(side1Array31));
-	polygon31->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon31->set(Common::doublesToSide(side0Array31), Common::doublesToSide(side1Array31));
+	polygon31->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon32 = std::make_shared<Polygon>();
 	std::vector<double> side0Array32 = { 525.465637, 193.754929,524.272949, 190.832108,523.635864, 189.274414 };
 	std::vector<double> side1Array32 = { 515.006409, 193.927109,513.869446, 190.984726,513.262268, 189.416840 };
-	polygon32->setSide0(Common::doublesToSide(side0Array32));
-	polygon32->setSide1(Common::doublesToSide(side1Array32));
-	polygon32->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon32->set(Common::doublesToSide(side0Array32), Common::doublesToSide(side1Array32));
+	polygon32->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon33 = std::make_shared<Polygon>();
 	std::vector<double> side0Array33 = { 517.657593, 174.770691,517.614563, 174.667068,516.015259, 170.821747,515.958801, 170.686340 };
 	std::vector<double> side1Array33 = { 507.568939, 174.825363,507.527985, 174.721161,506.006226, 170.854782,505.952545, 170.718643 };
-	polygon33->setSide0(Common::doublesToSide(side0Array33));
-	polygon33->setSide1(Common::doublesToSide(side1Array33));
-	polygon33->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon33->set(Common::doublesToSide(side0Array33), Common::doublesToSide(side1Array33));
+	polygon33->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon34 = std::make_shared<Polygon>();
 	std::vector<double> side0Array34 = { 510.407837, 157.451675,509.865784, 156.168259,508.830170, 153.720734 };
 	std::vector<double> side1Array34 = { 500.675079, 157.418274,500.160095, 156.129044,499.176300, 153.670639 };
-	polygon34->setSide0(Common::doublesToSide(side0Array34));
-	polygon34->setSide1(Common::doublesToSide(side1Array34));
-	polygon34->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon34->set(Common::doublesToSide(side0Array34), Common::doublesToSide(side1Array34));
+	polygon34->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon35 = std::make_shared<Polygon>();
 	std::vector<double> side0Array35 = { 503.673279, 141.617783,502.705353, 139.361526,502.207062, 138.201981 };
 	std::vector<double> side1Array35 = { 494.281006, 141.518997,493.362732, 139.254578,492.890076, 138.090912 };
-	polygon35->setSide0(Common::doublesToSide(side0Array35));
-	polygon35->setSide1(Common::doublesToSide(side1Array35));
-	polygon35->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon35->set(Common::doublesToSide(side0Array35), Common::doublesToSide(side1Array35));
+	polygon35->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon36 = std::make_shared<Polygon>();
 	std::vector<double> side0Array36 = { 497.412201, 127.108650,497.366150, 127.002739,496.082184, 124.052139,496.048157, 123.974159 };
 	std::vector<double> side1Array36 = { 488.344574, 126.962059,488.300934, 126.855835,487.084442, 123.896866,487.052277, 123.818680 };
-	polygon36->setSide0(Common::doublesToSide(side0Array36));
-	polygon36->setSide1(Common::doublesToSide(side1Array36));
-	polygon36->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon36->set(Common::doublesToSide(side0Array36), Common::doublesToSide(side1Array36));
+	polygon36->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon37 = std::make_shared<Polygon>();
 	std::vector<double> side0Array37 = { 491.585144, 113.782677,491.138062, 112.767220,490.314758, 110.899597 };
 	std::vector<double> side1Array37 = { 482.826416, 113.601707,482.403290, 112.584015,481.624207, 110.712334 };
-	polygon37->setSide0(Common::doublesToSide(side0Array37));
-	polygon37->setSide1(Common::doublesToSide(side1Array37));
-	polygon37->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon37->set(Common::doublesToSide(side0Array37), Common::doublesToSide(side1Array37));
+	polygon37->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon38 = std::make_shared<Polygon>();
 	std::vector<double> side0Array38 = { 486.155396, 101.514717,485.363464, 99.737343,484.970642, 98.856720 };
 	std::vector<double> side1Array38 = { 477.690155, 101.309761,476.941498, 99.529526,476.570129, 98.647499 };
-	polygon38->setSide0(Common::doublesToSide(side0Array38));
-	polygon38->setSide1(Common::doublesToSide(side1Array38));
-	polygon38->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon38->set(Common::doublesToSide(side0Array38), Common::doublesToSide(side1Array38));
+	polygon38->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon39 = std::make_shared<Polygon>();
 	std::vector<double> side0Array39 = { 481.089050, 90.194687,481.042389, 90.091011,480.001007, 87.779358,479.982666, 87.738579 };
 	std::vector<double> side1Array39 = { 472.902313, 89.973763,472.858276, 89.869987,471.874695, 87.555733,471.857330, 87.514946 };
-	polygon39->setSide0(Common::doublesToSide(side0Array39));
-	polygon39->setSide1(Common::doublesToSide(side1Array39));
-	polygon39->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon39->set(Common::doublesToSide(side0Array39), Common::doublesToSide(side1Array39));
+	polygon39->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon40 = std::make_shared<Polygon>();
 	std::vector<double> side0Array40 = { 476.355194, 79.725578,475.982483, 78.905769,475.320435, 77.450966 };
 	std::vector<double> side1Array40 = { 468.432617, 79.494774,468.080902, 78.674385,467.456177, 77.218597 };
-	polygon40->setSide0(Common::doublesToSide(side0Array40));
-	polygon40->setSide1(Common::doublesToSide(side1Array40));
-	polygon40->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon40->set(Common::doublesToSide(side0Array40), Common::doublesToSide(side1Array40));
+	polygon40->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon41 = std::make_shared<Polygon>();
 	std::vector<double> side0Array41 = { 471.925537, 70.021927,471.269806, 68.593025,470.956451, 67.910805 };
 	std::vector<double> side1Array41 = { 464.253510, 69.785973,463.635132, 68.356552,463.339600, 67.674171 };
-	polygon41->setSide0(Common::doublesToSide(side0Array41));
-	polygon41->setSide1(Common::doublesToSide(side1Array41));
-	polygon41->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon41->set(Common::doublesToSide(side0Array41), Common::doublesToSide(side1Array41));
+	polygon41->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon42 = std::make_shared<Polygon>();
 	std::vector<double> side0Array42 = { 467.774445, 61.008507,467.728516, 60.909153,466.873016, 59.061295,466.865479, 59.045013 };
 	std::vector<double> side1Array42 = { 460.339966, 60.770939,460.296661, 60.671581,459.490509, 58.823776,459.483368, 58.807446 };
-	polygon42->setSide0(Common::doublesToSide(side0Array42));
-	polygon42->setSide1(Common::doublesToSide(side1Array42));
-	polygon42->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon42->set(Common::doublesToSide(side0Array42), Common::doublesToSide(side1Array42));
+	polygon42->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon43 = std::make_shared<Polygon>();
 	std::vector<double> side0Array43 = { 463.878754, 52.618790,463.564148, 51.944160,463.024933, 50.788830 };
 	std::vector<double> side1Array43 = { 456.669586, 52.382313,456.373260, 51.707840,455.865417, 50.552925 };
-	polygon43->setSide0(Common::doublesToSide(side0Array43));
-	polygon43->setSide1(Common::doublesToSide(side1Array43));
-	polygon43->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon43->set(Common::doublesToSide(side0Array43), Common::doublesToSide(side1Array43));
+	polygon43->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon44 = std::make_shared<Polygon>();
 	std::vector<double> side0Array44 = { 460.217438, 44.793892,459.667297, 43.623268,459.414246, 43.085133 };
 	std::vector<double> side1Array44 = { 453.221985, 44.560539,452.704193, 43.390533,452.465912, 42.852715 };
-	polygon44->setSide0(Common::doublesToSide(side0Array44));
-	polygon44->setSide1(Common::doublesToSide(side1Array44));
-	polygon44->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon44->set(Common::doublesToSide(side0Array44), Common::doublesToSide(side1Array44));
+	polygon44->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon45 = std::make_shared<Polygon>();
 	std::vector<double> side0Array45 = { 456.771332, 37.481796,456.726715, 37.387486,456.014740, 35.883160 };
 	std::vector<double> side1Array45 = { 449.978851, 37.253067,449.936920, 37.158863,449.267029, 35.655628 };
-	polygon45->setSide0(Common::doublesToSide(side0Array45));
-	polygon45->setSide1(Common::doublesToSide(side1Array45));
-	polygon45->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon45->set(Common::doublesToSide(side0Array45), Common::doublesToSide(side1Array45));
+	polygon45->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon46 = std::make_shared<Polygon>();
 	std::vector<double> side0Array46 = { 476.355194, 79.725578,475.982483, 78.905769,475.320435, 77.450966 };
 	std::vector<double> side1Array46 = { 468.432617, 79.494774,468.080902, 78.674385,467.456177, 77.218597 };
-	polygon46->setSide0(Common::doublesToSide(side0Array46));
-	polygon46->setSide1(Common::doublesToSide(side1Array46));
-	polygon46->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon46->set(Common::doublesToSide(side0Array46), Common::doublesToSide(side1Array46));
+	polygon46->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon47 = std::make_shared<Polygon>();
 	std::vector<double> side0Array47 = { 47.404461, 457.695862,51.037361, 458.938568,54.730812, 460.182648,58.485664, 461.427673,62.302769, 462.672791,66.183037, 463.917694,70.127235, 465.161560,74.136208, 466.403870,78.210739, 467.643799,82.351585, 468.880798,86.559464, 470.113953,90.835106, 471.342529,95.179092, 472.565796,99.592110, 473.782806,104.074722, 474.992645,108.627419, 476.194611,113.250717, 477.387482,117.944984, 478.570496,122.710609, 479.742584,127.547829, 480.902588,132.456894, 482.049622,137.437927, 483.182465,142.490997, 484.300049,147.616043, 485.401154,152.812943, 486.484711,158.081512, 487.549530,163.421432, 488.594269,168.832291, 489.617798,174.313553, 490.618835,179.864578, 491.596161,185.484634, 492.548523,191.172836, 493.474670,196.928207, 494.373230,202.749664, 495.243073,208.635895, 496.082886,214.585587, 496.891449,220.597305, 497.667450,226.669312, 498.409882,232.799896, 499.117218,238.987244, 499.788666,245.229294, 500.422882,251.523956, 501.018829,257.868958, 501.575409,264.261932, 502.091736,270.700378, 502.566772,277.181732, 502.999573,283.703247, 503.389404,290.262146, 503.735229,296.855560, 504.036621,303.480438, 504.292664,310.133728, 504.502808,316.812347, 504.666656,323.513031, 504.783508,330.232452, 504.853119,336.967407, 504.875061,343.714417, 504.849152,350.470093, 504.775177,357.231140, 504.653046,363.993927, 504.482727,370.755188, 504.264374,377.511292, 503.997925,384.258972, 503.683624,390.994659, 503.321899,397.715118, 502.912903,404.416870, 502.457336,411.096649, 501.955475,417.751251, 501.407928,424.377441, 500.815308,430.972168, 500.178497,437.532440, 499.498108,444.055206, 498.775146,450.537689, 498.010376,456.977173, 497.204803,463.370911, 496.359497,469.716492, 495.475494,476.011505, 494.553833,482.253571, 493.595856,488.440552, 492.602509,494.570557, 491.575165,500.641510, 490.515106,506.651794, 489.423462,512.599548, 488.301727,518.483459, 487.151062,524.302063, 485.972839,530.054077, 484.768402,535.738464, 483.539093,541.354187, 482.286285,546.900391, 481.011322,552.376221, 479.715332,557.781250, 478.399780,563.114746, 477.066010,568.376404, 475.715210,573.565857, 474.348572,578.682983, 472.967468,583.727600, 471.572968,588.699707, 470.166382,593.599304, 468.748657,598.426697, 467.321167,603.181946, 465.884735,607.865479, 464.440582,612.477478, 462.989777,617.018616, 461.533051,621.489197, 460.071533,625.889771, 458.606171,630.221008, 457.137695,634.483459, 455.667023,638.677795, 454.194885,642.804749, 452.722137,646.865112, 451.249512,650.859619, 449.777679 };
 	std::vector<double> side1Array47 = { 44.974007, 465.080505,48.612774, 466.384949,52.312908, 467.691132,56.075329, 468.998657,59.900948, 470.306915,63.790657, 471.615204,67.745270, 472.922852,71.765678, 474.229340,75.852722, 475.533752,80.007133, 476.835480,84.229767, 478.133759,88.521294, 479.427673,92.882446, 480.716461,97.313850, 481.999146,101.816147, 483.274841,106.389908, 484.542542,111.035622, 485.801392,115.753738, 487.050262,120.544632, 488.287994,125.408684, 489.513763,130.346100, 490.726196,135.357025, 491.924194,140.441620, 493.106567,145.599823, 494.272217,150.831589, 495.419739,156.136719, 496.547913,161.514938, 497.655487,166.965836, 498.741241,172.488876, 499.803650,178.083511, 500.841431,183.748978, 501.853302,189.484390, 502.837891,195.288773, 503.793915,201.161087, 504.719849,207.099976, 505.614441,213.104187, 506.476410,219.172134, 507.304321,225.302124, 508.096985,231.492538, 508.853027,237.741348, 509.571289,244.046494, 510.250458,250.405914, 510.889343,256.817230, 511.486938,263.278015, 512.041992,269.785706, 512.553528,276.337708, 513.020630,282.931274, 513.442200,289.563293, 513.817566,296.231018, 514.145691,302.931244, 514.426086,309.660828, 514.657898,316.416534, 514.840576,323.195007, 514.973633,329.992889, 515.056580,336.806793, 515.089111,343.633179, 515.070923,350.468445, 515.001831,357.309235, 514.881775,364.151794, 514.710510,370.992706, 514.488281,377.828339, 514.215210,384.655090, 513.891418,391.469452, 513.517212,398.268066, 513.093140,405.047180, 512.619568,411.803619, 512.096985,418.533997, 511.526062,425.234955, 510.907440,431.903320, 510.242126,438.536072, 509.530731,445.130005, 508.774170,451.682343, 507.973602,458.190155, 507.129852,464.650879, 506.244202,471.061737, 505.317749,477.420502, 504.351532,483.724609, 503.347076,489.971954, 502.305542,496.160553, 501.228149,502.288391, 500.116394,508.353577, 498.971558,514.354614, 497.795105,520.289795, 496.588501,526.157959, 495.352936,531.957703, 494.090027,537.687866, 492.801117,543.347595, 491.487762,548.935913, 490.151184,554.452087, 488.792999,559.895691, 487.414398,565.265991, 486.016846,570.562683, 484.601746,575.785522, 483.170410,580.934204, 481.724060,586.008850, 480.264008,591.009399, 478.791565,595.935791, 477.307800,600.788391, 475.814026,605.567444, 474.311310,610.273193, 472.800903,614.906128, 471.283630,619.466736, 469.760620,623.955444, 468.232941,628.372803, 466.701416,632.719666, 465.167084,636.996460, 463.630768,641.204041, 462.093292,645.343079, 460.555511,649.414429, 459.018158,653.418823, 457.481842 };
-	polygon47->setSide0(Common::doublesToSide(side0Array47));
-	polygon47->setSide1(Common::doublesToSide(side1Array47));
-	polygon47->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon47->set(Common::doublesToSide(side0Array47), Common::doublesToSide(side1Array47));
+	polygon47->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
+	std::vector<GradientStop> stops47 = { { 0.1f, Color(255, 0, 0, 255) },{ .03f, Color(0,255,0, 255) },{ 0.5f, Color(0, 0, 255, 255) } };
+	polygon47->material = std::make_shared<LinearGrandientMaterial>(height, stops47);
 
 	auto polygon48 = std::make_shared<Polygon>();
 	std::vector<double> side0Array48 = { 657.268127, 469.229309,657.203247, 469.029663,657.138306, 468.830017,657.073425, 468.630585,657.008545, 468.431030,656.943665, 468.231689,656.878784, 468.032349,656.813904, 467.833038,656.749023, 467.633911,656.684265, 467.434784,656.619385, 467.235657,656.554504, 467.036621,656.489624, 466.837708,656.424744, 466.638794,656.359924, 466.439972,656.295044, 466.241272,656.230286, 466.042542,656.165405, 465.843933,656.100525, 465.645325,656.035706, 465.446838,655.970886, 465.248444,655.906006, 465.050018,655.841187, 464.851837,655.776428, 464.653534,655.711548, 464.455353,655.646729, 464.257263,655.581909, 464.059174,655.517090, 463.861298,655.452332, 463.663330,655.387512, 463.465454,655.322693, 463.267670,655.257874, 463.070007,655.193054, 462.872314,655.128296, 462.674774,655.063477, 462.477203,654.998718, 462.279724,654.933899, 462.082367,654.869080, 461.885010,654.804382, 461.687744,654.739563, 461.490509,654.674805, 461.293457,654.609985, 461.096405,654.545288, 460.899353,654.480530, 460.702423,654.415710, 460.505585,654.350952, 460.308746,654.286194, 460.112000,654.221497, 459.915283,654.156738, 459.718658,654.091980, 459.522125,654.027283, 459.325592,653.962524, 459.129272,653.897766, 458.932861,653.833008, 458.736542,653.768311, 458.540314,653.703613, 458.344208,653.638855, 458.148102,653.574097, 457.952087,653.509460, 457.756104,653.444702, 457.560181,653.380005, 457.364380,653.315308, 457.168579,653.250610, 456.972900,653.185913, 456.777191,653.121277, 456.581726,653.056580, 456.386230,652.991821, 456.190735,652.927185, 455.995361,652.862549, 455.800079,652.797852, 455.604797,652.733215, 455.409637,652.668518, 455.214447,652.603821, 455.019379,652.539246, 454.824432,652.474548, 454.629456,652.409851, 454.434692,652.345276, 454.239838,652.280579, 454.045074,652.216003, 453.850433,652.151367, 453.655884,652.086731, 453.461334,652.022095, 453.266876,651.957458, 453.072449,651.892883, 452.878082,651.828247, 452.683868,651.763611, 452.489624,651.699097, 452.295502,651.634460, 452.101471,651.569885, 451.907440,651.505249, 451.713501,651.440735, 451.519592,651.376099, 451.325745,651.311584, 451.132050,651.246948, 450.938324,651.182373, 450.744812,651.117859, 450.551208,651.053284, 450.357697,650.988708, 450.164276,650.924133, 449.970886,650.859619, 449.777679 };
 	std::vector<double> side1Array48 = { 647.010864, 473.355103,646.946594, 473.151093,646.882324, 472.947174,646.818115, 472.743286,646.753906, 472.539581,646.689636, 472.335754,646.625427, 472.132172,646.561218, 471.928558,646.496948, 471.724945,646.432800, 471.521576,646.368530, 471.318176,646.304382, 471.114777,646.240173, 470.911591,646.175964, 470.708313,646.111755, 470.505219,646.047607, 470.302155,645.983337, 470.099152,645.919189, 469.896301,645.854980, 469.693420,645.790833, 469.490662,645.726624, 469.287872,645.662476, 469.085205,645.598267, 468.882660,645.534119, 468.680084,645.469971, 468.477753,645.405823, 468.275299,645.341614, 468.072937,645.277466, 467.870789,645.213318, 467.668640,645.149170, 467.466492,645.085022, 467.264465,645.020874, 467.062439,644.956726, 466.860474,644.892578, 466.658752,644.828491, 466.456940,644.764343, 466.255188,644.700195, 466.053589,644.636108, 465.851959,644.571960, 465.650543,644.507874, 465.449005,644.443787, 465.247711,644.379639, 465.046387,644.315552, 464.845184,644.251465, 464.643982,644.187378, 464.442963,644.123291, 464.241882,644.059204, 464.040985,643.995117, 463.839966,643.931030, 463.639191,643.866943, 463.438507,643.802856, 463.237701,643.738770, 463.037109,643.674744, 462.836639,643.610657, 462.636047,643.546631, 462.435669,643.482544, 462.235321,643.418518, 462.035034,643.354492, 461.834869,643.290405, 461.634705,643.226379, 461.434631,643.162354, 461.234680,643.098328, 461.034729,643.034302, 460.834869,642.970276, 460.635010,642.906250, 460.435242,642.842224, 460.235596,642.778259, 460.035950,642.714233, 459.836517,642.650269, 459.637085,642.586243, 459.437653,642.522278, 459.238312,642.458252, 459.038971,642.394287, 458.839844,642.330322, 458.640717,642.266296, 458.441681,642.202393, 458.242676,642.138428, 458.043762,642.074463, 457.844940,642.010498, 457.646118,641.946533, 457.447418,641.882568, 457.248810,641.818726, 457.050201,641.754761, 456.851685,641.690796, 456.653290,641.626892, 456.454895,641.562927, 456.256592,641.499023, 456.058319,641.435120, 455.860107,641.371216, 455.662018,641.307312, 455.464050,641.243408, 455.266052,641.179504, 455.068176,641.115662, 454.870422,641.051758, 454.672638,640.987854, 454.474976,640.924011, 454.277283,640.860168, 454.079712,640.796265, 453.882263,640.732422, 453.684814,640.668518, 453.487549 };
-	polygon48->setSide0(Common::doublesToSide(side0Array48));
-	polygon48->setSide1(Common::doublesToSide(side1Array48));
-	polygon48->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon48->set(Common::doublesToSide(side0Array48), Common::doublesToSide(side1Array48));
+	polygon48->material = std::make_shared<ColorMaterial>(Colors::cyan());
 
 	auto polygon49 = std::make_shared<Polygon>();
 	std::vector<double> side0Array49 = { 50.630592, 479.859406,50.691765, 479.664246,50.752937, 479.469055,50.814106, 479.274109,50.875244, 479.079132,50.936417, 478.884186,50.997585, 478.689301,51.058758, 478.494446,51.119896, 478.299805,51.181065, 478.105042,51.242203, 477.910370,51.303375, 477.715820,51.364513, 477.521393,51.425652, 477.326935,51.486790, 477.132507,51.547962, 476.938141,51.609100, 476.743927,51.670238, 476.549683,51.731377, 476.355560,51.792480, 476.161530,51.853619, 475.967499,51.914757, 475.773468,51.975895, 475.579529,52.036999, 475.385712,52.098137, 475.191895,52.159245, 474.998169,52.220383, 474.804443,52.281487, 474.610962,52.342594, 474.417328,52.403698, 474.223816,52.464802, 474.030426,52.525940, 473.837006,52.587013, 473.643707,52.648121, 473.450531,52.709225, 473.257324,52.770329, 473.064240,52.831402, 472.871124,52.892509, 472.678131,52.953579, 472.485168,53.014687, 472.292267,53.075760, 472.099396,53.136829, 471.906708,53.197937, 471.713928,53.258976, 471.521362,53.320049, 471.328796,53.381123, 471.136200,53.442196, 470.943726,53.503265, 470.751282,53.564339, 470.559021,53.625378, 470.366760,53.686451, 470.174500,53.747490, 469.982330,53.808533, 469.790161,53.869602, 469.598114,53.930645, 469.406189,53.991684, 469.214233,54.052723, 469.022369,54.113731, 468.830627,54.174770, 468.638794,54.235809, 468.447174,54.296818, 468.255524,54.357857, 468.063995,54.418865, 467.872467,54.479904, 467.681030,54.540913, 467.489594,54.601917, 467.298370,54.662926, 467.107056,54.723934, 466.915833,54.784939, 466.724731,54.845947, 466.533600,54.906921, 466.342682,54.967930, 466.151672,55.028904, 465.960785,55.089878, 465.769958,55.150883, 465.579163,55.211857, 465.388458,55.272831, 465.197876,55.333805, 465.007172,55.394749, 464.816681,55.455723, 464.626282,55.516697, 464.435791,55.577637, 464.245514,55.638611, 464.055115,55.699554, 463.864960,55.760494, 463.674774,55.821438, 463.484680,55.882378, 463.294617,55.943321, 463.104645,56.004261, 462.914673,56.065170, 462.724915,56.126114, 462.535034,56.187019, 462.345276,56.247963, 462.155609,56.308872, 461.965942,56.369781, 461.776398,56.430687, 461.586945,56.491596, 461.397491,56.552505, 461.208160,56.613384, 461.018799,56.674290, 460.829559 };
 	std::vector<double> side1Array49 = { 41.320988, 476.327148,41.382549, 476.136230,41.444084, 475.945221,41.505646, 475.754303,41.567177, 475.563507,41.628742, 475.372711,41.690273, 475.182007,41.751839, 474.991302,41.813370, 474.800720,41.874901, 474.610107,41.936462, 474.419617,41.997993, 474.229248,42.059525, 474.038849,42.121059, 473.848450,42.182590, 473.658264,42.244122, 473.467987,42.305653, 473.277802,42.367149, 473.087738,42.428715, 472.897766,42.490211, 472.707794,42.551743, 472.517822,42.613274, 472.327942,42.674774, 472.138184,42.736305, 471.948425,42.797802, 471.758667,42.859303, 471.569122,42.920834, 471.379456,42.982330, 471.190002,43.043831, 471.000549,43.105362, 470.811096,43.166828, 470.621735,43.228359, 470.432404,43.289856, 470.243164,43.351322, 470.054016,43.412823, 469.864868,43.474319, 469.675842,43.535820, 469.486816,43.597317, 469.297882,43.658783, 469.109039,43.720284, 468.920105,43.781746, 468.731384,43.843212, 468.542664,43.904713, 468.353943,43.966179, 468.165436,44.027645, 467.976898,44.089108, 467.788391,44.150574, 467.599976,44.212040, 467.411560,44.273506, 467.223267,44.334972, 467.034973,44.396439, 466.846741,44.457870, 466.658661,44.519337, 466.470551,44.580803, 466.282562,44.642235, 466.094574,44.703667, 465.906586,44.765133, 465.718781,44.826569, 465.531006,44.888000, 465.343201,44.949432, 465.155518,45.010868, 464.967957,45.072300, 464.780365,45.133701, 464.592896,45.195133, 464.405426,45.256565, 464.218048,45.317966, 464.030670,45.379398, 463.843414,45.440800, 463.656250,45.502201, 463.469086,45.563633, 463.281921,45.625034, 463.094849,45.686432, 462.907898,45.747833, 462.720947,45.809235, 462.534088,45.870632, 462.347260,45.931999, 462.160492,45.993401, 461.973846,46.054802, 461.787231,46.116169, 461.600677,46.177536, 461.414154,46.238937, 461.227600,46.300304, 461.041260,46.361671, 460.854828,46.423038, 460.668610,46.484406, 460.482391,46.545773, 460.296143,46.607109, 460.110046,46.668476, 459.924011,46.729813, 459.738007,46.791180, 459.552094,46.852512, 459.366180,46.913849, 459.180359,46.975182, 458.994537,47.036518, 458.808838,47.097851, 458.623230,47.159187, 458.437622,47.220520, 458.252045,47.281822, 458.066650,47.343159, 457.881134,47.404461, 457.695862 };
-	polygon49->setSide0(Common::doublesToSide(side0Array49));
-	polygon49->setSide1(Common::doublesToSide(side1Array49));
-	polygon49->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon49->set(Common::doublesToSide(side0Array49), Common::doublesToSide(side1Array49));
+	polygon49->material = std::make_shared<ColorMaterial>(Color(234, 178, 0, 255));
 
 	auto polygon50 = std::make_shared<Polygon>();
 	std::vector<double> side0Array50 = { 484.296356, 518.577271,484.259125, 518.322205,484.221893, 518.067200,484.184692, 517.812317,484.147461, 517.557495,484.110229, 517.302734,484.073090, 517.048157,484.035858, 516.793640,483.998657, 516.539307,483.961487, 516.285156,483.924286, 516.030884,483.887115, 515.776917,483.849976, 515.522949,483.812805, 515.269104,483.775665, 515.015381,483.738495, 514.761719,483.701355, 514.508301,483.664185, 514.254944,483.627045, 514.001587,483.589935, 513.748413,483.552795, 513.495361,483.515717, 513.242371,483.478546, 512.989563,483.441467, 512.736755,483.404358, 512.484131,483.367279, 512.231628,483.330200, 511.979248,483.293091, 511.726959,483.256012, 511.474762,483.218933, 511.222687,483.181885, 510.970703,483.144806, 510.718842,483.107788, 510.467072,483.070770, 510.215393,483.033661, 509.963837,482.996643, 509.712372,482.959625, 509.461121,482.922607, 509.209869,482.885590, 508.958832,482.848541, 508.707794,482.811584, 508.456848,482.774567, 508.206116,482.737610, 507.955383,482.700592, 507.704865,482.663635, 507.454437,482.626678, 507.204041,482.589722, 506.953827,482.552704, 506.703705,482.515808, 506.453705,482.478851, 506.203827,482.441895, 505.954041,482.404938, 505.704346,482.368042, 505.454742,482.331085, 505.205261,482.294189, 504.955902,482.257294, 504.706635,482.220398, 504.457458,482.183502, 504.208496,482.146545, 503.959534,482.109711, 503.710785,482.072815, 503.462036,482.035950, 503.213379,481.999115, 502.964935,481.962219, 502.716492,481.925385, 502.468262,481.888550, 502.220123,481.851685, 501.972107,481.814850, 501.724182,481.778015, 501.476379,481.741180, 501.228546,481.704437, 500.980957,481.667603, 500.733429,481.630829, 500.486053,481.594025, 500.238861,481.557251, 499.991547,481.520416, 499.744568,481.483673, 499.497589,481.446899, 499.250702,481.410126, 499.004028,481.373444, 498.757355,481.336670, 498.510803,481.299927, 498.264435,481.263153, 498.018066,481.226471, 497.771912,481.189758, 497.525879,481.153076, 497.279816,481.116302, 497.033997,481.079620, 496.788239,481.042969, 496.542603,481.006287, 496.297089,480.969604, 496.051666,480.932892, 495.806335,480.896271, 495.561127,480.859619, 495.316010,480.822937, 495.071014,480.786316, 494.826202,480.749664, 494.581421,480.713043, 494.336700,480.676422, 494.092133,480.639862, 493.847748 };
 	std::vector<double> side1Array50 = { 474.579651, 520.174377,474.544830, 519.917358,474.510040, 519.660400,474.475250, 519.403625,474.440460, 519.146973,474.405670, 518.890442,474.370880, 518.633972,474.336060, 518.377625,474.301331, 518.121399,474.266541, 517.865234,474.231812, 517.609192,474.197021, 517.353394,474.162292, 517.097534,474.127563, 516.841858,474.092834, 516.586304,474.058044, 516.330811,474.023376, 516.075500,473.988647, 515.820313,473.953918, 515.565063,473.919189, 515.310120,473.884521, 515.055176,473.849792, 514.800415,473.815063, 514.545715,473.780396, 514.291138,473.745728, 514.036682,473.711060, 513.782410,473.676331, 513.528015,473.641663, 513.273987,473.606995, 513.020020,473.572388, 512.766052,473.537750, 512.512207,473.503082, 512.258606,473.468475, 512.004944,473.433807, 511.751495,473.399200, 511.498169,473.364532, 511.244934,473.329956, 510.991821,473.295349, 510.738708,473.260742, 510.485901,473.226135, 510.232971,473.191559, 509.980377,473.156952, 509.727783,473.122345, 509.475281,473.087830, 509.222992,473.053223, 508.970703,473.018677, 508.718506,472.984161, 508.466522,472.949554, 508.214539,472.915009, 507.962769,472.880493, 507.711121,472.845947, 507.459442,472.811432, 507.208099,472.776947, 506.956726,472.742432, 506.705383,472.707886, 506.454346,472.673401, 506.203186,472.638885, 505.952362,472.604401, 505.701538,472.569946, 505.450806,472.535492, 505.200287,472.501007, 504.949768,472.466553, 504.699432,472.432068, 504.449127,472.397614, 504.199036,472.363129, 503.949036,472.328735, 503.699127,472.294281, 503.449219,472.259857, 503.199524,472.225464, 502.949951,472.191071, 502.700470,472.156647, 502.451080,472.122253, 502.201813,472.087860, 501.952759,472.053436, 501.703705,472.019043, 501.454742,471.984711, 501.205963,471.950317, 500.957336,471.915985, 500.708679,471.881622, 500.460236,471.847290, 500.211914,471.812897, 499.963562,471.778564, 499.715424,471.744232, 499.467407,471.709961, 499.219482,471.675598, 498.971680,471.641266, 498.723969,471.606995, 498.476349,471.572723, 498.228851,471.538391, 497.981567,471.504120, 497.734375,471.469849, 497.487183,471.435577, 497.240082,471.401306, 496.993195,471.367035, 496.746429,471.332825, 496.499756,471.298553, 496.253174,471.264343, 496.006622,471.230072, 495.760254,471.195892, 495.514008,471.161682, 495.267853 };
-	polygon50->setSide0(Common::doublesToSide(side0Array50));
-	polygon50->setSide1(Common::doublesToSide(side1Array50));
-	polygon50->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon50->set(Common::doublesToSide(side0Array50), Common::doublesToSide(side1Array50));
+	polygon50->material = std::make_shared<ColorMaterial>((Colors::aliceBlue()));
 
 	auto polygon51 = std::make_shared<Polygon>();
 	std::vector<double> side0Array51 = { 209.465286, 520.944763,209.503464, 520.694946,209.541656, 520.445190,209.579865, 520.195557,209.618042, 519.946106,209.656204, 519.696594,209.694382, 519.447266,209.732544, 519.197937,209.770721, 518.948914,209.808853, 518.699829,209.847031, 518.450867,209.885162, 518.202148,209.923294, 517.953491,209.961441, 517.704834,209.999542, 517.456299,210.037674, 517.207825,210.075790, 516.959473,210.113892, 516.711365,210.151993, 516.463257,210.190094, 516.215210,210.228210, 515.967407,210.266281, 515.719604,210.304352, 515.471863,210.342453, 515.224243,210.380524, 514.976746,210.418564, 514.729431,210.456635, 514.482056,210.494675, 514.234985,210.532745, 513.987854,210.570786, 513.740906,210.608826, 513.494019,210.646866, 513.247253,210.684875, 513.000549,210.722885, 512.754028,210.760925, 512.507568,210.798920, 512.261169,210.836899, 512.015015,210.874908, 511.768768,210.912918, 511.522827,210.950882, 511.276764,210.988861, 511.030945,211.026840, 510.785309,211.064804, 510.539581,211.102753, 510.294159,211.140717, 510.048737,211.178665, 509.803314,211.216599, 509.558075,211.254547, 509.312958,211.292480, 509.067963,211.330399, 508.823059,211.368301, 508.578247,211.406204, 508.333557,211.444122, 508.088989,211.482025, 507.844482,211.519943, 507.600098,211.557816, 507.355713,211.595688, 507.111542,211.633560, 506.867462,211.671432, 506.623505,211.709320, 506.379639,211.747162, 506.135895,211.785004, 505.892242,211.822845, 505.648682,211.860687, 505.405121,211.898529, 505.161774,211.936340, 504.918549,211.974152, 504.675415,212.011963, 504.432373,212.049774, 504.189453,212.087570, 503.946533,212.125351, 503.703796,212.163162, 503.461090,212.200943, 503.218567,212.238724, 502.976166,212.276459, 502.733856,212.314240, 502.491669,212.351990, 502.249573,212.389725, 502.007477,212.427475, 501.765594,212.465210, 501.523804,212.502930, 501.282043,212.540634, 501.040466,212.578384, 500.798889,212.616058, 500.557526,212.653809, 500.316254,212.691483, 500.075104,212.729172, 499.833923,212.766846, 499.592987,212.804520, 499.352142,212.842209, 499.111298,212.879883, 498.870667,212.917496, 498.630127,212.955170, 498.389587,212.992783, 498.149261,213.030396, 497.909027,213.068085, 497.668823,213.105698, 497.428802,213.143311, 497.188904,213.180923, 496.948975,213.218536, 496.709290 };
 	std::vector<double> side1Array51 = { 200.314056, 519.488831,200.354294, 519.241333,200.394562, 518.993713,200.434799, 518.746338,200.475006, 518.499023,200.515274, 518.251770,200.555466, 518.004639,200.595703, 517.757690,200.635910, 517.510803,200.676102, 517.263916,200.716309, 517.017212,200.756516, 516.770569,200.796707, 516.524109,200.836884, 516.277649,200.877045, 516.031372,200.917252, 515.785156,200.957428, 515.539063,200.997559, 515.293030,201.037735, 515.047058,201.077896, 514.801331,201.118027, 514.555603,201.158173, 514.309998,201.198303, 514.064453,201.238449, 513.819031,201.278549, 513.573730,201.318680, 513.328613,201.358780, 513.083496,201.398895, 512.838501,201.438995, 512.593567,201.479095, 512.348755,201.519165, 512.104065,201.559265, 511.859375,201.599335, 511.614899,201.639404, 511.370514,201.679489, 511.126251,201.719513, 510.882050,201.759552, 510.638000,201.799622, 510.393921,201.839661, 510.150055,201.879700, 509.906311,201.919708, 509.662537,201.959747, 509.418976,201.999756, 509.175446,202.039764, 508.932098,202.079758, 508.688843,202.119766, 508.445618,202.159775, 508.202576,202.199753, 507.959564,202.239746, 507.716614,202.279694, 507.473907,202.319656, 507.231201,202.359634, 506.988678,202.399582, 506.746155,202.439545, 506.503754,202.479492, 506.261444,202.519424, 506.019257,202.559326, 505.777283,202.599274, 505.535278,202.639175, 505.293396,202.679092, 505.051605,202.718994, 504.810028,202.758896, 504.568359,202.798813, 504.326874,202.838684, 504.085510,202.878555, 503.844269,202.918427, 503.603088,202.958298, 503.362030,202.998138, 503.121094,203.038025, 502.880249,203.077866, 502.639496,203.117706, 502.398865,203.157547, 502.158234,203.197357, 501.917786,203.237167, 501.677460,203.277008, 501.437134,203.316818, 501.197021,203.356583, 500.957031,203.396393, 500.717010,203.436172, 500.477203,203.475952, 500.237488,203.515717, 499.997803,203.555496, 499.758301,203.595276, 499.518799,203.635025, 499.279510,203.674759, 499.040222,203.714508, 498.801147,203.754242, 498.562073,203.793961, 498.323120,203.833664, 498.084351,203.873383, 497.845581,203.913086, 497.606903,203.952805, 497.368469,203.992477, 497.130005,204.032181, 496.891663,204.071869, 496.653412,204.111511, 496.415375,204.151184, 496.177338,204.190857, 495.939392,204.230515, 495.701569,204.270157, 495.463867 };
-	polygon51->setSide0(Common::doublesToSide(side0Array51));
-	polygon51->setSide1(Common::doublesToSide(side1Array51));
-	polygon51->setBrush(std::make_shared<SolidColorBrush>(Color(234, 178, 0, 255)));
+	polygon51->set(Common::doublesToSide(side0Array51), Common::doublesToSide(side1Array51));
+	polygon51->material = std::make_shared<ColorMaterial>(Colors::blanchedAlmond());
 
 	sc->add(polygon0);
 	sc->add(polygon1);
@@ -459,11 +400,17 @@ TEST_CASE("Test BX11", "[BX11]")
 	sc->add(polygon50);
 	sc->add(polygon51);
 
-	sc->doRender();
-	w.swapBuffers();
 
 	while (true)
 	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		sc->doRender();
+		w.swapBuffers();
 		Window::pollEvents();
 	}
 }

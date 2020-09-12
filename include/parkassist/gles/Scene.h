@@ -1,6 +1,5 @@
 #pragma once
 #include "parkassist/gles/Polygon.h"
-#include "parkassist/gles/DrawingContext.h"
 
 namespace nb {
 
@@ -11,7 +10,7 @@ public:
 	~Scene() = default;
 
 	//添加一个多边形
-	void add(std::shared_ptr<Polygon> polygon);
+	void add(MeshPtr mesh);
 
 	//清除
 	void clear();
@@ -24,12 +23,12 @@ public:
 	bool isBorderEnable() const;
 
 private:
-	void draw(const std::vector<std::shared_ptr<Polygon>> polygons);
+	void draw(const std::vector<MeshPtr> meshes);
 
-	DrawingContext m_dc;
-	std::vector<std::shared_ptr<Polygon>> m_polygons;
-	std::vector<std::shared_ptr<Polygon>> m_polygonsBorder;
+	std::vector<MeshPtr> m_meshes;
+	std::vector<MeshPtr> m_meshesBorder;
 	bool m_enableBorder;
+	CameraPtr m_camera;
 };
 
 using ScenePtr = std::shared_ptr<Scene>;

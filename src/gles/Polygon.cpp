@@ -1,82 +1,53 @@
 #include "parkassist/gles/Polygon.h"
-#include "parkassist/gles/DrawingContext.h"
-#include "parkassist/gles/Brush.h"
-#include "parkassist/gles/Color.h"
-#include <GLES2/gl2.h>
+#include "parkassist/gles/SmartBezier.h"
 
 using namespace nb;
 
-Polygon::Polygon()
-	: Polygon({}, {})
+void Polygon::set(const std::vector<glm::vec2>& side0, const std::vector<glm::vec2>& side1, int controlPointsCount, int sampleCount)
 {
+	auto s0 = side0;
+	auto s1 = side1;
+	if (s0.size() > s1.size())
+	{
+		s0.resize(s1.size());
+	}
+	else if (s1.size() > s0.size())
+	{
+		s1.resize(s0.size());
+	}
+
+	//决定是否执行贝塞尔
+	bool needBezier = controlPointsCount >= 2 && sampleCount >= 2;
+	if (needBezier)
+	{
+		s0 = doBezier(s0, controlPointsCount, sampleCount);
+		s1 = doBezier(s1, controlPointsCount, sampleCount);
+	}
+
+	//顶点和顶点序列
+	this->vertexs.resize(s0.size() + s1.size());
+	for (size_t i = 0; i < this->vertexs.size() / 2; ++i)
+	{
+		this->vertexs[i * 2].position = glm::vec3(s0[i], 0.0f);
+		this->vertexs[i * 2 + 1].position = glm::vec3(s1[i], 0.0f);
+	}
+
+	auto indicesCount = this->vertexs.empty() ? 0 : (this->vertexs.size() - 2) * 3;
+	this->indices.resize(indicesCount);
+	auto x = 0;
+	for (size_t i = 0; i < this->indices.size() / 6; ++i)
+	{
+		this->indices[x++] = (uint16_t)(2 * i + 0);
+		this->indices[x++] = (uint16_t)(2 * i + 1);
+		this->indices[x++] = (uint16_t)(2 * i + 3);
+		this->indices[x++] = (uint16_t)(2 * i + 0);
+		this->indices[x++] = (uint16_t)(2 * i + 3);
+		this->indices[x++] = (uint16_t)(2 * i + 2);
+	}
 }
 
-Polygon::Polygon(const std::vector<glm::vec2>& side0, const std::vector<glm::vec2>& side1)
-	: m_side0(side0)
-	, m_side1(side1)
-	, m_controlPointsCount(10)
-	, m_sampleCount(50)
-	, m_brush(std::make_shared<SolidColorBrush>(Colors::black()))
-	, m_drawMode(GL_TRIANGLES)
+std::vector<glm::vec2> Polygon::doBezier(const std::vector<glm::vec2>& inputs, int controlPointsCount, int sampleCount)
 {
+	SmartBezier sb(controlPointsCount, sampleCount);
+	return sb.doBezier(inputs);
 }
-
-void Polygon::setSide0(const std::vector<glm::vec2>& side0)
-{
-	m_side0 = side0;
-}
-
-void Polygon::setSide1(const std::vector<glm::vec2>& side1)
-{
-	m_side1 = side1;
-}
-
-const std::vector<glm::vec2>& Polygon::side0() const
-{
-	return m_side0;
-}
-
-const std::vector<glm::vec2>& Polygon::side1() const
-{
-	return m_side1;
-}
-
-void Polygon::setBezierParams(int controlPointsCount, int sampleCount)
-{
-	m_controlPointsCount = controlPointsCount;
-	m_sampleCount = sampleCount;
-}
-
-int Polygon::controlPointsCount() const
-{
-	return m_controlPointsCount;
-}
-
-int Polygon::sampleCount() const
-{
-	return m_sampleCount;
-}
-
-void Polygon::setBrush(BrushPtr brush)
-{
-	m_brush = brush;
-}
-
-BrushPtr Polygon::brush() const
-{
-	return m_brush;
-}
-
-void Polygon::setMode(uint8_t mode)
-{
-	m_drawMode = mode;
-}
-uint8_t Polygon::mode() const
-{
-	return m_drawMode;
-}
-//
-//void Polygon::draw()
-//{
-//	DrawingContext::get()->drawPolygon(m_side0, m_side1, m_brush, m_controlPointsCount, m_sampleCount, m_drawMode);
-//}

@@ -1,10 +1,15 @@
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
-#include "parkassist/gles/fwd.h"
+#include "parkassist/gles/Polygon.h"
+#include "parkassist/gles/Rectangle.h"
+#include "parkassist/gles/Bitmap.h"
+#include "parkassist/gles/Scene.h"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
+using namespace nb;
+
 class Common
 {
 public:
@@ -16,20 +21,22 @@ public:
 			side[i] = { doubles[i * 2], doubles[i * 2 + 1] };
 		}
 		return side;
-	}
+	} 
 
-	static std::shared_ptr<Polygon> getBackground(const std::string &path, int width, int height)
+	static MeshPtr getBackground(const std::string &path, int width, int height)
 	{
-		auto polygonBG = std::make_shared<Polygon>();
-		polygonBG->setSide0({ { 0, height },{ 0,0 } });
-		polygonBG->setSide1({ { width, height },{ width,0 } });
-		polygonBG->setBezierParams(0, 0);
-		auto imgBrush = std::make_shared<ImageBrush>(std::make_shared<ImageSource>(path));
-		polygonBG->setBrush(imgBrush);
-		return polygonBG;
+		auto bg = std::make_shared<Rectangle>();
+		bg->set({ 0, height }, { width,height }, { width, 0 }, { 0,0 });
+
+		auto texture = std::make_shared<Texture2D>();
+		Bitmap bm(path);
+		auto x = Texture::getGlFormatAndType(bm.channels());
+		texture->update(bm.data(), bm.width(), bm.height(), x.first, x.second);
+		bg->material = std::make_shared<ImageMaterial>(texture);
+		return bg;
 	}
 
-	static std::vector<PolygonPtr> getPolygons(const std::vector<std::vector<double>> &data)
+	static std::vector<PolygonPtr> getPolygons(float height, const std::vector<std::vector<double>> &data)
 	{
 		std::vector<PolygonPtr> polygons;
 		for (size_t i = 0; i < data.size() / 3; ++i)
@@ -37,11 +44,11 @@ public:
 			auto const &side0Data = data[i * 3 + 0];
 			auto const &side1Data = data[i * 3 + 1];
 			auto const &colorData = data[i * 3 + 2];
-			BrushPtr brush;
+			MaterialPtr material;
 			if (colorData.size() <= 4)
 			{
 				Color color{ (uint8_t)colorData[0], (uint8_t)colorData[1], (uint8_t)colorData[2], (uint8_t)colorData[3] };
-				brush = std::make_shared<SolidColorBrush>(color);
+				material = std::make_shared<ColorMaterial>(color);
 			}
 			else
 			{
@@ -50,13 +57,14 @@ public:
 				{
 					Color color((uint8_t)colorData[k * 5 + 0], (uint8_t)colorData[k * 5 + 1], (uint8_t)colorData[k * 5 + 2], (uint8_t)colorData[k * 5 + 3]);
 					float offset = (float)colorData[k * 5 + 4];
-					auto stop = GradientStop{ color, offset };
+					GradientStop stop{ offset, color };
 					gradientStops.push_back(stop);
 				}
-				brush = std::make_shared<LinearGradientBrush>(gradientStops);
+				material = std::make_shared<LinearGrandientMaterial>(height, gradientStops);
 			}
-			auto polygon = std::make_shared<Polygon>(doublesToSide(side0Data), doublesToSide(side1Data));
-			polygon->setBrush(brush);
+			auto polygon = std::make_shared<Polygon>();
+			polygon->set(doublesToSide(side0Data), doublesToSide(side1Data));
+			polygon->material = material;
 
 			polygons.push_back(polygon);
 		}

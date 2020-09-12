@@ -12,7 +12,7 @@ public:
 
 	//maxSteps：最大阶
 	//sampleCountOfStep：采样数
-	std::vector<glm::vec2> doBezier(const std::vector<glm::vec2> &inputs);
+	std::vector<glm::vec2> doBezier(const std::vector<glm::vec2> &points);
 
 private:
 	int	m_maxControlPointsCount;

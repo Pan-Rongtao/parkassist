@@ -1,8 +1,7 @@
 ﻿#include "parkassist/gles/Program.h"
-#include "parkassist/gles/Shader.h"
 #include <GLES2/gl2.h>
-#include <cstring>
 #include <glm/gtc/type_ptr.hpp>
+#include "parkassist/gles/Log.h"
 
 using namespace nb;
 
@@ -11,7 +10,7 @@ Program::Program()
 {
 }
 
-Program::Program(std::shared_ptr<VertexShader> verShader, std::shared_ptr<FragmentShader> fragShader)
+Program::Program(VertexShaderPtr verShader, FragmentShaderPtr fragShader)
 	: m_vertexShader(verShader)
 	, m_fragmentShader(fragShader)
 	, m_programHandle(0)
@@ -23,29 +22,29 @@ Program::Program(std::shared_ptr<VertexShader> verShader, std::shared_ptr<Fragme
 
 Program::~Program()
 {
-	if(m_programHandle != 0)
+	if (m_programHandle != 0)
 	{
 		glDeleteProgram(m_programHandle);
 		m_programHandle = 0;
 	}
 }
 
-void Program::setVertexShader(std::shared_ptr<VertexShader> verShader)
+void Program::setVertexShader(VertexShaderPtr verShader)
 {
 	m_vertexShader = verShader;
 }
 
-std::shared_ptr<VertexShader> Program::vertexShader()
+VertexShaderPtr Program::vertexShader()
 {
 	return m_vertexShader;
 }
 
-void Program::setFragmentShader(std::shared_ptr<FragmentShader> fragShader)
+void Program::setFragmentShader(FragmentShaderPtr fragShader)
 {
 	m_fragmentShader = fragShader;
 }
 
-std::shared_ptr<FragmentShader> Program::fragmentShader()
+FragmentShaderPtr Program::fragmentShader()
 {
 	return m_fragmentShader;
 }
@@ -57,7 +56,7 @@ void Program::link()
 	glLinkProgram(m_programHandle);
 	int nLinkStatus;
 	glGetProgramiv(m_programHandle, GL_LINK_STATUS, &nLinkStatus);
-	if(nLinkStatus == 0)
+	if (nLinkStatus == 0)
 	{
 		GLint nLogLen;
 		glGetProgramiv(m_programHandle, GL_INFO_LOG_LENGTH, &nLogLen);
@@ -65,7 +64,7 @@ void Program::link()
 		char *pLog = new char[nLogLen];
 		glGetProgramInfoLog(m_programHandle, nLogLen, nullptr, pLog);
 		std::string sLog = pLog;
-		delete []pLog;
+		delete[]pLog;
 		nbThrowException(std::runtime_error, "program link fail, reason: %s", sLog.data());
 	}
 }
@@ -77,7 +76,9 @@ int Program::getAttributeLocation(const char *name) const
 
 int Program::getUniformLocation(const char *name) const
 {
-	return glGetUniformLocation(m_programHandle, name);
+	auto ret = glGetUniformLocation(m_programHandle, name);
+	//if (ret == -1)	Log::warn("[{}] is not a valid uniform var.", name);
+	return ret;
 }
 
 void Program::bindAttributeLocation(unsigned int location, const char *name)
@@ -119,6 +120,11 @@ void Program::vertexAttributePointer(int location, int dimension, int stride, co
 {
 	glEnableVertexAttribArray(location);
 	glVertexAttribPointer(location, dimension, GL_FLOAT, GL_FALSE, stride, data);
+}
+
+void Program::uniform(int location, bool v)
+{
+	glUniform1f(location, v);
 }
 
 void Program::uniform(int location, float v)
@@ -231,279 +237,274 @@ void Program::uniform(int location, const std::vector<glm::mat4x4> &v)
 	glUniformMatrix4fv(location, (GLsizei)v.size(), GL_FALSE, v.empty() ? nullptr : glm::value_ptr(v[0]));
 }
 
+void Program::uniformVar(int location, const var & v)
+{
+	if (v.is<int>())							uniform(location, any_cast<int>(v));
+	else if (v.is<unsigned int>())				uniform(location, (int)any_cast<unsigned int>(v));
+	else if (v.is<short>())						uniform(location, (int)any_cast<short>(v));
+	else if (v.is<unsigned short>())			uniform(location, (int)any_cast<unsigned short>(v));
+	else if (v.is<long>())						uniform(location, (int)any_cast<long>(v));
+	else if (v.is<unsigned long>())				uniform(location, (int)any_cast<unsigned long>(v));
+	else if (v.is<float>())						uniform(location, any_cast<float>(v));
+	else if (v.is<double>())					uniform(location, (float)any_cast<double>(v));
+	else if (v.is<glm::vec2>())					uniform(location, any_cast<glm::vec2>(v));
+	else if (v.is<glm::vec3>())					uniform(location, any_cast<glm::vec3>(v));
+	else if (v.is<glm::vec4>())					uniform(location, any_cast<glm::vec4>(v));
+	else if (v.is<glm::mat2x2>())				uniform(location, any_cast<glm::mat2x2>(v));
+	else if (v.is<glm::mat3x3>())				uniform(location, any_cast<glm::mat3x3>(v));
+	else if (v.is<glm::mat4x4>())				uniform(location, any_cast<glm::mat4x4>(v));
+	else if (v.is<glm::ivec2>())				uniform(location, any_cast<glm::ivec2>(v));
+	else if (v.is<glm::ivec3>())				uniform(location, any_cast<glm::ivec3>(v));
+	else if (v.is<glm::ivec4>())				uniform(location, any_cast<glm::ivec4>(v));
+	else if (v.is<std::vector<int>>())			uniform(location, any_cast<std::vector<int>>(v));
+	else if (v.is<std::vector<float>>())		uniform(location, any_cast<std::vector<float>>(v));
+	else if (v.is<std::vector<glm::vec2>>())	uniform(location, any_cast<std::vector<glm::vec2>>(v));
+	else if (v.is<std::vector<glm::vec3>>())	uniform(location, any_cast<std::vector<glm::vec3>>(v));
+	else if (v.is<std::vector<glm::vec4>>())	uniform(location, any_cast<std::vector<glm::vec4>>(v));
+	else if (v.is<std::vector<glm::mat2x2>>())	uniform(location, any_cast<std::vector<glm::mat2x2>>(v));
+	else if (v.is<std::vector<glm::mat3x3>>())	uniform(location, any_cast<std::vector<glm::mat3x3>>(v));
+	else if (v.is<std::vector<glm::mat4x4>>())	uniform(location, any_cast<std::vector<glm::mat4x4>>(v));
+	else if (v.is<std::vector<glm::ivec2>>())	uniform(location, any_cast<std::vector<glm::ivec2>>(v));
+	else if (v.is<std::vector<glm::ivec3>>())	uniform(location, any_cast<std::vector<glm::ivec3>>(v));
+	else if (v.is<std::vector<glm::ivec4>>())	uniform(location, any_cast<std::vector<glm::ivec4>>(v));
+	else if (v.is<bool>())						uniform(location, any_cast<bool>(v));
+	else										Log::warn("[%s] is not a supported type for glsl uniform.", v.type().name());
+}
+
 ////////////////programs
 
-std::shared_ptr<Program> Programs::primitive()
+ProgramPtr Programs::primitive()
 {
-	static std::shared_ptr<Program> p;
+	static ProgramPtr p;
 	if (p)	return p;
 
-	constexpr char vs[] =
-		"attribute vec4 nbPos;"
-		"attribute vec4 nbColor;"
-		"varying vec4 vary_color;"
-		"uniform mat4 nbMvp;"
-		"void main()"
-		"{"
-		"	vary_color = nbColor;"
-		"	gl_Position = nbMvp * nbPos;"
-		"}";
-	constexpr char fs[] =
-		"uniform vec4 color;"
-		"varying vec4 vary_color;"
-		"void main()"
-		"{"
-		"	gl_FragColor = vary_color;"
-		"}";
+	constexpr char vs[] = R"(
+		attribute vec4 nbPos;
+		uniform mat4 nbMvp;
+		void main()
+		{
+			gl_Position = nbMvp * nbPos;
+		};
+	)";
+	constexpr char fs[] = R"(
+		uniform vec4 color;
+		void main()
+		{
+			gl_FragColor = color;
+		};
+	)";
 	p = compileBindLink(vs, fs);
 	return p;
 }
 
-std::shared_ptr<Program> Programs::gradientPrimitive()
+ProgramPtr Programs::gradientPrimitive()
 {
-	static std::shared_ptr<Program> p;
+	static ProgramPtr p;
 	if (p)	return p;
 
-	constexpr char vs[] =
-		"attribute vec4 nbPos;"
-		"uniform mat4 nbMvp;"
-		"void main()"
-		"{"
-		"	gl_Position = nbMvp * nbPos;"
-		"}";
-	constexpr char fs[] =
-		"precision mediump float;"
-		"uniform int size;"
-		"uniform vec4 colors[100];"
-		"uniform float offsets[100];"
-		"uniform float height;"
-		"void main()"
-		"{"
-		"	float y = gl_FragCoord.y / height;"
-		"	vec4 color = mix(colors[0], colors[1], smoothstep(offsets[0], offsets[1], y));"
-		"	for(int i = 2; i < size; ++i)"
-		"		color = mix(color, colors[i], smoothstep(offsets[i-1], offsets[i], y));"
-		"	gl_FragColor = color;"
-		"}";
+	constexpr char vs[] = R"(
+		attribute vec4 nbPos;
+		uniform mat4 nbMvp;
+		void main()
+		{
+			gl_Position = nbMvp * nbPos;
+		};
+	)";
+	constexpr char fs[] = R"(
+		uniform int size;
+		uniform vec4 colors[100];
+		uniform float offsets[100];
+		uniform float height;
+		void main()
+		{
+			float y = gl_FragCoord.y / height;
+			vec4 color = mix(colors[0], colors[1], smoothstep(offsets[0], offsets[1], y));
+			for(int i = 2; i < size; ++i)
+				color = mix(color, colors[i], smoothstep(offsets[i-1], offsets[i], y));
+			gl_FragColor = color;
+		};
+	)";
 	p = compileBindLink(vs, fs);
 	return p;
 }
 
-std::shared_ptr<Program> Programs::image()
+ProgramPtr Programs::image()
 {
-	static std::shared_ptr<Program> p;
+	static ProgramPtr p;
 	if (p)	return p;
 
-	constexpr char vs[] =
-		"attribute vec4 nbPos;"
-		"attribute vec2 nbTexCoord;"
-		"uniform mat4 nbMvp;"
-		"varying vec2 _texCoord;"
-		"void main()"
-		"{"
-		"	_texCoord = nbTexCoord;"
-		"	gl_Position = nbMvp * nbPos;"
-		"}";
-	constexpr char fs[] =
-		"precision mediump float;"
-		"uniform sampler2D sampler;"
-		"varying vec2 _texCoord;"
-		"void main()"
-		"{"
-		"	gl_FragColor = texture2D(sampler, _texCoord);"
-		"}";
+	constexpr char vs[] = R"(
+		attribute vec4 nbPos;
+		attribute vec2 nbTexCoord;
+		uniform mat4 nbMvp;
+		varying vec2 vTexCoord;
+		void main()
+		{
+			vTexCoord = nbTexCoord;
+			gl_Position = nbMvp * nbPos;
+		};
+	)";
+	constexpr char fs[] = R"(
+		uniform sampler2D sampler;
+		varying vec2 vTexCoord;
+		void main()
+		{
+			gl_FragColor = texture2D(sampler, vTexCoord);
+		};
+	)";
 	p = compileBindLink(vs, fs);
 	return p;
 }
 
-std::shared_ptr<Program> Programs::phong()
+ProgramPtr Programs::phong()
 {
-	static std::shared_ptr<Program> p;
+	static ProgramPtr p;
 	if (p)	return p;
 
-	constexpr char vs[] =
-		"attribute vec4	nbPos;"
-		"attribute vec2	nbTexCoord;"
-		"attribute vec3	nbNormal;"
-		"uniform mat4 nbMvp;"
-		"uniform mat4 nbM;"
-		"uniform mat4 nbV;"
-		"uniform mat4 nbP;"
-		"varying vec2 _texCoord;"
-		"varying vec3 _normal;"
-		"varying vec3 _fragPos;"
-		"void main()"
-		"{"
-		"	gl_Position = nbMvp * nbPos; "
-		"	_texCoord = nbTexCoord;"
-		"	_normal = mat3(nbM) * nbNormal;"
-		"	_fragPos = vec3(nbM * nbPos);"
-		"}";
-	constexpr char fs[] =
-		"struct Material"
-		"{"
-		"	sampler2D base;"
-		"	float shininess;"
-		"};"
-		"struct Light"
-		"{"
-		"	vec3 direction;"
-		"	vec3 ambient;"
-		"	vec3 diffuse;"
-		"	vec3 specular;"
-		"};"
-		"varying vec2 _texCoord;"
-		"varying vec3 _normal;"
-		"varying vec3 _fragPos;"
-		"uniform vec3 viewPos;"
-		"uniform Material material;"
-		"uniform Light light;"
-		"void main()"
-		"{"
-		"	vec3 ambient = light.ambient;"
-		"	vec3 norm = normalize(_normal);"
-		"	vec3 lightDir = normalize(light.direction);"
-		"	float diffFactor = max(dot(norm, lightDir), 0.0);"
-		"	vec3 diffuse = light.diffuse * diffFactor;"
-		"	vec3 viewDir = normalize(viewPos - _fragPos);"
-		"	vec3 reflectDir = normalize(reflect(lightDir, norm));"
-		"	float specFactor = pow(max(dot(norm, normalize(viewDir + lightDir)), 0.0), material.shininess);"
-		"	vec3 specular = light.specular * specFactor;"
-		"	vec3 baseColor = vec3(1.0f, 0.5f, 0.31f);"
-		"	gl_FragColor = vec4((ambient + diffuse + specular) * baseColor, 1.0f);"
-		"}";
+	constexpr char vs[] = R"(
+		attribute vec3 nbPos;
+		attribute vec2 nbTexCoord;
+		attribute vec3 nbNormal;
+		uniform mat4 nbM;
+		uniform mat4 nbV;
+		uniform mat4 nbP;
+		varying vec2 vTexCoord;
+		varying vec3 vNormal;
+		varying vec3 vFragPos;
+		void main()
+		{
+			vFragPos = vec3(nbM * vec4(nbPos, 1.0f));
+			vNormal = mat3(nbM) * nbNormal;
+			vTexCoord = nbTexCoord;
+			gl_Position = nbP * nbV * nbM * vec4(nbPos, 1.0f);
+		};
+	)";
+	constexpr char fs[] = R"(
+		struct Material
+		{
+			vec3 ambient;
+			vec3 diffuse;
+			vec3 specular;
+			float shininess;
+			sampler2D diffuse_sampler;
+			sampler2D specular_sampler;
+		};
+		struct Light
+		{
+			vec3 position;
+			vec3 ambient;
+			vec3 diffuse;
+			vec3 specular;
+		};
+		varying vec2 vTexCoord;
+		varying vec3 vNormal;
+		varying vec3 vFragPos;
+		uniform vec3 viewPos;
+		uniform Material material;
+		uniform Light light;
+		uniform bool hasTexture;
+		void main()
+		{
+			vec3 _ambient, _diffuse, _specular;
+			if(!hasTexture)
+			{
+				_ambient = material.ambient;
+				_diffuse = material.diffuse;
+				_specular = material.specular;
+			}
+			else
+			{
+				_ambient = texture2D(material.diffuse_sampler, vTexCoord).rgb;
+				_diffuse = texture2D(material.diffuse_sampler, vTexCoord).rgb;
+				_specular = texture2D(material.specular_sampler, vTexCoord).rgb;
+			}
+			//ambient
+			vec3 ambient = light.ambient * _ambient;
+			//diffuse 
+			vec3 norm = normalize(vNormal);
+			vec3 lightDir = normalize(light.position - vFragPos);
+			float diff = max(dot(norm, lightDir), 0.0);
+			vec3 diffuse = light.diffuse * diff * _diffuse;
+			//specular
+			vec3 viewDir = normalize(viewPos - vFragPos);
+			vec3 reflectDir = reflect(-lightDir, norm);
+			float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+			vec3 specular = light.specular * spec * _specular;
+			vec3 result = ambient + diffuse + specular;
+			gl_FragColor = vec4(result, 1.0);
+		};
+	)";
 	p = compileBindLink(vs, fs);
 	return p;
 }
 
-std::shared_ptr<Program> Programs::cube()
+ProgramPtr Programs::cube()
 {
-	static std::shared_ptr<Program> p;
+	static ProgramPtr p;
 	if (p)	return p;
 
-	constexpr char vs[] =
-		"attribute vec4 nbPos;"
-		"uniform mat4 nbMvp;"
-		"varying vec3 _texCoord;"
-		"void main()"
-		"{"
-		"	gl_Position = nbMvp * nbPos;"
-		"	_texCoord = -nbPos.xyz;"
-		"}";
-	constexpr char fs[] =
-		"varying vec3 _texCoord;"
-		"uniform samplerCube sampler;"
-		"void main()"
-		"{"
-		"	gl_FragColor = textureCube(sampler, _texCoord);"
-		"}";
+	constexpr char vs[] = R"(
+		attribute vec3 nbPos;
+		attribute vec2 nbTexCoord;
+		attribute vec3 nbNormal;
+		uniform mat4 nbM;
+		uniform mat4 nbV;
+		uniform mat4 nbP;
+		varying vec2 vTexCoord;
+		varying vec3 vNormal;
+		varying vec3 vFragPos;
+		void main()
+		{
+			vFragPos = vec3(nbM * vec4(nbPos, 1.0f));
+			vNormal = mat3(nbM) * nbNormal;
+			vTexCoord = nbTexCoord;
+			gl_Position = nbP * nbV * nbM * vec4(nbPos, 1.0f);
+		};
+	)";
+	constexpr char fs[] = R"(
+		struct Material
+		{
+			vec3 ambient;
+			vec3 diffuse;
+			vec3 specular;
+			sampler2D diffuse_sampler;
+			samplerCube cube_sampler;
+		};
+		varying vec2 vTexCoord;
+		varying vec3 vNormal;
+		varying vec3 vFragPos;
+		uniform vec3 viewPos;
+		uniform Material material;
+		uniform bool hasTextures;
+		uniform bool hasCubemap;
+	
+		void main()
+		{
+			vec4 baseColor = vec4(0.0);
+			if(hasTextures)
+			{
+				baseColor = texture2D(material.diffuse_sampler, vTexCoord).rgba;
+			}
+			else
+			{
+				baseColor = vec4(material.diffuse, 1.0);
+			}
+			vec3 color = baseColor.rgb;
+			if(hasCubemap)
+			{
+				color *= material.ambient;
+				color += material.specular;
+				vec3 I = normalize(vFragPos - viewPos);
+				vec3 R = reflect(I, normalize(vNormal));
+				color += textureCube(material.cube_sampler, R).rgb;
+			}
+		}
+	)";
 	p = compileBindLink(vs, fs);
 	return p;
 }
 
-std::shared_ptr<Program> Programs::model()
-{
-	static std::shared_ptr<Program> p;
-	if (p)	return p;
-
-	constexpr char vs[] =
-		"attribute vec3 nbPos;"
-		"attribute vec2	nbTexCoord;"
-		"attribute vec3	nbNormal;"
-		"uniform mat4 nbM;"
-		"uniform mat4 nbV;"
-		"uniform mat4 nbP;"
-		"varying vec2 _texCoord;"
-		"varying vec3 _normal;"
-		"varying vec3 _fragPos;"
-		"void main()"
-		"{"
-		"  _fragPos = vec3( nbM * vec4(nbPos, 1.0f));"
-		"	_normal = mat3(nbM) * nbNormal;"
-		" _texCoord = nbTexCoord;"
-		"	gl_Position = nbP * nbV * nbM * vec4(nbPos, 1.0f);"
-		"}";
-	constexpr char fs[] =
-		"struct Material"
-		"{"
-		" vec3 ambient;"
-		" vec3 diffuse;"
-		" vec3 specular;   "
-		" float shininess;"
-		" sampler2D diffuse_sampler;"
-		" sampler2D	 specular_sampler;   "
-		"};"
-		"struct Light"
-		"{"
-		" vec3 position;  "
-		" vec3 ambient;"
-		" vec3 diffuse;"
-		" vec3 specular;"
-		"};"
-		"varying vec2 _texCoord;"
-		"varying vec3 _normal;"
-		"varying vec3 _fragPos;"
-		"uniform vec3 viewPos;"
-		"uniform Material material;"
-		"uniform Light light;"
-		"uniform bool flag;"
-		"void main()"
-		"{"
-		" vec3 m_ambient, m_diffuse, m_specular;"
-		" if(flag){"
-		" m_ambient = material.ambient;"
-		" m_diffuse = material.diffuse;"
-		" m_specular = material.specular;"
-		" }else{"
-		" m_ambient = texture2D(material.diffuse_sampler, _texCoord).rgb;"
-		" m_diffuse = texture2D(material.diffuse_sampler, _texCoord).rgb;"
-		" m_specular = texture2D(material.specular_sampler, _texCoord).rgb;"
-		" }"
-		" vec3 ambient = light.ambient * m_ambient;"
-		" vec3 norm = normalize(_normal);"
-		" vec3 lightDir = normalize(light.position - _fragPos);"
-		" float diff = max(dot(norm, lightDir), 0.0f);"
-		" vec3 diffuse = light.diffuse * diff * m_diffuse; "
-		" vec3 viewDir = normalize(viewPos - _fragPos);"
-		" vec3 reflectDir = reflect(-lightDir, norm);  "
-		" float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-		" vec3 specular = light.specular * spec * m_specular;   "
-		" vec3 result = ambient + diffuse +specular;"
-		" gl_FragColor = vec4(result ,1.0f);"
-		"}";
-	p = compileBindLink(vs, fs);
-	return p;
-}
-
-std::shared_ptr<Program> Programs::glpy()
-{
-	static std::shared_ptr<Program> p;
-	if (p) return p;
-
-	constexpr char vs[] =
-		"attribute vec4 nbPos;"
-		"attribute vec2 nbTexCoord;"
-		"uniform mat4 nbMvp;"
-		"varying vec2 _texCoord;"
-		"void main()"
-		"{"
-		"	_texCoord = nbTexCoord;"
-		"	gl_Position = nbMvp * nbPos;"
-		"}";
-	constexpr char fs[] =
-		"varying vec2 _texCoord;"
-		"uniform vec4 fontColor;"
-		"uniform sampler2D sampler;"
-		"void main()"
-		"{"
-		"	vec4 color = texture2D(sampler, _texCoord);"
-		"	gl_FragColor = color.w * fontColor;"
-		"}";
-	p = compileBindLink(vs, fs);
-	return p;
-}
-
-std::shared_ptr<Program> Programs::compileBindLink(const std::string &vs, const std::string &fs)
+ProgramPtr Programs::compileBindLink(const std::string &vs, const std::string &fs)
 {
 	auto p = std::make_shared<Program>(std::make_shared<VertexShader>(vs), std::make_shared<FragmentShader>(fs));
 	p->vertexShader()->compile();

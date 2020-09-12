@@ -4,34 +4,34 @@
 using namespace nb;
 
 Scene::Scene(int width, int height)
-	: m_enableBorder(false)
+	: m_camera(std::make_shared<Camera>())
+	, m_enableBorder(false)
 {
-	m_dc.resize(width, height);
+	glViewport(0, 0, width, height);
+	m_camera->ortho(0.0f, (float)width, (float)height, 0.0f, -1000.0f, 1000.0f);
 }
 
-void Scene::add(std::shared_ptr<Polygon> polygon)
+void Scene::add(MeshPtr mesh)
 {
-	m_polygons.push_back(polygon);
+	m_meshes.push_back(mesh);
 }
 
 void Scene::clear()
 {
-	m_polygons.clear();
-	m_polygonsBorder.clear();
+	m_meshes.clear();
+	m_meshesBorder.clear();
 }
 
 void Scene::doRender()
 {
-	m_dc.clear();
 	if (m_enableBorder)
 	{
-		draw(m_polygonsBorder);
+		draw(m_meshesBorder);
 	}
 	else
 	{
-		draw(m_polygons);
+		draw(m_meshes);
 	}
-	m_dc.renderAll();
 }
 
 void Scene::enableBorder(bool enable)
@@ -39,16 +39,16 @@ void Scene::enableBorder(bool enable)
 	m_enableBorder = enable;
 	if (enable)
 	{
-		for (auto p : m_polygons)
+		for (auto p : m_meshes)
 		{
-			auto polygonBorder = std::make_shared<Polygon>(*p);
-			polygonBorder->setMode(GL_POINTS);
-			m_polygonsBorder.push_back(polygonBorder);
+			auto polygonBorder = std::make_shared<Polygon>(*nb::as<Polygon>(p));
+			polygonBorder->mode = GL_POINTS;
+			m_meshesBorder.push_back(polygonBorder);
 		}
 	}
 	else
 	{
-		m_polygonsBorder.clear();
+		m_meshesBorder.clear();
 	}
 }
 
@@ -57,12 +57,11 @@ bool Scene::isBorderEnable() const
 	return m_enableBorder;
 }
 
-void Scene::draw(const std::vector<std::shared_ptr<Polygon>> polygons)
+void Scene::draw(const std::vector<MeshPtr> polygons)
 {
 	for (auto polygon : polygons)
 	{
-		m_dc.drawPolygon(polygon->side0(), polygon->side1(), polygon->brush(),
-			polygon->controlPointsCount(), polygon->sampleCount(), polygon->mode());
+		polygon->draw(m_camera);
 	}
 
 }

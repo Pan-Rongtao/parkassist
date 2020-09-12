@@ -1,11 +1,9 @@
 #include "parkassist/gles/Mesh.h"
 #include <GLES2/gl2.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/ext/matrix_projection.hpp>
-#include "parkassist/gles/Material.h"
 
 using namespace nb;
 
@@ -44,23 +42,21 @@ Vertex::Vertex(const glm::vec3 & position, const glm::vec4 & color, const glm::v
 
 //class Mesh
 Mesh::Mesh()
-	: Mesh({}, {})
+	: Mesh({}, {}, nullptr)
 {
 }
 
-Mesh::Mesh(const std::vector<Vertex>& vertexs, const std::vector<uint16_t>& indices)
-	: vertexs(vertexs)
-	, indices(indices)
-	, matrix(1.0f)
-	, mode(GL_TRIANGLES)
+Mesh::Mesh(const std::vector<Vertex>& _vertexs, const std::vector<uint16_t>& _indices)
+	: Mesh(_vertexs, _indices, nullptr)
 {
 }
 
-Mesh::Mesh(const std::vector<Vertex> &vertexs, const std::vector<uint16_t> &indices, const Material &materia)
+Mesh::Mesh(const std::vector<Vertex> &vertexs, const std::vector<uint16_t> &indices, MaterialPtr materia)
 	: vertexs(vertexs)
 	, indices(indices)
 	, material(materia)
 	, matrix(1.0f)
+	, mode(GL_TRIANGLES)
 {
 }
 
@@ -69,6 +65,7 @@ Mesh::Mesh(const Mesh & other)
 	, indices(other.indices)
 	, material(other.material)
 	, matrix(other.matrix)
+	, mode(other.mode)
 {
 }
 
@@ -77,8 +74,8 @@ Mesh::Mesh(const Mesh && other)
 	, indices(std::move(other.indices))
 	, material(std::move(other.material))
 	, matrix(std::move(other.matrix))
+	, mode(std::move(other.mode))
 {
-
 }
 
 void Mesh::operator = (const Mesh &other)
@@ -87,6 +84,7 @@ void Mesh::operator = (const Mesh &other)
 	indices = other.indices;
 	material = other.material;
 	matrix = other.matrix;
+	mode = other.mode;
 }
 
 void Mesh::operator = (const Mesh &&other)
@@ -95,6 +93,7 @@ void Mesh::operator = (const Mesh &&other)
 	indices = std::move(other.indices);
 	material = std::move(other.material);
 	matrix = std::move(other.matrix);
+	mode = std::move(other.mode);
 }
 
 float *Mesh::positionData()
@@ -141,4 +140,51 @@ void Mesh::unifyColor(const glm::vec4 &color)
 {
 	for (auto &vertex : vertexs)
 		vertex.color = color;
+}
+
+uint32_t Mesh::triangleCount() const
+{
+	return indices.size() / 3;
+}
+
+void Mesh::draw(CameraPtr camera) const
+{
+	if (!material || !material->program())
+		return;
+
+	auto &program = material->program();
+	program->use();
+
+	//更新顶点数据
+	program->vertexAttributePointer(Program::nbPositionLocation, Vertex::positionDimension, Vertex::stride, positionData());
+	program->vertexAttributePointer(Program::nbColorLocation, Vertex::colorDimension, Vertex::stride, colorData());
+	program->vertexAttributePointer(Program::nbNormalLocation, Vertex::normalDimension, Vertex::stride, normalData());
+	program->vertexAttributePointer(Program::nbTexCoordLocaltion, Vertex::texCoordDimension, Vertex::stride, textureCoordinateData());
+	//计算后的mvp，以及分开的m/v/p
+	auto m = matrix;
+	auto v = camera->viewMatrix();
+	auto p = camera->projectionMatrix();
+	auto mvp = p * v * m;
+	program->uniform(program->getUniformLocation(Program::nbMvpStr), mvp);
+	program->uniform(program->getUniformLocation(Program::nbMStr), m);
+	program->uniform(program->getUniformLocation(Program::nbVStr), v);
+	program->uniform(program->getUniformLocation(Program::nbPStr), p);
+
+	//材质更新uniforms
+	material->uploadUniform(camera);
+
+	//灯光更新uniforms
+/*	for (auto const &light : lights)
+	{
+		auto uniformPairs = light->toUniforms();
+		for (auto const &one : uniformPairs)
+		{
+			auto location = program->getUniformLocation(one.first.data());
+			auto const &v = one.second;
+			program->uniformVar(location, v);
+		}
+	}*/
+
+	glDrawElements(mode, indices.size(), GL_UNSIGNED_SHORT, indices.data());
+	program->disuse();
 }

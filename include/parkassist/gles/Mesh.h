@@ -20,6 +20,7 @@
 #include <vector>
 #include "glm/glm.hpp"
 #include "parkassist/gles/Material.h"
+#include "parkassist/gles/Camera.h"
 
 namespace nb{
 
@@ -53,15 +54,30 @@ public:
 
 	//vertexs：顶点集合
 	//indices：顶点序列（逆时针，且隐藏背面）
-	Mesh(const std::vector<Vertex> &vertexs, const std::vector<uint16_t> &indices);
+	Mesh(const std::vector<Vertex> &_vertexs, const std::vector<uint16_t> &_indices);
 
-	Mesh(const std::vector<Vertex> &vertexs, const std::vector<uint16_t> &indices, const Material &materia);
+	Mesh(const std::vector<Vertex> &_vertexs, const std::vector<uint16_t> &_indices, MaterialPtr materia);
 
 	Mesh(const Mesh &other);
 	Mesh(const Mesh &&other);
 	void operator = (const Mesh &other);
 	void operator = (const Mesh &&other);
 
+	//将所有顶点颜色统一
+	void unifyColor(const glm::vec4 &color);
+
+	//三角形数
+	uint32_t triangleCount() const;
+
+	virtual void draw(CameraPtr camera) const;
+
+	std::vector<Vertex> vertexs;	//顶点属性
+	std::vector<uint16_t> indices;	//顶点序列(逆时针)
+	MaterialPtr material;
+	glm::mat4x4 matrix;
+	uint8_t mode;		//绘画模式（默认GL_TRIANGLES，注意：为了内存，类型定义为1个字节）
+
+private:
 	//获取位置|颜色|纹理坐标|法向量数据
 	float *positionData();
 	const float *positionData() const;
@@ -72,14 +88,7 @@ public:
 	float *normalData();
 	const float *normalData() const;
 
-	//将所有顶点颜色统一
-	void unifyColor(const glm::vec4 &color);
-
-	std::vector<Vertex>		vertexs;	//顶点属性
-	std::vector<uint16_t>	indices;	//顶点序列(逆时针)
-	Material				material;
-	glm::mat4x4				matrix;
-	uint8_t					mode;	//绘画模式（默认GL_TRIANGLES，注意：为了内存，类型定义为1个字节）
 };
 
+using MeshPtr = std::shared_ptr<Mesh>;
 }

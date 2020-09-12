@@ -1,7 +1,6 @@
 #include "catch2/catch.hpp"
 #include "Window.h"
 #include "Common.h"
-#include "parkassist/gles/fwd.h"
 #include "CN220DATA.h"
 
 using namespace nb;
@@ -24,7 +23,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	int state = 0;
 	auto polygonBG = Common::getBackground(std::string("../etc/") + PROJECT_NAME + ".bmp", WIDTH, HEIGHT);
 	sc->add(polygonBG);
-	auto polygons = Common::getPolygons(pointsCN220_R[state]);
+	auto polygons = Common::getPolygons(HEIGHT, pointsCN220_R[state]);
 	for (auto const p : polygons)
 	{
 		sc->add(p);
@@ -41,7 +40,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			if (state - 1 <= -((int)pointsCN220_L.size()))	return;
 
 			--state;
-			auto polygons = state >= 0 ? Common::getPolygons(pointsCN220_R[state]) : Common::getPolygons(pointsCN220_L[-state]);
+			auto polygons = state >= 0 ? Common::getPolygons(HEIGHT, pointsCN220_R[state]) : Common::getPolygons(HEIGHT, pointsCN220_L[-state]);
 			sc->clear();
 			sc->add(polygonBG);
 			for (auto const p : polygons)
@@ -55,7 +54,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			if (state + 1 >= (int)pointsCN220_R.size())	return;
 
 			++state;
-			auto polygons = state >= 0 ? Common::getPolygons(pointsCN220_R[state]) : Common::getPolygons(pointsCN220_L[-state]);
+			auto polygons = state >= 0 ? Common::getPolygons(HEIGHT, pointsCN220_R[state]) : Common::getPolygons(HEIGHT, pointsCN220_L[-state]);
 			sc->clear();
 			sc->add(polygonBG);
 			for (auto const p : polygons)

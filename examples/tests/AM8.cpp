@@ -1,7 +1,6 @@
 #include "catch2/catch.hpp"
 #include "Window.h"
 #include "Common.h"
-#include "parkassist/gles/fwd.h"
 #include "AM8DATA.h"
 
 using namespace nb;
@@ -22,9 +21,9 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	};
 
 	int state = 0;
-	auto polygonBG = Common::getBackground(std::string("../etc/") + PROJECT_NAME + ".bmp", WIDTH, HEIGHT);
+	auto polygonBG = Common::getBackground(std::string("../etc/CN220/BKG.bmp"), WIDTH, HEIGHT);
 	sc->add(polygonBG);
-	auto polygons = Common::getPolygons(pointsAM8_R[state]);
+	auto polygons = Common::getPolygons(HEIGHT, pointsAM8_R[state]);
 	for (auto const p : polygons)
 	{
 		sc->add(p);
@@ -41,7 +40,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			if (state - 1 <= -((int)pointsAM8_L.size()))	return;
 
 			--state;
-			auto polygons = state >= 0 ? Common::getPolygons(pointsAM8_R[state]) : Common::getPolygons(pointsAM8_L[-state]);
+			auto polygons = state >= 0 ? Common::getPolygons(HEIGHT, pointsAM8_R[state]) : Common::getPolygons(HEIGHT, pointsAM8_L[-state]);
 			sc->clear();
 			sc->add(polygonBG);
 			for (auto const p : polygons)
@@ -55,7 +54,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			if (state + 1 >= (int)pointsAM8_R.size())	return;
 
 			++state;
-			auto polygons = state >= 0 ? Common::getPolygons(pointsAM8_R[state]) : Common::getPolygons(pointsAM8_L[-state]);
+			auto polygons = state >= 0 ? Common::getPolygons(HEIGHT, pointsAM8_R[state]) : Common::getPolygons(HEIGHT, pointsAM8_L[-state]);
 			sc->clear();
 			sc->add(polygonBG);
 			for (auto const p : polygons)
