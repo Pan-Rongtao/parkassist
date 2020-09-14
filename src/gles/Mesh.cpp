@@ -152,7 +152,7 @@ void Mesh::draw(CameraPtr camera) const
 	if (!material || !material->program())
 		return;
 
-	auto &program = material->program();
+	auto program = material->program();
 	program->use();
 
 	//更新顶点数据
