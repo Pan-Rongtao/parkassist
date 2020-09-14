@@ -22,18 +22,18 @@ class NB_API Program
 {
 public:
 	//nb固定location和locationStr
-	static constexpr int nbPositionLocation			= 0;
-	static constexpr int nbColorLocation			= 1;
-	static constexpr int nbTexCoordLocaltion		= 2;
-	static constexpr int nbNormalLocation			= 3;
-	static constexpr char *nbPositionLocationStr	= "nbPos";
-	static constexpr char *nbColorLocationStr		= "nbColor";
-	static constexpr char *nbTexCoordLocaltionStr	= "nbTexCoord";
-	static constexpr char *nbNormalLocationStr		= "nbNormal";
-	static constexpr char *nbMvpStr					= "nbMvp";
-	static constexpr char *nbMStr					= "nbM";
-	static constexpr char *nbVStr					= "nbV";
-	static constexpr char *nbPStr					= "nbP";
+	static constexpr int nbPositionLocation				= 0;
+	static constexpr int nbColorLocation				= 1;
+	static constexpr int nbTexCoordLocaltion			= 2;
+	static constexpr int nbNormalLocation				= 3;
+	static constexpr const char *nbPositionLocationStr	= "nbPos";
+	static constexpr const char *nbColorLocationStr		= "nbColor";
+	static constexpr const char *nbTexCoordLocaltionStr	= "nbTexCoord";
+	static constexpr const char *nbNormalLocationStr	= "nbNormal";
+	static constexpr const char *nbMvpStr				= "nbMvp";
+	static constexpr const char *nbMStr					= "nbM";
+	static constexpr const char *nbVStr					= "nbV";
+	static constexpr const char *nbPStr					= "nbP";
 
 public:
 	//构建一个Program，未指定顶点着色器和片元着色器

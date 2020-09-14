@@ -33,11 +33,12 @@ include_directories(include)
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include)
 if(WIN32)
 	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include/opengl)
-	link_directories(${CMAKE_SOURCE_DIR}/3rdparty/lib)
+	link_directories(${CMAKE_SOURCE_DIR}/3rdparty/lib/win32)
 	add_compile_options(/wd4996)
 	add_definitions("-DGLM_FORCE_SSE2")
 	add_definitions("-DRTTR_DLL")
 else()
+	link_directories(${CMAKE_SOURCE_DIR}/3rdparty/lib/linux-arm)
 endif()
 
 # 4. Sub Projects

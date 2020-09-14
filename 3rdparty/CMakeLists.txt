@@ -13,9 +13,14 @@ project(3rdparty)
 
 
 # 4. Sub Projects
-add_subdirectory(include)
-add_subdirectory(lib)
-
 
 # 5. Project Install
-# N/A
+
+
+if(WIN32)
+	file(GLOB LIBS win32/*.dll)
+elseif(UNIX AND NOT ANDROID)
+	file(GLOB LIBS linux-arm/*.so*)
+endif()
+install(FILES ${LIBS} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
