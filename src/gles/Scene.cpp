@@ -24,6 +24,9 @@ void Scene::clear()
 
 void Scene::doRender()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	if (m_enableBorder)
 	{
 		draw(m_meshesBorder);
@@ -39,11 +42,14 @@ void Scene::enableBorder(bool enable)
 	m_enableBorder = enable;
 	if (enable)
 	{
-		for (auto p : m_meshes)
+		for (auto mesh : m_meshes)
 		{
-			auto polygonBorder = std::make_shared<Polygon>(*nb::as<Polygon>(p));
-			polygonBorder->mode = GL_POINTS;
-			m_meshesBorder.push_back(polygonBorder);
+			if (nb::is<Polygon>(mesh))
+			{
+				auto polygonBorder = std::make_shared<Polygon>(*nb::as<Polygon>(mesh));
+				polygonBorder->mode = GL_POINTS;
+				m_meshesBorder.push_back(polygonBorder);
+			}
 		}
 	}
 	else
@@ -57,11 +63,11 @@ bool Scene::isBorderEnable() const
 	return m_enableBorder;
 }
 
-void Scene::draw(const std::vector<MeshPtr> polygons)
+void Scene::draw(const std::vector<MeshPtr> meshes)
 {
-	for (auto polygon : polygons)
+	for (auto mesh : meshes)
 	{
-		polygon->draw(m_camera);
+		mesh->draw(m_camera);
 	}
 
 }

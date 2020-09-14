@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
-#include "parkassist/gles/Polygon.h"
-#include "parkassist/gles/Rectangle.h"
+#include "parkassist/gles/Shape.h"
 #include "parkassist/gles/Bitmap.h"
 #include "parkassist/gles/Scene.h"
 #include "nlohmann/json.hpp"

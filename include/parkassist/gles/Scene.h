@@ -1,5 +1,5 @@
 #pragma once
-#include "parkassist/gles/Polygon.h"
+#include "parkassist/gles/Shape.h"
 
 namespace nb {
 

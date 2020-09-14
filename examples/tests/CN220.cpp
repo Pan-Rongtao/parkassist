@@ -21,7 +21,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	};
 
 	int state = 0;
-	auto polygonBG = Common::getBackground(std::string("../etc/") + PROJECT_NAME + ".bmp", WIDTH, HEIGHT);
+	auto polygonBG = Common::getBackground(std::string("../etc/CN220/BKG.bmp"), WIDTH, HEIGHT);
 	sc->add(polygonBG);
 	auto polygons = Common::getPolygons(HEIGHT, pointsCN220_R[state]);
 	for (auto const p : polygons)

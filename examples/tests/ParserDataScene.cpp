@@ -4,6 +4,7 @@
 #include "Parser.h"
 #include <fstream>
 #include "Timer.h"
+#include "parkassist/gles/Log.h"
 
 using namespace nb;
 
@@ -13,7 +14,7 @@ std::string getCfgProjectName()
 	std::ifstream stream(PROJECT_CFG);
 	if (!stream)
 	{
-		printf("%s not found.\n", PROJECT_CFG);
+		Log::error("%s not found.", PROJECT_CFG);
 		return "";
 	}
 
@@ -24,7 +25,7 @@ std::string getCfgProjectName()
 	catch (std::exception &e)
 	{
 		stream.close();
-		printf("parse error=%s.\n", e.what());
+		Log::error("parse error={}.", e.what());
 		return "";
 	}
 
@@ -32,7 +33,7 @@ std::string getCfgProjectName()
 	try {
 		j = obj.at("Project");
 	}
-	catch (...) { printf("can't find field [Project] as int type in file [%s]\n", PROJECT_CFG); return ""; }
+	catch (...) { Log::error("can't find field [Project] as int type in file [{}]", PROJECT_CFG); return ""; }
 	return j.get<std::string>();
 }
 
@@ -56,9 +57,8 @@ void gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 		{
 			sc->add(p);
 		}
-		printf("state=%d, index=%d\n", state, index);
+		Log::info("state={}, index={}", state, index);
 	}
-	sc->doRender();
 }
 
 TEST_CASE("ParserDataScene", "[ParserDataScene]")
@@ -78,33 +78,33 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 	auto sc = std::make_shared<Scene>(width, height);
 
 	w.resize(width, height);
-	w.ResizeEvent += [&w, &sc](const Window::Size &sz) { sc->doRender(); w.swapBuffers(); };
+	w.ResizeEvent += [&w, &sc](const Window::Size &sz) {  };
 	w.KeyEvent += [&w, &sc, bkg, &parser](const int &key)
 	{
 		switch (key)
 		{
-		case 263: gotoState(sc, bkg, parser, Direction::prev);	break;
-		case 262:gotoState(sc, bkg, parser, Direction::next);	break;
-		case 32:{ sc->enableBorder(!sc->isBorderEnable()); sc->doRender(); break; }
+		case 263:	gotoState(sc, bkg, parser, Direction::prev);	break;
+		case 262:	gotoState(sc, bkg, parser, Direction::next);	break;
+		case 32:	sc->enableBorder(!sc->isBorderEnable());		break;
 		default:	break;
 		}
-		w.swapBuffers();
 	};
 
 	gotoState(sc, bkg, parser, Direction::next);
-	w.swapBuffers();
 
 	Timer timer;
 	timer.setInterval(10);
 	timer.Tick += [sc, bkg, parser, &w](const Timer::TickEventArgs &args)
 	{
 		gotoState(sc, bkg, parser, Direction::next);
-		w.swapBuffers();
 	};
-//	timer.start();
+	timer.start();
 
 	while (true)
 	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		sc->doRender();
+		w.swapBuffers();
 		Window::pollEvents();
 		Timer::driveInLoop();
 	}

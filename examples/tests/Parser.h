@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <exception>
-#include "parkassist/gles/Polygon.h"
+#include "parkassist/gles/Shape.h"
 #include "nlohmann/json.hpp"
 #include "spdlog/fmt/fmt.h"
 
