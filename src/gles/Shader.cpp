@@ -52,7 +52,7 @@ void Shader::compile()
 		std::string sLog = pLog;
 		delete []pLog;
 
-		nbThrowException(std::runtime_error, "shader::compile fail, reason: %s", sLog.data());
+		nbThrowException(std::runtime_error, "shader::compile fail, reason1: %s", sLog.data());
 	}
 }
 

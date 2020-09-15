@@ -284,14 +284,15 @@ ProgramPtr Programs::primitive()
 		void main()
 		{
 			gl_Position = nbMvp * nbPos;
-		};
+		}
 	)";
 	constexpr char fs[] = R"(
+		precision mediump float;
 		uniform vec4 color;
 		void main()
 		{
 			gl_FragColor = color;
-		};
+		}
 	)";
 	p = compileBindLink(vs, fs);
 	return p;
@@ -308,9 +309,10 @@ ProgramPtr Programs::gradientPrimitive()
 		void main()
 		{
 			gl_Position = nbMvp * nbPos;
-		};
+		}
 	)";
 	constexpr char fs[] = R"(
+		precision mediump float;
 		uniform int size;
 		uniform vec4 colors[100];
 		uniform float offsets[100];
@@ -322,7 +324,7 @@ ProgramPtr Programs::gradientPrimitive()
 			for(int i = 2; i < size; ++i)
 				color = mix(color, colors[i], smoothstep(offsets[i-1], offsets[i], y));
 			gl_FragColor = color;
-		};
+		}
 	)";
 	p = compileBindLink(vs, fs);
 	return p;
@@ -342,15 +344,16 @@ ProgramPtr Programs::image()
 		{
 			vTexCoord = nbTexCoord;
 			gl_Position = nbMvp * nbPos;
-		};
+		}
 	)";
 	constexpr char fs[] = R"(
+		precision mediump float;
 		uniform sampler2D sampler;
 		varying vec2 vTexCoord;
 		void main()
 		{
 			gl_FragColor = texture2D(sampler, vTexCoord);
-		};
+		}
 	)";
 	p = compileBindLink(vs, fs);
 	return p;
@@ -377,9 +380,10 @@ ProgramPtr Programs::phong()
 			vNormal = mat3(nbM) * nbNormal;
 			vTexCoord = nbTexCoord;
 			gl_Position = nbP * nbV * nbM * vec4(nbPos, 1.0f);
-		};
+		}
 	)";
 	constexpr char fs[] = R"(
+		precision mediump float;
 		struct Material
 		{
 			vec3 ambient;
@@ -432,7 +436,7 @@ ProgramPtr Programs::phong()
 			vec3 specular = light.specular * spec * _specular;
 			vec3 result = ambient + diffuse + specular;
 			gl_FragColor = vec4(result, 1.0);
-		};
+		}
 	)";
 	p = compileBindLink(vs, fs);
 	return p;
@@ -459,9 +463,10 @@ ProgramPtr Programs::cube()
 			vNormal = mat3(nbM) * nbNormal;
 			vTexCoord = nbTexCoord;
 			gl_Position = nbP * nbV * nbM * vec4(nbPos, 1.0f);
-		};
+		}
 	)";
 	constexpr char fs[] = R"(
+		precision mediump float;
 		struct Material
 		{
 			vec3 ambient;
