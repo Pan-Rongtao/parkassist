@@ -49,4 +49,4 @@ add_subdirectory(src)
 add_subdirectory(examples)
 
 # 5. Project Install
-install(DIRECTORY etc DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(DIRECTORY etc DESTINATION ${CMAKE_INSTALL_PREFIX} USE_SOURCE_PERMISSIONS)

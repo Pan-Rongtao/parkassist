@@ -14,7 +14,7 @@ std::string getCfgProjectName()
 	std::ifstream stream(PROJECT_CFG);
 	if (!stream)
 	{
-		Log::error("%s not found.", PROJECT_CFG);
+		Log::error("{} not found.", PROJECT_CFG);
 		return "";
 	}
 
