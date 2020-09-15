@@ -18,9 +18,9 @@ project(3rdparty)
 
 
 if(WIN32)
-	file(GLOB LIBS win32/*.dll)
+	file(GLOB LIBS lib/win32/*.dll)
 elseif(UNIX AND NOT ANDROID)
-	file(GLOB LIBS linux-arm/*.so*)
+	file(GLOB LIBS lib/linux-arm/*.so*)
 endif()
 install(FILES ${LIBS} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

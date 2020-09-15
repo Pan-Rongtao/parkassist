@@ -1,5 +1,6 @@
 #include "parkassist/gles/Scene.h"
 #include <GLES2/gl2.h>
+#include "parkassist/gles/Log.h"
 
 using namespace nb;
 
@@ -65,9 +66,22 @@ bool Scene::isBorderEnable() const
 
 void Scene::draw(const std::vector<MeshPtr> meshes)
 {
+	static int frames = 0;
+	static auto t0 = nb::getTickCount();
+
 	for (auto mesh : meshes)
 	{
 		mesh->draw(m_camera);
+	}
+
+	++frames;
+	auto t1 = nb::getTickCount();
+	if (t1 - t0 >= 2000)
+	{
+		auto fps = frames * 1000.0 / (t1 - t0);
+		frames = 0;
+		t0 = t1;
+		Log::info("fps={}", fps);
 	}
 
 }

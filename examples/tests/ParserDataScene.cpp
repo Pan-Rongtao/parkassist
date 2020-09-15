@@ -43,7 +43,7 @@ enum class Direction
 	prev,
 	next,
 };
-void gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
+bool gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 {
 	int halfCount = (int)std::ceil(parser.drawingStatesCount() / 2.0);
 	if ((d == Direction::prev && state - 1 > -halfCount) || (d == Direction::next && state + 1 < halfCount))
@@ -57,7 +57,12 @@ void gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 		{
 			sc->add(p);
 		}
-		Log::info("state={}, index={}", state, index);
+		//Log::info("state={}, index={}", state, index);
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -96,7 +101,11 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 	timer.setInterval(10);
 	timer.Tick += [sc, bkg, parser, &w](const Timer::TickEventArgs &args)
 	{
-		gotoState(sc, bkg, parser, Direction::next);
+		static auto direction = Direction::next;
+		if (!gotoState(sc, bkg, parser, direction))
+		{
+			direction = direction == Direction::next ? Direction::prev : Direction::next;
+		}
 	};
 	timer.start();
 
