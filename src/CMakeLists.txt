@@ -6,7 +6,7 @@ project(src)
 
 # 3. Sub Projects
 
-add_subdirectory(gles)
+add_subdirectory(parkassist)
 
 
 # 5. Project Install

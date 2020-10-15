@@ -1,13 +1,13 @@
 #include "catch2/catch.hpp"
-#include "Window.h"
-#include "Common.h"
-#include "T1DDATA.h"
+#include "parkassist/Window.h"
+#include "Helper.h"
+#include "T1D.h"
 
 using namespace nb;
 
 #define PROJECT_NAME	"T1D"
-#define WIDTH 1280
-#define HEIGHT 800
+#define WIDTH 1280.0f
+#define HEIGHT 800.0f
 
 TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 {
@@ -15,9 +15,9 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	std::shared_ptr<Scene> sc = std::make_shared<Scene>(WIDTH, HEIGHT);
 
 	int state = 0;
-	auto polygonBG = Common::getBackground(std::string("../etc/") + PROJECT_NAME + ".bmp", WIDTH, HEIGHT);
+	auto polygonBG = Helper::getBackground(std::string("../etc/") + PROJECT_NAME + ".bmp", WIDTH, HEIGHT);
 	sc->add(polygonBG);
-	auto polygons = Common::getPolygons(HEIGHT, pointsT1D_R[state]);
+	auto polygons = Helper::getPolygons(HEIGHT, pointsT1D_R[state]);
 	for (auto const p : polygons)
 	{
 		sc->add(p);
@@ -25,7 +25,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 	sc->doRender();
 	w.swapBuffers();
 
-	w.ResizeEvent += [&w, &sc](const Window::Size &sz) { sc->doRender(); w.swapBuffers(); };
+	w.ResizeEvent += [&w, &sc](const Size &sz) { sc->doRender(); w.swapBuffers(); };
 	w.KeyEvent += [&w, &sc, polygonBG, &state](const int &key)
 	{
 		switch (key)
@@ -35,7 +35,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			if (state - 1 <= -((int)pointsT1D_L.size()))	return;
 
 			--state;
-			auto polygons = state >= 0 ? Common::getPolygons(HEIGHT, pointsT1D_R[state]) : Common::getPolygons(HEIGHT, pointsT1D_L[-state]);
+			auto polygons = state >= 0 ? Helper::getPolygons(HEIGHT, pointsT1D_R[state]) : Helper::getPolygons(HEIGHT, pointsT1D_L[-state]);
 			sc->clear();
 			sc->add(polygonBG);
 			for (auto const p : polygons)
@@ -49,7 +49,7 @@ TEST_CASE(PROJECT_NAME, std::string("[") + PROJECT_NAME + "]")
 			if (state + 1 >= (int)pointsT1D_R.size())	return;
 
 			++state;
-			auto polygons = state >= 0 ? Common::getPolygons(HEIGHT, pointsT1D_R[state]) : Common::getPolygons(HEIGHT, pointsT1D_L[-state]);
+			auto polygons = state >= 0 ? Helper::getPolygons(HEIGHT, pointsT1D_R[state]) : Helper::getPolygons(HEIGHT, pointsT1D_L[-state]);
 			sc->clear();
 			sc->add(polygonBG);
 			for (auto const p : polygons)

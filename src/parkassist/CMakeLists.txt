@@ -13,27 +13,23 @@
 
 # 1. Project Name
 
-project(tests)
+project(parkassist)
 
 # 2. Project Env (Include/Lib Path, C/CXX/LD FLAGS)
 
-if(NOT WIN32)
-	include_directories(/work/sdk/sv-ab02a-system-sdk/sysroots/armv7ahf-neon-linux-gnueabi/usr/include/libdrm)
-endif()
-
 # 3. Project Build
 
-set(BIN_NAME "tests")
+set(LIB_NAME "parkassist")
 
-file(GLOB SRC_FILES "*.h" "*.cpp" "../*.h" "../*.cpp")
+file(GLOB SRC_FILES "${CMAKE_SOURCE_DIR}/include/parkassist/*.h" "*.h" "*.cpp" "${CMAKE_SOURCE_DIR}/include/*.h")
 
-add_executable(${BIN_NAME} ${SRC_FILES})
-set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME nb.test.${BIN_NAME})
+add_library(${LIB_NAME} SHARED ${SRC_FILES})
+set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME parkassist)
 if(WIN32 AND NOT MINGW)
-	target_link_libraries(${BIN_NAME} parkassist)
-else()
-	target_link_libraries(${BIN_NAME} parkassist EGL drm gbm)
+	target_link_libraries(${LIB_NAME} libGLESv2 glfw3)
+elseif(UNIX AND NOT ANDROID)
+	target_link_libraries(${LIB_NAME} GLESv2)
 endif()
 
 # 4. Project Install
-install(TARGETS ${BIN_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ${LIB_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -37,14 +37,14 @@ bool Parser::parse()
 	}
 }
 
-int Parser::getContextWidth() const
+float Parser::getContextWidth() const
 {
-	return m_contextWidth;
+	return (float)m_contextWidth;
 }
 
-int Parser::getContextHeight() const
+float Parser::getContextHeight() const
 {
-	return m_contextHeight;
+	return (float)m_contextHeight;
 }
 
 int Parser::drawingStatesCount() const
@@ -212,7 +212,7 @@ MaterialPtr Parser::toMaterial(const json & arr)
 			auto stop = GradientStop{ offset, color};
 			gradientStops.push_back(stop);
 		}
-		brush = std::make_shared<LinearGrandientMaterial>(m_contextHeight, gradientStops);
+		brush = std::make_shared<LinearGrandientMaterial>((float)m_contextHeight, gradientStops);
 	}
 
 	return brush;

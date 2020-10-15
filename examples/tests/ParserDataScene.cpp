@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
-#include "Window.h"
-#include "Common.h"
+#include "parkassist/Window.h"
+#include "Helper.h"
 #include "Parser.h"
 #include <fstream>
-#include "Timer.h"
-#include "parkassist/gles/Log.h"
+#include "parkassist/Timer.h"
+#include "parkassist/Log.h"
 
 using namespace nb;
 
@@ -78,12 +78,12 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 	auto width = parser.getContextWidth();
 	auto height = parser.getContextHeight();
 	auto bkgPicPath = std::string("../etc/") + projectName + "/" + "BKG.bmp";
-	auto bkg = Common::getBackground(bkgPicPath, width, height);
+	auto bkg = Helper::getBackground(bkgPicPath, width, height);
 
 	auto sc = std::make_shared<Scene>(width, height);
 
-	w.resize(width, height);
-	w.ResizeEvent += [&w, &sc](const Window::Size &sz) {  };
+	w.resize((float)width, (float)height);
+	w.ResizeEvent += [&w, &sc](const Size &sz) {  };
 	w.KeyEvent += [&w, &sc, bkg, &parser](const int &key)
 	{
 		switch (key)
@@ -111,7 +111,6 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 
 	while (true)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		sc->doRender();
 		w.swapBuffers();
 		Window::pollEvents();

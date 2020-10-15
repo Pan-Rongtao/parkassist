@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <exception>
-#include "parkassist/gles/Shape.h"
+#include "parkassist/Shape.h"
 #include "nlohmann/json.hpp"
 #include "spdlog/fmt/fmt.h"
 
@@ -66,8 +66,8 @@ public:
 
 	bool parse();
 
-	int getContextWidth() const;
-	int getContextHeight() const;
+	float getContextWidth() const;
+	float getContextHeight() const;
 
 	int drawingStatesCount() const;
 	std::vector<PolygonPtr> getDrawingState(int index) const;
