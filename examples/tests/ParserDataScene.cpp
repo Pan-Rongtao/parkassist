@@ -69,7 +69,6 @@ bool gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 TEST_CASE("ParserDataScene", "[ParserDataScene]")
 {
 	Window w(800, 600, "parse data from json");
-
 	Parser parser;
 	auto projectName = getCfgProjectName();
 	parser.setDir(std::string("../etc/") + projectName);

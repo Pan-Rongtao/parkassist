@@ -1,6 +1,7 @@
 #include "parkassist/Texture.h"
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+//#include <GLES2/gl2.h>
+#include <glad/glad.h>
+//#include <GLES2/gl2ext.h>
 #include "parkassist/Log.h"
 
 using namespace nb;
@@ -28,7 +29,7 @@ int TextureFilter::glValue(TextureFilter::FilterE filter)
 	case FilterE::Point:		nGl = GL_NEAREST;															break;
 	case FilterE::Bilinear:		nGl = GL_LINEAR;															break;
 	case FilterE::Trilinear:	nGl = GL_LINEAR_MIPMAP_LINEAR;												break;
-	case FilterE::Anisotropic:	nGl = GL_TEXTURE_MAX_ANISOTROPY_EXT; Log::warn("check if gpu supports\n");	break;
+	//case FilterE::Anisotropic:	nGl = GL_TEXTURE_MAX_ANISOTROPY_EXT; Log::warn("check if gpu supports\n");	break;
 	default:																								break;
 	}
 	return nGl;
