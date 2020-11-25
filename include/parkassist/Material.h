@@ -75,10 +75,13 @@ class NB_API LinearGrandientMaterial : public Material
 {
 public:
 	LinearGrandientMaterial();
-	LinearGrandientMaterial(float height, const std::vector<GradientStop> &grandients);
+	LinearGrandientMaterial(float lenght, const std::vector<GradientStop> &grandients);
 
-	void setHeight(float height);
-	float height() const;
+	void setLenght(float lenght);
+	float lenght() const;
+
+	void setVerticalMode(bool vertical);
+	bool isVerticalMode() const;
 
 	void setGrandients(const std::vector<GradientStop> &grandients);
 	const std::vector<GradientStop> &grandients();
@@ -87,7 +90,8 @@ protected:
 	virtual void uploadUniform(CameraPtr camera) override;
 
 private:
-	float m_height;
+	bool m_vertical;
+	float m_lenght;
 	std::vector<GradientStop> m_grandients;
 };
 

@@ -98,21 +98,32 @@ LinearGrandientMaterial::LinearGrandientMaterial()
 {
 }
 
-LinearGrandientMaterial::LinearGrandientMaterial(float height, const std::vector<GradientStop> &grandients)
+LinearGrandientMaterial::LinearGrandientMaterial(float lenght, const std::vector<GradientStop> &grandients)
 	: Material(Programs::gradientPrimitive())
-	, m_height(height)
+	, m_vertical(true)
+	, m_lenght(lenght)
 	, m_grandients(grandients)
 {
 }
 
-void LinearGrandientMaterial::setHeight(float height)
+void LinearGrandientMaterial::setLenght(float lenght)
 {
-	m_height = height;
+	m_lenght = lenght;
 }
 
-float LinearGrandientMaterial::height() const
+float LinearGrandientMaterial::lenght() const
 {
-	return m_height;
+	return m_lenght;
+}
+
+void LinearGrandientMaterial::setVerticalMode(bool vertical)
+{
+	m_vertical = vertical;
+}
+
+bool LinearGrandientMaterial::isVerticalMode() const
+{
+	return m_vertical;
 }
 
 void LinearGrandientMaterial::setGrandients(const std::vector<GradientStop> &grandients)
@@ -137,10 +148,11 @@ void LinearGrandientMaterial::uploadUniform(CameraPtr camera)
 		offsets.push_back(one.offset);
 	}
 
-	m_program->uniform(m_program->getUniformLocation("height"), m_height);
+	m_program->uniform(m_program->getUniformLocation("lenght"), m_lenght);
 	m_program->uniform(m_program->getUniformLocation("size"), (int)m_grandients.size());
 	m_program->uniform(m_program->getUniformLocation("offsets"), offsets);
 	m_program->uniform(m_program->getUniformLocation("colors"), colors);
+	m_program->uniform(m_program->getUniformLocation("vertical"), m_vertical);
 }
 
 //////////////

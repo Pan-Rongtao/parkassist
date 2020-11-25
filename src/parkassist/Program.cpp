@@ -317,13 +317,18 @@ ProgramPtr Programs::gradientPrimitive()
 		uniform int size;
 		uniform vec4 colors[100];
 		uniform float offsets[100];
-		uniform float height;
+		uniform float lenght;
+		uniform bool vertical;
 		void main()
 		{
-			float y = gl_FragCoord.y / height;
-			vec4 color = mix(colors[0], colors[1], smoothstep(offsets[0], offsets[1], y));
+			float n;
+			if(vertical)
+				n = gl_FragCoord.y / lenght;
+			else
+				n = gl_FragCoord.x / lenght;
+			vec4 color = mix(colors[0], colors[1], smoothstep(offsets[0], offsets[1], n));
 			for(int i = 2; i < size; ++i)
-				color = mix(color, colors[i], smoothstep(offsets[i-1], offsets[i], y));
+				color = mix(color, colors[i], smoothstep(offsets[i-1], offsets[i], n));
 			gl_FragColor = color;
 		}
 	)";
