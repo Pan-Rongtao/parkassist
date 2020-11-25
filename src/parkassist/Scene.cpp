@@ -155,7 +155,7 @@ void Scene::SaveToFile(const std::string &fileName)
 	GLubyte* pPixelData;
 	GLint PixelDataLength;
 
-	GLint i, j;
+	GLint i;
 	int channel = 4;
 	
 	//glReadBuffer(GL_FRONT);
@@ -194,7 +194,7 @@ void Scene::SaveToFrameBuffer(std::string& buffer)
 	GLubyte* pPixelData;
 	GLint PixelDataLength;
 
-	GLint i, j;
+	GLint i;
 	int channel = 4;	// Ä¬ÈÏ4Í¨µÀ
 	
 	//glReadBuffer(GL_FRONT);
