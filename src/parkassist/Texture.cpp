@@ -1,6 +1,6 @@
 #include "parkassist/Texture.h"
-//#include <GLES2/gl2.h>
-#include <glad/glad.h>
+#include <GLES2/gl2.h>
+//#include <glad/glad.h>
 //#include <GLES2/gl2ext.h>
 #include "parkassist/Log.h"
 

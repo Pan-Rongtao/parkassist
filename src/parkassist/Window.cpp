@@ -1,7 +1,7 @@
 #include "parkassist/Window.h"
 #ifdef WIN32
 #include "GLFW/glfw3.h"
-#include <glad/glad.h>
+//#include <glad/glad.h>
 #endif
 
 using namespace nb;
@@ -95,7 +95,7 @@ Window::Window(float width, float height, const std::string &title)
 #ifdef WIN32
 	m_implWindow = glfwCreateWindow((int)width, (int)height, title.data(), 0, 0);
 	glfwMakeContextCurrent(m_implWindow);
-	gladLoadGLES2Loader((GLADloadproc)(glfwGetProcAddress));
+	//gladLoadGLES2Loader((GLADloadproc)(glfwGetProcAddress));
 	glfwSetWindowUserPointer(m_implWindow, this);
 	glfwSetWindowSizeCallback(m_implWindow, [](GLFWwindow*w, int width, int height) { static_cast<Window *>(glfwGetWindowUserPointer(w))->sizeCallback(width, height); });
 	glfwSetKeyCallback(m_implWindow, [](GLFWwindow*w, int key, int scancode, int action, int mods) { static_cast<Window *>(glfwGetWindowUserPointer(w))->keyCallback(key, scancode, action, mods);});

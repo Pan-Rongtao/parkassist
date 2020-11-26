@@ -1,6 +1,6 @@
 #include "parkassist/Scene.h"
-//#include <GLES2/gl2.h>
-#include <glad/glad.h>
+#include <GLES2/gl2.h>
+//#include <glad/glad.h>
 #include "parkassist/Log.h"
 #include<fstream>
 #include "parkassist/Bitmap.h"

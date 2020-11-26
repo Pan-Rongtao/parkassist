@@ -1,6 +1,6 @@
 ﻿#include "parkassist/Program.h"
-//#include <GLES2/gl2.h>
-#include <glad/glad.h>
+#include <GLES2/gl2.h>
+//#include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "parkassist/Log.h"
 

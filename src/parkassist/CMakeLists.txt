@@ -26,7 +26,7 @@ file(GLOB SRC_FILES "${CMAKE_SOURCE_DIR}/include/parkassist/*.h" "*.h" "*.cpp" "
 add_library(${LIB_NAME} SHARED ${SRC_FILES})
 set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME parkassist)
 if(WIN32 AND NOT MINGW)
-	target_link_libraries(${LIB_NAME} glfw3)
+	target_link_libraries(${LIB_NAME} libGLESv2 glfw3)
 elseif(UNIX AND NOT ANDROID)
 	target_link_libraries(${LIB_NAME} GLESv2)
 endif()

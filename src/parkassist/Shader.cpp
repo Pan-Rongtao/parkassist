@@ -1,6 +1,6 @@
 ﻿#include "parkassist/Shader.h"
-//#include <GLES2/gl2.h>
-#include <glad/glad.h>
+#include <GLES2/gl2.h>
+//#include <glad/glad.h>
 
 using namespace nb;
 
