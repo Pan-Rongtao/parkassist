@@ -156,6 +156,15 @@ void Window::resize(float width, float height)
 #endif
 }
 
+void Window::setVisible(const bool &visible) {
+#ifdef WIN32
+	if (visible)
+		glfwShowWindow(m_implWindow);
+	else
+		glfwHideWindow(m_implWindow);
+#endif
+}
+
 float Window::width() const
 {
 	int w = 0, h = 0;
@@ -196,6 +205,7 @@ void Window::init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_SAMPLES, 32);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 #else
 	auto ret = initDRM();
 	if (ret != 0) { printf("failed to initialize DRM\n"); return; }

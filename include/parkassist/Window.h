@@ -33,6 +33,8 @@ public:
 
 	void resize(float width, float height);
 
+	void setVisible(const bool &visible);
+
 	float width() const;
 	float height() const;
 
