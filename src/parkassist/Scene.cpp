@@ -94,16 +94,19 @@ void Scene::SaveToBMP(const char* fileName) {
 
 	//glReadBuffer(GL_FRONT);
 
-	i = m_width * channel;
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	i = viewport[2] * channel;
 	while (i % 4 != 0)
 		++i;
 
-	k = m_width * (channel - 1);
+	k = viewport[2] * (channel - 1);
 	while (k % 4 != 0)
 		++k;
 
-	PixelDataLength = i * m_height;
-	BmpDataLength = k * m_height;
+	PixelDataLength = i * viewport[3];
+	BmpDataLength = k * viewport[3];
 
 	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
@@ -113,7 +116,7 @@ void Scene::SaveToBMP(const char* fileName) {
 	if (pBmpData == 0)
 		exit(0);
 
-	pDummyFile = fopen("../pic/ground.bmp", "rb");
+	pDummyFile = fopen("../etc/CN220/ground.bmp", "rb");
 	if (pDummyFile == nullptr)
 		exit(0);
 
@@ -122,10 +125,10 @@ void Scene::SaveToBMP(const char* fileName) {
 		exit(0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
 
-	//pPixelDataªÒ»°µΩµƒ—’…´ «RGBAÀ≥–Ú≈≈¡–£¨’‚¿Ô∞¥BGR»°÷µ°£
-	for (int counter = 0; counter < m_width * m_height; counter++) {
+	//pPixelDataÔøΩÔøΩ»°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ…´ÔøΩÔøΩRGBAÀ≥ÔøΩÔøΩÔøΩÔøΩÔøΩ–£ÔøΩÔøΩÔøΩÔøΩÔ∞¥BGR»°÷µÔøΩÔøΩ
+	for (int counter = 0; counter < viewport[2] * viewport[3]; counter++) {
 		pBmpData[counter * 3 + 0] = pPixelData[counter * 4 + 2];
 		pBmpData[counter * 3 + 1] = pPixelData[counter * 4 + 1];
 		pBmpData[counter * 3 + 2] = pPixelData[counter * 4 + 0];
@@ -134,8 +137,8 @@ void Scene::SaveToBMP(const char* fileName) {
 	fread(BMP_Header, sizeof(BMP_Header), 1, pDummyFile);
 	fwrite(BMP_Header, sizeof(BMP_Header), 1, pWritingFile);
 	fseek(pWritingFile, 0x0012, SEEK_SET);
-	i = m_width;
-	j = m_height;
+	i = viewport[2];
+	j = viewport[3];
 	fwrite(&i, sizeof(i), 1, pWritingFile);
 	fwrite(&j, sizeof(j), 1, pWritingFile);
 
@@ -160,25 +163,28 @@ void Scene::SaveToFile(const std::string &fileName)
 	
 	//glReadBuffer(GL_FRONT);
 
-	i = m_width * channel;
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	i = viewport[2] * channel;
 	while (i % 4 != 0)
 		++i;
 
-	PixelDataLength = i * m_height;
+	PixelDataLength = i * viewport[3];
 	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
 		exit(0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
 
-	for (int m = 0; m < m_height / 2; m++) {
+	for (int m = 0; m < viewport[3] / 2; m++) {
 		for (int n = 0; n < i; n++) {
-			std::swap(pPixelData[i * m + n], pPixelData[i * (m_height - m - 1) + n]);
+			std::swap(pPixelData[i * m + n], pPixelData[i * (viewport[3] - m - 1) + n]);
 		}
 	}
 
-	for (int k = 0; k < m_height; k++) {
+	for (int k = 0; k < viewport[3]; k++) {
 		for (int m = 0; m < i; m++) {
 			fout << (int)pPixelData[i * k + m] << " ";
 		}
@@ -195,26 +201,29 @@ void Scene::SaveToFrameBuffer(std::string& buffer)
 	GLint PixelDataLength;
 
 	GLint i;
-	int channel = 4;	// ƒ¨»œ4Õ®µ¿
+	int channel = 4;	// ƒ¨ÔøΩÔøΩ4Õ®ÔøΩÔøΩ
 	
 	//glReadBuffer(GL_FRONT);
+	
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
 
-	i = m_width * channel; 
-	while (i % 4 != 0) //◊÷Ω⁄∂‘∆Î£¨Ã·∏ﬂ¥Ê¥¢–ß¬ 
+	i = viewport[2] * channel; 
+	while (i % 4 != 0) //ÔøΩ÷Ω⁄∂ÔøΩÔøΩÎ£¨ÔøΩÔøΩﬂ¥Ê¥¢–ßÔøΩÔøΩ
 		++i;
 
-	PixelDataLength = i * m_height;
+	PixelDataLength = i * viewport[3];
 	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
 		exit(0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
 
-	//glReadPixelsƒ√µΩµƒ ˝æ› «¥”œ¬Õ˘…œ£¨¥”◊ÛÕ˘”“°£“Ú¥À’‚¿Ô◊ˆ“ªœ¬…œœ¬µπ÷√°£
-	for (int m = 0; m < m_height / 2; m++) {
+	//glReadPixelsÔøΩ√µÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ«¥ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩœ£ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ“°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ“ªÔøΩÔøΩÔøΩÔøΩÔøΩ¬µÔøΩÔøΩ√°ÔøΩ
+	for (int m = 0; m < viewport[3] / 2; m++) {
 		for (int n = 0; n < i; n++) {
-			std::swap(pPixelData[i * m + n], pPixelData[i * (m_height - m - 1) + n]);
+			std::swap(pPixelData[i * m + n], pPixelData[i * (viewport[3] - m - 1) + n]);
 		}
 	}
 
