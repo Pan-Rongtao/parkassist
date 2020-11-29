@@ -1,4 +1,5 @@
 #include "parkassist/Window.h"
+#include "GLES2/gl2.h"
 #ifdef WIN32
 #include "GLFW/glfw3.h"
 //#include <glad/glad.h>
@@ -198,7 +199,7 @@ void Window::init()
 #ifdef WIN32
 	glfwSetErrorCallback([](int error, const char*str) { printf("error:%s\n", str); });
 	glfwInit();
-	//ртоба╫╬Дтзспп╘╣Гдтио╣╪жбglfwDestroyWindow╧ркюё╛╥етз©БмБ╡╩╩А╧ркюё╛д©г╟тщн╢ур╣╫т╜рР
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫п╘О©╫О©╫О©╫О©╫О©╫о╣О©╫О©╫О©╫glfwDestroyWindowО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫з©О©╫О©╫Б╡╩О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©г╟О©╫О©╫н╢О©╫р╣О©╫т╜О©╫О©╫
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
