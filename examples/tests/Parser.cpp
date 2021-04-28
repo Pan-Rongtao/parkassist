@@ -2,7 +2,6 @@
 #include <fstream>
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
-#include "GLES2/gl2.h"
 
 using namespace nb;
 using namespace nlohmann;

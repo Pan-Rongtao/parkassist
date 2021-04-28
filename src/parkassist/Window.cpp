@@ -1,9 +1,25 @@
 #include "parkassist/Window.h"
-#include "GLES2/gl2.h"
 #ifdef WIN32
 #include "GLFW/glfw3.h"
-//#include <glad/glad.h>
+#include <glad/glad.h>
+#else
+#include "EGL/egl.h"
+#include <GLES2/gl2.h>
+#include <cassert>
+#include<fstream>
+#include <stb_image_write.h>
+#ifdef __cplusplus
+extern "C" {
+#include "xf86drm.h"
+#include "xf86drmMode.h"
+#include "omap_drmif.h"
+#include "gbm/gbm.h"
+}
 #endif
+#endif
+
+uint16_t m_width = 0;
+uint16_t m_height = 0;
 
 using namespace nb;
 
@@ -29,6 +45,7 @@ static struct {
 
 static struct {
 	int fd;
+	struct omap_device *dev;
 	uint32_t ndisp;
 	uint32_t crtc_id[MAX_DISPLAYS];
 	uint32_t connector_id[MAX_DISPLAYS];
@@ -42,9 +59,11 @@ struct drm_fb
 {
 	struct gbm_bo *bo;
 	uint32_t fb_id;
+	struct omap_bo *omapBo;
 };
 
 struct gbm_bo *m_bo;
+struct drm_fb *fb;
 fd_set m_fds;
 
 void drm_fb_destroy_callback(struct gbm_bo *bo, void *data)
@@ -75,6 +94,13 @@ struct drm_fb * drm_fb_get_from_bo(struct gbm_bo *bo)
 	stride = gbm_bo_get_stride(bo);
 	handle = gbm_bo_get_handle(bo).u32;
 
+	uint32_t dmaFd, boName;
+    dmaFd = gbm_bo_get_fd(bo);
+    assert (dmaFd != -1);
+
+    fb->omapBo = omap_bo_from_dmabuf(drm.dev, dmaFd);
+    assert (fb->omapBo != NULL);
+
 	ret = drmModeAddFB(drm.fd, width, height, 24, 32, stride, handle, &fb->fb_id);
 	if (ret) {
 		printf("failed to create fb: %s\n", strerror(errno));
@@ -91,12 +117,15 @@ struct drm_fb * drm_fb_get_from_bo(struct gbm_bo *bo)
 
 Window::Window(float width, float height, const std::string &title)
 {
+	m_width = width;
+	m_height = height;
+
 	init();
 
 #ifdef WIN32
 	m_implWindow = glfwCreateWindow((int)width, (int)height, title.data(), 0, 0);
 	glfwMakeContextCurrent(m_implWindow);
-	//gladLoadGLES2Loader((GLADloadproc)(glfwGetProcAddress));
+	gladLoadGLES2Loader((GLADloadproc)(glfwGetProcAddress));
 	glfwSetWindowUserPointer(m_implWindow, this);
 	glfwSetWindowSizeCallback(m_implWindow, [](GLFWwindow*w, int width, int height) { static_cast<Window *>(glfwGetWindowUserPointer(w))->sizeCallback(width, height); });
 	glfwSetKeyCallback(m_implWindow, [](GLFWwindow*w, int key, int scancode, int action, int mods) { static_cast<Window *>(glfwGetWindowUserPointer(w))->keyCallback(key, scancode, action, mods);});
@@ -116,7 +145,9 @@ void Window::swapBuffers()
 	eglSwapBuffers(gl.display, gl.surface);
 
 	struct gbm_bo *next_bo = gbm_surface_lock_front_buffer(gbm.surface);
-	struct drm_fb *fb = drm_fb_get_from_bo(next_bo);
+	fb = drm_fb_get_from_bo(next_bo);
+	
+	/*
 	int waiting_for_flip = 1;
 	int ret = drmModePageFlip(drm.fd, drm.crtc_id[DISP_ID], fb->fb_id, DRM_MODE_PAGE_FLIP_EVENT, &waiting_for_flip);
 	if (ret)
@@ -142,7 +173,7 @@ void Window::swapBuffers()
 		};
 		drmHandleEvent(drm.fd, &evctx);
 	}
-
+	*/
 	/* release last buffer to render on again: */
 	gbm_surface_release_buffer(gbm.surface, m_bo);
 	m_bo = next_bo;
@@ -153,8 +184,8 @@ void Window::resize(float width, float height)
 {
 #ifdef WIN32
 	glfwSetWindowSize(m_implWindow, (int)width, (int)height);
-	glViewport(0, 0, (int)width, (int)height);
 #endif
+	glViewport(0, 0, (int)width, (int)height);
 }
 
 void Window::setVisible(const bool &visible) {
@@ -164,6 +195,13 @@ void Window::setVisible(const bool &visible) {
 	else
 		glfwHideWindow(m_implWindow);
 #endif
+}
+
+void Window::enableMultiSample(const bool& enable) {
+	if(enable)
+		glEnable(0x809D);
+	else
+		glDisable(0x809D);
 }
 
 float Window::width() const
@@ -184,6 +222,62 @@ float Window::height() const
 	return (float)h;
 }
 
+#ifndef WIN32
+void Window::saveFrameBuffer(std::string& buffer)
+{
+	uint32_t size = omap_bo_size(fb->omapBo);
+	unsigned char* pPixelData = (unsigned char*)omap_bo_map(fb->omapBo);
+
+	buffer = std::string((char*)pPixelData, size);
+	pPixelData = nullptr;
+}
+
+void Window::writePNG(const char* fileName) 
+{
+	uint32_t size = omap_bo_size(fb->omapBo);
+	unsigned char* pPixelData = (unsigned char*)omap_bo_map(fb->omapBo);
+	//convert BGRA to RGBA
+	for(int i = 0; i < size; i = i+4){
+		std::swap(pPixelData[i], pPixelData[i+2]);
+	}
+
+	stbi_write_png(fileName,
+		m_width, m_height, 4,
+		pPixelData,
+		m_width * 4);
+
+	pPixelData = nullptr;
+}
+
+void Window::saveFile(const std::string &fileName)
+{
+	static std::ofstream fout(fileName);
+	
+	int channel = 4;
+	uint32_t size = omap_bo_size(fb->omapBo);
+	unsigned char* pPixelData = (unsigned char*)omap_bo_map(fb->omapBo);
+	//convert BGRA to RGBA
+	for(int i = 0; i < size; i = i+4){
+		std::swap(pPixelData[i], pPixelData[i+2]);
+	}
+
+	GLint i = m_width * channel;
+	while (i % 4 != 0)
+		++i;
+
+	for (int k = 0; k < m_height; k++) {
+		for (int m = 0; m < i; m++) {
+			fout << (int)pPixelData[i * k + m] << " ";
+		}
+		fout << std::endl;
+	}
+	fout << std::flush;
+	fout.close();
+	pPixelData = nullptr;
+}
+
+#endif
+
 void Window::pollEvents()
 {
 #ifdef WIN32
@@ -199,13 +293,12 @@ void Window::init()
 #ifdef WIN32
 	glfwSetErrorCallback([](int error, const char*str) { printf("error:%s\n", str); });
 	glfwInit();
-	//������������Щ�����ϵ���glfwDestroyWindow���������ڿ��ⲻ�������Ŀǰ��δ�ҵ�ԭ��
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	//glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+	//glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_SAMPLES, 32);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 #else
 	auto ret = initDRM();
@@ -225,7 +318,8 @@ void Window::init()
 	m_bo = gbm_surface_lock_front_buffer(gbm.surface);
 	struct drm_fb *fb = drm_fb_get_from_bo(m_bo);
 
-	/* set mode: */
+/*
+	//set mode: 
 	int all_display = 0;
 	if (all_display) 
 	{
@@ -248,6 +342,7 @@ void Window::init()
 			return;
 		}
 	}
+*/
 #endif
 
 	bInit = true;
@@ -364,6 +459,8 @@ int Window::initDRM()
 		return -1;
 	}
 
+	drm.dev = omap_device_new(drm.fd);
+
 	resources = drmModeGetResources(drm.fd);
 	if (!resources) {
 		printf("drmModeGetResources failed: %s\n", strerror(errno));
@@ -437,11 +534,15 @@ int Window::initDRM()
 int Window::initGBM()
 {
 	gbm.dev = gbm_create_device(drm.fd);
-
 	gbm.surface = gbm_surface_create(gbm.dev,
-		drm.mode[DISP_ID]->hdisplay, drm.mode[DISP_ID]->vdisplay,
-		GBM_FORMAT_XRGB8888,
+		m_width, m_height,
+		GBM_FORMAT_ARGB8888,
 		GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+
+	// gbm.surface = gbm_surface_create(gbm.dev,
+	// 	drm.mode[DISP_ID]->hdisplay, drm.mode[DISP_ID]->vdisplay,
+	// 	GBM_FORMAT_XRGB8888,
+	// 	GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
 	if (!gbm.surface) {
 		printf("failed to create gbm surface\n");
 		return -1;

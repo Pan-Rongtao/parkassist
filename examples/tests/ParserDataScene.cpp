@@ -52,7 +52,7 @@ bool gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 		auto index = state < 0 ? -(state - halfCount + 1) : state;
 		auto polygons = parser.getDrawingState(index);
 		sc->clear();
-		sc->add(bkg);
+		//sc->add(bkg);
 		for (auto const p : polygons)
 		{
 			sc->add(p);
@@ -68,12 +68,15 @@ bool gotoState(ScenePtr sc, MeshPtr bkg, const Parser &parser, Direction d)
 
 TEST_CASE("ParserDataScene", "[ParserDataScene]")
 {
-	Window w(800, 600, "parse data from json");
+	Window w(1280, 720, "parse data from json");
+	w.setVisible(true);
+	//w.enableMultiSample(false);
+	
 	Parser parser;
 	auto projectName = getCfgProjectName();
 	parser.setDir(std::string("../etc/") + projectName);
 	if (!parser.parse())	return;
-
+	
 	auto width = parser.getContextWidth();
 	auto height = parser.getContextHeight();
 	auto bkgPicPath = std::string("../etc/") + projectName + "/" + "BKG.bmp";
@@ -90,6 +93,12 @@ TEST_CASE("ParserDataScene", "[ParserDataScene]")
 		case 263:	gotoState(sc, bkg, parser, Direction::prev);	break;
 		case 262:	gotoState(sc, bkg, parser, Direction::next);	break;
 		case 32:	sc->enableBorder(!sc->isBorderEnable());		break;
+		case 57: {
+			w.enableMultiSample(false);
+			sc->setClearColor(Color(1.0f, 0.0f, 0.0f, 0.0f));
+			sc->writePNG("D:/test.png");
+			break;
+		}
 		default:	break;
 		}
 	};

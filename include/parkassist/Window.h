@@ -12,11 +12,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
-#include "xf86drm.h"
-#include "xf86drmMode.h"
-#include "gbm/gbm.h"
-//#include "GLES2/gl2.h"
-#include "EGL/egl.h"
 #endif
 
 
@@ -35,9 +30,20 @@ public:
 
 	void setVisible(const bool &visible);
 
+	void enableMultiSample(const bool &enable);
+
 	float width() const;
 	float height() const;
 
+	#ifndef WIN32
+	//save pixels as BGRA 
+	void saveFrameBuffer(std::string& buffer);
+	//save pixels as .png
+	void writePNG(const char* fileName);
+	//save pixels as .txt
+	void saveFile(const std::string &fileName);
+	#endif
+	
 	static void pollEvents();
 
 	Event<int>	KeyEvent;

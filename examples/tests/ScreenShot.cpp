@@ -4,8 +4,8 @@
 
 using namespace nb;
 
-float windowWidth = 800.0f;
-float windowHeight = 600.0f;
+float windowWidth = 1280.0f;
+float windowHeight = 800.0f;
 std::shared_ptr<Scene> scene = std::make_shared<Scene>(windowWidth, windowHeight);
 
 TEST_CASE("ScreenShot", "[ScreenShot]")
@@ -22,15 +22,35 @@ TEST_CASE("ScreenShot", "[ScreenShot]")
 		{
 		case 262:	break;
 		case 263:	break;
-		case 32: 	break;
+		//case 32: 	break;
+		case 32:	scene->enableBorder(!scene->isBorderEnable());		break;
 		case 57: {
-			scene->SaveToBMP("D:/test.bmp");
+			//scene->SaveToFile("D:/test.txt");
+			scene->writePNG("D:/test.png");
 			break;
 		}
 		default:	break;
 		}
 	};
+	auto polygon0 = std::make_shared<Polygon>();
+	std::vector<double> side0Array0 = {
+		278.573792, 616.821106,
+		275.561951, 636.822693,
+		271.436340, 659.689148,
+	};
 
+	std::vector<double> side1Array0 =
+	{
+		240.831787, 603.254517,
+		238.002075, 621.117249,
+		233.740112, 641.869019,
+	};
+	polygon0->set(Helper::doublesToSide(side0Array0), Helper::doublesToSide(side1Array0));
+	polygon0->material = std::make_shared<ColorMaterial>(Color(94, 255, 255, 255));
+
+	scene->add(polygon0);
+
+	/*
 	//auto polygonBG = Helper::getBackground(std::string("../etc/CN220/BKG.bmp"), windowWidth, windowHeight);
 	//scene->add(polygonBG);
 
@@ -403,7 +423,7 @@ TEST_CASE("ScreenShot", "[ScreenShot]")
 	scene->add(polygon49);
 	scene->add(polygon50);
 	scene->add(polygon51);
-
+	*/
 
 	while (true)
 	{

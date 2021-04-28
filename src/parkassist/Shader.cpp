@@ -1,6 +1,9 @@
 ﻿#include "parkassist/Shader.h"
+#ifdef WIN32
+#include <glad/glad.h>
+#else
 #include <GLES2/gl2.h>
-//#include <glad/glad.h>
+#endif
 
 using namespace nb;
 

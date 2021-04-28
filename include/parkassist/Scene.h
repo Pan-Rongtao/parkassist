@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "parkassist/Shape.h"
 
 namespace nb {
@@ -9,13 +9,13 @@ public:
 	Scene(float width, float height);
 	~Scene() = default;
 
-	//Ìí¼ÓÒ»¸ö¶à±ßĞÎ
+	//æ·»åŠ ä¸€ä¸ªå¤šè¾¹å½¢
 	void add(MeshPtr mesh);
 
-	//Çå³ı
+	//æ¸…é™¤
 	void clear();
 
-	//Ö´ĞĞäÖÈ¾£¨äÖÈ¾ËùÓĞ¶à±ßĞÎ£©
+	//æ‰§è¡Œæ¸²æŸ“ï¼ˆæ¸²æŸ“æ‰€æœ‰å¤šè¾¹å½¢ï¼‰
 	void doRender();
 
 	int width() const;
@@ -25,14 +25,17 @@ public:
 	void enableBorder(bool enable);
 	bool isBorderEnable() const;
 
-	//ÑÕÉ«Êä³öµ½.bmp
-	void SaveToBMP(const char* fileName);
+	//è®¾ç½®èƒŒæ™¯è‰²
+	void setClearColor(const Color& color);
 
-	//ÑÕÉ«Êä³öµ½ÎÄ±¾ÎÄ¼ş
-	void SaveToFile(const std::string &fileName);
+	//é¢œè‰²è¾“å‡ºåˆ°.png
+	void writePNG(const char* fileName);
 
-	//ÑÕÉ«Êä³öµ½buffer£¬°´RGBAË³Ğò
-	void SaveToFrameBuffer(std::string& buffer);
+	//é¢œè‰²è¾“å‡ºåˆ°æ–‡æœ¬æ–‡ä»¶
+	void saveFile(const std::string &fileName);
+
+	//é¢œè‰²è¾“å‡ºåˆ°bufferï¼ŒæŒ‰RGBAé¡ºåº
+	void saveFrameBuffer(std::string& buffer);
 
 private:
 	void draw(const std::vector<MeshPtr> meshes);
@@ -40,8 +43,10 @@ private:
 	std::vector<MeshPtr> m_meshes;
 	std::vector<MeshPtr> m_meshesBorder;
 	bool m_enableBorder;
+	bool m_enableBlend;
 	CameraPtr m_camera;
 	int m_width, m_height;
+	Color m_clearColor;
 };
 
 using ScenePtr = std::shared_ptr<Scene>;

@@ -1,6 +1,9 @@
 ﻿#include "parkassist/Program.h"
+#ifdef WIN32
+#include <glad/glad.h>
+#else
 #include <GLES2/gl2.h>
-//#include <glad/glad.h>
+#endif
 #include <glm/gtc/type_ptr.hpp>
 #include "parkassist/Log.h"
 

@@ -1,17 +1,24 @@
 #include "parkassist/Scene.h"
+#ifdef WIN32
+#include <glad/glad.h>
+#else
 #include <GLES2/gl2.h>
-//#include <glad/glad.h>
+#endif
 #include "parkassist/Log.h"
 #include<fstream>
 #include "parkassist/Bitmap.h"
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 using namespace nb;
 
 Scene::Scene(float width, float height)
 	: m_camera(std::make_shared<Camera>())
 	, m_enableBorder(false)
+	, m_enableBlend(true)
 	, m_width(width)
 	, m_height(height)
+	, m_clearColor(0.0f, 0.0f, 0.0f, 0.0f)
 {
 	m_camera->ortho(0.0f, width, height, 0.0f, -1000.0f, 1000.0f);
 }
@@ -29,9 +36,20 @@ void Scene::clear()
 
 void Scene::doRender()
 {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+#ifdef WIN32
+	if (m_enableBlend)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+#else
+	glDisable(GL_BLEND);
+#endif
+	glClearColor(m_clearColor.red(), m_clearColor.green(), m_clearColor.blue(), m_clearColor.alpha());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (m_enableBorder)
@@ -80,79 +98,53 @@ bool Scene::isBorderEnable() const
 	return m_enableBorder;
 }
 
-#define BMP_Header_Length 54
-void Scene::SaveToBMP(const char* fileName) {
-	FILE* pDummyFile;
-	FILE* pWritingFile;
+void Scene::setClearColor(const Color& color)
+{
+	m_clearColor = color;
+}
+
+void Scene::writePNG(const char* fileName) {
+	m_enableBlend = false;
+	doRender();
+
 	GLubyte* pPixelData;
-	GLubyte* pBmpData;
-	GLubyte BMP_Header[BMP_Header_Length];
 	GLint i, j, k;
 	int channel = 4;
 	GLint PixelDataLength;
-	GLint BmpDataLength;
 
 	//glReadBuffer(GL_FRONT);
 
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
+	//GLint viewport[4];
+	//glGetIntegerv(GL_VIEWPORT, viewport);
 
-	i = viewport[2] * channel;
+	i = width() * channel;
 	while (i % 4 != 0)
 		++i;
 
-	k = viewport[2] * (channel - 1);
-	while (k % 4 != 0)
-		++k;
-
-	PixelDataLength = i * viewport[3];
-	BmpDataLength = k * viewport[3];
+	PixelDataLength = i * height();
 
 	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
 		exit(0);
 
-	pBmpData = (GLubyte*)malloc(BmpDataLength);
-	if (pBmpData == 0)
-		exit(0);
-
-	pDummyFile = fopen("../etc/CN220/ground.bmp", "rb");
-	if (pDummyFile == nullptr)
-		exit(0);
-
-	pWritingFile = fopen(fileName, "wb");
-	if (pWritingFile == nullptr)
-		exit(0);
-
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
 
-	//pPixelData��ȡ������ɫ��RGBA˳�����У����ﰴBGRȡֵ��
-	for (int counter = 0; counter < viewport[2] * viewport[3]; counter++) {
-		pBmpData[counter * 3 + 0] = pPixelData[counter * 4 + 2];
-		pBmpData[counter * 3 + 1] = pPixelData[counter * 4 + 1];
-		pBmpData[counter * 3 + 2] = pPixelData[counter * 4 + 0];
-	}
+	// Write image Y-flipped because OpenGL
+	stbi_write_png(fileName,
+		width(), height(), 4,
+		pPixelData + (width() * 4 * (height() - 1)),
+		-width() * 4);
 
-	fread(BMP_Header, sizeof(BMP_Header), 1, pDummyFile);
-	fwrite(BMP_Header, sizeof(BMP_Header), 1, pWritingFile);
-	fseek(pWritingFile, 0x0012, SEEK_SET);
-	i = viewport[2];
-	j = viewport[3];
-	fwrite(&i, sizeof(i), 1, pWritingFile);
-	fwrite(&j, sizeof(j), 1, pWritingFile);
-
-	fseek(pWritingFile, 0, SEEK_END);
-	fwrite(pBmpData, BmpDataLength, 1, pWritingFile);
-
-	fclose(pDummyFile);
-	fclose(pWritingFile);
 	free(pPixelData);
-	free(pBmpData);
+	m_enableBlend = true;
 }
 
-void Scene::SaveToFile(const std::string &fileName)
+void Scene::saveFile(const std::string &fileName)
 {
+	m_enableBlend = false;
+	doRender();
+
 	static std::ofstream fout(fileName);
 	
 	GLubyte* pPixelData;
@@ -163,28 +155,28 @@ void Scene::SaveToFile(const std::string &fileName)
 	
 	//glReadBuffer(GL_FRONT);
 
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
+	//GLint viewport[4];
+	//glGetIntegerv(GL_VIEWPORT, viewport);
 
-	i = viewport[2] * channel;
+	i = width() * channel;
 	while (i % 4 != 0)
 		++i;
 
-	PixelDataLength = i * viewport[3];
+	PixelDataLength = i * height();
 	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
 		exit(0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
 
-	for (int m = 0; m < viewport[3] / 2; m++) {
+	for (int m = 0; m < height() / 2; m++) {
 		for (int n = 0; n < i; n++) {
-			std::swap(pPixelData[i * m + n], pPixelData[i * (viewport[3] - m - 1) + n]);
+			std::swap(pPixelData[i * m + n], pPixelData[i * (height() - m - 1) + n]);
 		}
 	}
 
-	for (int k = 0; k < viewport[3]; k++) {
+	for (int k = 0; k < height(); k++) {
 		for (int m = 0; m < i; m++) {
 			fout << (int)pPixelData[i * k + m] << " ";
 		}
@@ -193,42 +185,49 @@ void Scene::SaveToFile(const std::string &fileName)
 	fout << std::flush;
 	fout.close();
 	free(pPixelData);
+
+	m_enableBlend = true;
 }
 
-void Scene::SaveToFrameBuffer(std::string& buffer)
+void Scene::saveFrameBuffer(std::string& buffer)
 {
+	m_enableBlend = false;
+	doRender();
+
 	GLubyte* pPixelData;
 	GLint PixelDataLength;
 
 	GLint i;
-	int channel = 4;	// Ĭ��4ͨ��
+	int channel = 4;
 	
 	//glReadBuffer(GL_FRONT);
 	
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
+	//GLint viewport[4];
+	//glGetIntegerv(GL_VIEWPORT, viewport);
 
-	i = viewport[2] * channel; 
-	while (i % 4 != 0) //�ֽڶ��룬��ߴ洢Ч��
+	i = width() * channel; 
+	while (i % 4 != 0)
 		++i;
 
-	PixelDataLength = i * viewport[3];
+	PixelDataLength = i * height();
 	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
 		exit(0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
 
-	//glReadPixels�õ��������Ǵ������ϣ��������ҡ����������һ�����µ��á�
-	for (int m = 0; m < viewport[3] / 2; m++) {
+	for (int m = 0; m < height() / 2; m++) {
 		for (int n = 0; n < i; n++) {
-			std::swap(pPixelData[i * m + n], pPixelData[i * (viewport[3] - m - 1) + n]);
+			std::swap(pPixelData[i * m + n], pPixelData[i * (height() - m - 1) + n]);
 		}
 	}
 
 	buffer = std::string((char*)pPixelData, PixelDataLength);
+
 	free(pPixelData);
+
+	m_enableBlend = true;
 }
 
 void Scene::draw(const std::vector<MeshPtr> meshes)

@@ -1,6 +1,9 @@
 #include "parkassist/Mesh.h"
+#ifdef WIN32
+#include <glad/glad.h>
+#else
 #include <GLES2/gl2.h>
-//#include <glad/glad.h>
+#endif
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtc/matrix_inverse.hpp>

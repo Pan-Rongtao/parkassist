@@ -14,7 +14,7 @@
 # 1. Project Name
 
 project(parkassist)
-
+ 
 # 2. Project Env (Include/Lib Path, C/CXX/LD FLAGS)
 
 # 3. Project Build
@@ -24,11 +24,11 @@ set(LIB_NAME "parkassist")
 file(GLOB SRC_FILES "${CMAKE_SOURCE_DIR}/include/parkassist/*.h" "*.h" "*.cpp" "*.c" "${CMAKE_SOURCE_DIR}/include/*.h")
 
 add_library(${LIB_NAME} SHARED ${SRC_FILES})
-set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME parkassist)
+set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME traj_render)
 if(WIN32 AND NOT MINGW)
-	target_link_libraries(${LIB_NAME} libGLESv2 glfw3)
+	target_link_libraries(${LIB_NAME} glfw3)
 elseif(UNIX AND NOT ANDROID)
-	target_link_libraries(${LIB_NAME} GLESv2)
+	target_link_libraries(${LIB_NAME} GLESv2 libdrm_omap.so)
 endif()
 
 # 4. Project Install
